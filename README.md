@@ -1,2 +1,2 @@
 # MediCare-
-Web app for managing and organizing hospital staff
+Web app for managing and organizing hospital staff.
