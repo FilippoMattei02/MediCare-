@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medicare - Home</title>
+    <link rel="stylesheet" type="text/css" href="../css/home.css">
+</head>
+<body>
+    <header>
+        <h1>Medicare</h1>
+    </header>
+    <!-- Contenitore per i bottoni e la tabella -->
+    <div class="container">
+        <div class="btn-container">
+            <button class="btn">Calendar</button>
+            <button class="btn">Help</button>
+        </div>
+        <div class="table-container">
+            <table id="infoTable" class="display hover">
+                <!-- Intestazione della tabella -->
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Date</th>
+                        <th>Points</th>
+                        <th>Role</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <!-- Corpo della tabella -->
+                <tbody>
+                    <!-- Le righe della tabella verranno aggiunte tramite JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="ask-coverage">
+        <button class="btn">Ask Coverage</button>
+    </div>
+    <script src="../javascript/home_table.js"></script>
+    <script>
+        var helpButton = document.querySelector('.btn-container .btn:nth-child(2)');
+
+        // Aggiungi un gestore di eventi per il clic sul bottone "Help"
+        helpButton.addEventListener('click', function() {
+            // Reindirizza l'utente alla pagina di help
+            window.location.href = "holiday.html"; // Sostituisci "help.html" con il percorso corretto della tua pagina di help
+        });
+    </script>
+        
+</body>
+</html>
