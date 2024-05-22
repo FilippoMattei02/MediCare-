@@ -1,19 +1,18 @@
 const express = require('express');
+const router = express.Router();
+
 const jwt = require('jsonwebtoken');
-const bodyParser = require('body-parser');
+//const bodyParser = require('body-parser');
 const bcrypt = require('bcryptjs');
-const cors = require('cors');
-const mongoose = require('mongoose');
 const crypto = require('crypto');
 const User   = require('./models/user');
 require('dotenv').config();
 
-const app = express();
 
-app.use(bodyParser.json());
-app.use(cors());
 
-app.post('/auth', async (req, res) => {
+
+
+router.post('', async (req, res) => {
     if (!req.body || !req.body.username || !req.body.password) {
         return res.status(400).json({ error: 'Username e password sono richiesti' });
     }
@@ -51,7 +50,7 @@ app.post('/auth', async (req, res) => {
     }
 });
 
-app.post('/readUsernameFromToken', (req, res) => {
+router.post('/readUsernameFromToken', (req, res) => {
     const token = req.body.token;
 
     // Verifica se il token è presente nei dati della richiesta
@@ -65,14 +64,14 @@ app.post('/readUsernameFromToken', (req, res) => {
 				message: 'Failed to authenticate token.'
 			});		
 		} else {
-            const username = decoded.username;
+            const username = decoded.email;
             console.log('username :', username);
 			return res.status(200).send({
-				message: 'success'
-			});		
+				message: username
+			});
 		}
 	});
 
 });
 
-module.exports = app;
+module.exports = router;
