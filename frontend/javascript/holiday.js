@@ -23,7 +23,7 @@ function setCalendar() {
 
     // Verifica se il token è presente
         console.log('prova');
-            fetch('http://localhost:3050/auth/readUsernameFromToken', {
+            fetch('https://medicare-p67f.onrender.com/auth/readUsernameFromToken', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -51,7 +51,7 @@ function setCalendar() {
                     }
                 }*/
 				let id = data.message;
-				fetch(`http://localhost:3050/holiday/${id}`)
+				fetch(`https://medicare-p67f.onrender.com/holiday/${id}`)
 				.then(response => {
 					if (!response.ok) {
 						throw new Error('Errore durante la richiesta dei dati dell\'impiegato: ' + response.status);
@@ -116,7 +116,7 @@ function addEventButton() {
 	const currentToken = localStorage.getItem('token')
 	if (date && title) {
 
-		fetch('http://localhost:3050/auth/readUsernameFromToken', {
+		fetch('https://medicare-p67f.onrender.com/auth/readUsernameFromToken', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -133,7 +133,7 @@ function addEventButton() {
                 console.log("Data message", data.message);
 
 				let id = data.message;
-				fetch(`http://localhost:3050/holiday/${id}`, {
+				fetch(`https://medicare-p67f.onrender.com/holiday/${id}`, {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json'

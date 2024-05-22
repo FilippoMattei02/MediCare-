@@ -18,7 +18,7 @@ function login() {
     }
 
     // Chiama le API usando POST per il login
-    fetch('http://localhost:3050/auth', {
+    fetch('https://medicare-p67f.onrender.com/auth', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
