@@ -9,7 +9,7 @@ const swaggerDefinition = {
   },
   servers: [
     {
-      url: 'http://localhost:3050',
+      url: 'http:///medicare-p67f.onrender.com',
       description: 'Development server',
     },
   ],
