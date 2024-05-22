@@ -10,7 +10,7 @@ const swaggerDefinition = {
   },
   servers: [
     {
-      url: 'http://medicare-p67f.onrender.com',
+      url: 'https://medicare-p67f.onrender.com',
       description: 'Development server',
     },
   ]
