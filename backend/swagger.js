@@ -10,11 +10,7 @@ const swaggerDefinition = {
   },
   servers: [
     {
-<<<<<<< HEAD
-      url: 'http://medicare-p67f.onrender.com',
-=======
       url: 'https://medicare-p67f.onrender.com',
->>>>>>> main
       description: 'Development server',
     },
   ]
@@ -22,11 +18,7 @@ const swaggerDefinition = {
 
 const options = {
   swaggerDefinition,
-<<<<<<< HEAD
-  apis: ['./holidays.js'], 
-=======
   apis: ['./holidays.js'],
->>>>>>> main
 };
 
 const swaggerSpec = swaggerJSDoc(options);
