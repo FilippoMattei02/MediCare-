@@ -19,12 +19,7 @@ const authentication = require('./authentication');
 const holiday=require('./holidays');
 const Holidays = require('./models/holidays');
 
-const swaggerOptions = {
-    explorer: false,
-    swaggerOptions: {
-        validatorUrl: null
-    }
-};
+
 
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./swagger'); 
@@ -37,7 +32,7 @@ app.use(cors());
 
 
 // Serve the Swagger UI documentation
-app.use('/api/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec,swaggerOptions));
+app.use('/api/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use('/auth', authentication);
 
