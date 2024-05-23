@@ -18,7 +18,7 @@ const swaggerDefinition = {
 
 const options = {
   swaggerDefinition,
-  apis: ['./holidays.js'],
+  apis: ['./holidays.js', './employees.js'],
 };
 
 const swaggerSpec = swaggerJSDoc(options);
