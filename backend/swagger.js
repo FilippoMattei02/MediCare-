@@ -1,4 +1,5 @@
 const swaggerJSDoc = require('swagger-jsdoc');
+const holidays=require('./holidays');
 
 const swaggerDefinition = {
   openapi: '3.0.0',
@@ -9,15 +10,23 @@ const swaggerDefinition = {
   },
   servers: [
     {
+<<<<<<< HEAD
       url: 'http://medicare-p67f.onrender.com',
+=======
+      url: 'https://medicare-p67f.onrender.com',
+>>>>>>> main
       description: 'Development server',
     },
-  ],
+  ]
 };
 
 const options = {
   swaggerDefinition,
+<<<<<<< HEAD
   apis: ['./holidays.js'], 
+=======
+  apis: ['./holidays.js'],
+>>>>>>> main
 };
 
 const swaggerSpec = swaggerJSDoc(options);
