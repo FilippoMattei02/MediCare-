@@ -32,7 +32,7 @@ app.use(cors());
 
 
 // Serve the Swagger UI documentation
-app.use('/api/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use('/auth', authentication);
 
