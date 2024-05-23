@@ -17,7 +17,7 @@ const swaggerDefinition = {
 
 const options = {
   swaggerDefinition,
-  apis: ['./holidays.js'], // Specifica il percorso ai tuoi file di route
+  apis: ['./holidays.js'], 
 };
 
 const swaggerSpec = swaggerJSDoc(options);
