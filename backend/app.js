@@ -50,7 +50,7 @@ app.use('/auth', authentication);
 
 app.use('/holiday',holiday);
 
-app.use('./employees', employees);
+app.use('/employees', employees);
 
 app.listen(port, () => {
     console.log(`Server lisening to port: ${port}`);

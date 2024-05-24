@@ -3,44 +3,6 @@ const router = express.Router();
 const Employee = require('./models/employee');
 require('dotenv').config();
 
-/**
- * @openapi
- * /employee/{employeeId}:
- *   get:
- *     summary: Get an employee by ID
- *     tags: [Employee]
- *     parameters:
- *       - in: path
- *         name: employeeId
- *         schema:
- *           type: string
- *         required: true
- *         description: The employee ID
- *     responses:
- *       200:
- *         description: The employee description by ID
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Employee'
- *       404:
- *         description: Employee not found
- *       500:
- *         description: Internal server error
- */
-
-
-router.get('/:employeeId', async (req, res) => {
-    try {
-        const employee = await Employee.findById(req.params.employeeId);
-        if (!employee) {
-            return res.status(404).json({ error: 'Employee not found' });
-        }
-        res.status(200).json(employee);
-    } catch (error) {
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
 
 /**
  * @openapi
@@ -69,10 +31,10 @@ router.get('/:employeeId', async (req, res) => {
  * */
 
 
-router.get('/username/:username', async (req, res) => {
+router.get('/:username', async (req, res) => {
     console.log(`Received GET request for employee username: ${req.params.username}`);
     try {
-        const employee = await Employee.findOne({ username: req.params.username });
+        const employee = await Employee.findOne({ username: req.params.username }).exec();
         if (!employee) {
             console.log('Employee not found');
             return res.status(404).json({ error: 'Employee not found' });
@@ -121,7 +83,7 @@ router.get('/username/:username', async (req, res) => {
 router.post('/:employeeId/work', async (req, res) => {
     const { work } = req.body;
     try {
-        const employee = await Employee.findById(req.params.employeeId);
+        const employee = await Employee.findOne({username: req.params.employeeId});
         if (!employee) {
             return res.status(404).json({ error: 'Employee not found' });
         }
