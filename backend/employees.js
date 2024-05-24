@@ -42,6 +42,50 @@ router.get('/:employeeId', async (req, res) => {
     }
 });
 
+/**
+ * @openapi
+ * /employee/username/{username}:
+ *   get:
+ *     summary: Get an employee by username
+ *     tags: [Employee]
+ *     parameters:
+ *       - in: path
+ *         name: username
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The employee username
+ *     responses:
+ *       200:
+ *         description: The employee description by username
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Employee'
+ *       404:
+ *         description: Employee not found
+ *       500:
+ *         description: Internal server error
+ * */
+
+
+router.get('/username/:username', async (req, res) => {
+    console.log(`Received GET request for employee username: ${req.params.username}`);
+    try {
+        const employee = await Employee.findOne({ username: req.params.username });
+        if (!employee) {
+            console.log('Employee not found');
+            return res.status(404).json({ error: 'Employee not found' });
+        }
+        res.status(200).json(employee);
+    } catch (error) {
+        console.error('Internal server error', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+
+
 
 
 /**
