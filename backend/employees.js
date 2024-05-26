@@ -6,7 +6,7 @@ require('dotenv').config();
 
 /**
  * @openapi
- * /employee/username/{username}:
+ * /{username}:
  *   get:
  *     summary: Get an employee by username
  *     tags: [Employee]
@@ -52,9 +52,9 @@ router.get('/:username', async (req, res) => {
 
 /**
  * @openapi
- * /employee/{employeeId}/work:
+ * /employee/{username}/work:
  *   post:
- *     summary: Add or update work schedule for an employee
+ *     summary: Modify work schedule for an employee
  *     tags: [Employee]
  *     parameters:
  *       - in: path
@@ -80,13 +80,29 @@ router.get('/:username', async (req, res) => {
  *         description: Internal server error
  */
 
-router.post('/:employeeId/work', async (req, res) => {
+router.post('/:username/work', async (req, res) => {
     const { work } = req.body;
+
+    if(!Array.isArray(work)) {
+        return res.status(400).json({error: 'Work schedule must be an array'});
+    }
+
     try {
-        const employee = await Employee.findOne({username: req.params.employeeId});
+        const employee = await Employee.findOne({username: req.params.username}).exec();
         if (!employee) {
             return res.status(404).json({ error: 'Employee not found' });
         }
+
+        //Check if date already exists
+        for(let newWork of work) {
+            for(let existingWork of employee.work) {
+                if(newWork.day === existingWork.day && newWork.start === existingWork.start && newWork.end === existingWork.end) {
+                    return res.status(409).json({ error: 'Conflict: Duplicate work schedule' });
+                }
+            }
+        }
+
+        //Update work schedule
         employee.work = work;
         await employee.save();
         res.status(201).json({ message: 'Work schedule updated successfully' });
@@ -94,5 +110,174 @@ router.post('/:employeeId/work', async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
+
+// Delete employee shift
+
+/**
+ * @openapi
+ * /employee/{username}/work:
+ *   delete:
+ *     summary: Delete a specific work shift for an employee
+ *     description: Delete a specific work shift for an employee based on the provided day, start, and end times.
+ *     parameters:
+ *       - name: username
+ *         in: path
+ *         required: true
+ *         description: The employee's username
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               day:
+ *                 type: string
+ *                 format: date-time
+ *                 description: The day of the work shift
+ *               start:
+ *                 type: integer
+ *                 description: The start time of the work shift (24-hour format)
+ *               end:
+ *                 type: integer
+ *                 description: The end time of the work shift (24-hour format)
+ *     responses:
+ *       200:
+ *         description: Shift deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 work:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/WorkShift'
+ *       400:
+ *         description: Missing day, start, or end parameters
+ *       404:
+ *         description: Employee or shift not found
+ *       500:
+ *         description: Internal server error
+ */
+router.delete('/:username/work', async (req, res) => {
+    const { day, start, end } = req.body;
+
+    if (!day || start == null || end == null) {
+        return res.status(400).json({ error: 'Day, start, and end are required' });
+    }
+
+    try {
+        const employee = await Employee.findOne({ username: req.params.username }).exec();
+        if (!employee) {
+            return res.status(404).json({ error: 'Employee not found' });
+        }
+
+        const initialLength = employee.work.length;
+        employee.work = employee.work.filter(shift => 
+            !(new Date(shift.day).toISOString() === new Date(day).toISOString() && shift.start === start && shift.end === end)
+        );
+
+        if (employee.work.length === initialLength) {
+            return res.status(404).json({ error: 'Shift not found' });
+        }
+
+        await employee.save();
+        res.status(200).json({ message: 'Shift deleted successfully', work: employee.work });
+    } catch (error) {
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+
+// Add a new work shift for an employee
+
+/**
+ * @openapi
+ * /employee/{username}/work/add:
+ *   post:
+ *     summary: Add a new work shift for an employee
+ *     description: Add a new work shift for an employee, ensuring no duplicate shifts are added.
+ *     parameters:
+ *       - name: username
+ *         in: path
+ *         required: true
+ *         description: The employee's username
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               day:
+ *                 type: string
+ *                 format: date-time
+ *                 description: The day of the work shift
+ *               start:
+ *                 type: integer
+ *                 description: The start time of the work shift (24-hour format)
+ *               end:
+ *                 type: integer
+ *                 description: The end time of the work shift (24-hour format)
+ *     responses:
+ *       201:
+ *         description: Shift added successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 work:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/WorkShift'
+ *       400:
+ *         description: Missing day, start, or end parameters
+ *       404:
+ *         description: Employee not found
+ *       409:
+ *         description: Conflict - Duplicate work schedule
+ *       500:
+ *         description: Internal server error
+ */
+
+router.post('/:username/work/add', async (req, res) => {
+    const { day, start, end } = req.body;
+
+    if (!day || start == null || end == null) {
+        return res.status(400).json({ error: 'Day, start, and end are required' });
+    }
+
+    try {
+        const employee = await Employee.findOne({ username: req.params.username }).exec();
+        if (!employee) {
+            return res.status(404).json({ error: 'Employee not found' });
+        }
+
+        // Check if the shift already exists
+        for (let existingWork of employee.work) {
+            if (existingWork.day === day && existingWork.start === start && existingWork.end === end) {
+                return res.status(409).json({ error: 'Conflict: Duplicate work schedule' });
+            }
+        }
+
+        // Add the new shift
+        employee.work.push({ day, start, end });
+        await employee.save();
+        res.status(201).json({ message: 'Shift added successfully', work: employee.work });
+    } catch (error) {
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 
 module.exports = router;

@@ -36,20 +36,12 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use('/auth', authentication);
 
-
-
-
-
-
-
-
 //If you want you can make a middleware for authentication 
 /*
 *app.use('/holiday', tokenChecker);
 */
 
 app.use('/holiday',holiday);
-
 app.use('/employees', employees);
 
 app.listen(port, () => {
