@@ -13,7 +13,7 @@ require('dotenv').config();
 
 /**
  * @openapi
- * /:
+ * /auth:
  *   post:
  *     description: Authenticates a user and returns a JWT token
  *     requestBody:
@@ -110,7 +110,7 @@ router.post('', async (req, res) => {
 
 /**
  * @openapi
- * /tokens:
+ * /auth/tokens:
  *   post:
  *     description: Verifies a JWT token and returns the associated username
  *     requestBody:
