@@ -273,7 +273,7 @@ router.delete('/:username/work', async (req, res) => {
  *       404:
  *         description: Employee not found
  *       409:
- *         description: Conflict: Duplicate work schedule
+ *         description: Conflict, Duplicate work schedule
  *       500:
  *         description: Internal server error
  */
@@ -293,7 +293,7 @@ router.post('/:username/work/add', async (req, res) => {
         // Check if the shift already exists
         for (let existingWork of employee.work) {
             if (existingWork.day === day && existingWork.start === start && existingWork.end === end) {
-                return res.status(409).json({ error: 'Conflict: Duplicate work schedule' });
+                return res.status(409).json({ error: 'Conflict, Duplicate work schedule' });
             }
         }
 
