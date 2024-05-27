@@ -3,7 +3,6 @@ const router = express.Router();
 const Employee = require('./models/employee');
 require('dotenv').config();
 
-
 /**
  * @openapi
  * /{username}:
@@ -23,14 +22,28 @@ require('dotenv').config();
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Employee'
+ *               type: object
+ *               properties:
+ *                 username:
+ *                   type: string
+ *                 role:
+ *                   type: string
+ *                 work:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       day:
+ *                         type: string
+ *                       start:
+ *                         type: integer
+ *                       end:
+ *                         type: integer
  *       404:
  *         description: Employee not found
  *       500:
  *         description: Internal server error
- * */
-
-
+ */
 router.get('/:username', async (req, res) => {
     console.log(`Received GET request for employee username: ${req.params.username}`);
     try {
@@ -46,10 +59,6 @@ router.get('/:username', async (req, res) => {
     }
 });
 
-
-
-
-
 /**
  * @openapi
  * /employee/{username}/work:
@@ -58,11 +67,11 @@ router.get('/:username', async (req, res) => {
  *     tags: [Employee]
  *     parameters:
  *       - in: path
- *         name: employeeId
+ *         name: username
  *         schema:
  *           type: string
  *         required: true
- *         description: The employee ID
+ *         description: The employee username
  *     requestBody:
  *       required: true
  *       content:
@@ -70,39 +79,49 @@ router.get('/:username', async (req, res) => {
  *           schema:
  *             type: array
  *             items:
- *               $ref: '#/components/schemas/Work'
+ *               type: object
+ *               properties:
+ *                 day:
+ *                   type: string
+ *                 start:
+ *                   type: integer
+ *                 end:
+ *                   type: integer
  *     responses:
  *       201:
  *         description: Work schedule updated successfully
+ *       400:
+ *         description: Work schedule must be an array
  *       404:
  *         description: Employee not found
+ *       409:
+ *         description: Conflict: Duplicate work schedule
  *       500:
  *         description: Internal server error
  */
-
 router.post('/:username/work', async (req, res) => {
     const { work } = req.body;
 
-    if(!Array.isArray(work)) {
-        return res.status(400).json({error: 'Work schedule must be an array'});
+    if (!Array.isArray(work)) {
+        return res.status(400).json({ error: 'Work schedule must be an array' });
     }
 
     try {
-        const employee = await Employee.findOne({username: req.params.username}).exec();
+        const employee = await Employee.findOne({ username: req.params.username }).exec();
         if (!employee) {
             return res.status(404).json({ error: 'Employee not found' });
         }
 
-        //Check if date already exists
-        for(let newWork of work) {
-            for(let existingWork of employee.work) {
-                if(newWork.day === existingWork.day && newWork.start === existingWork.start && newWork.end === existingWork.end) {
+        // Check if date already exists
+        for (let newWork of work) {
+            for (let existingWork of employee.work) {
+                if (newWork.day === existingWork.day && newWork.start === existingWork.start && newWork.end === existingWork.end) {
                     return res.status(409).json({ error: 'Conflict: Duplicate work schedule' });
                 }
             }
         }
 
-        //Update work schedule
+        // Update work schedule
         employee.work = work;
         await employee.save();
         res.status(201).json({ message: 'Work schedule updated successfully' });
@@ -111,21 +130,19 @@ router.post('/:username/work', async (req, res) => {
     }
 });
 
-// Delete employee shift
-
 /**
  * @openapi
  * /employee/{username}/work:
  *   delete:
  *     summary: Delete a specific work shift for an employee
- *     description: Delete a specific work shift for an employee based on the provided day, start, and end times.
+ *     tags: [Employee]
  *     parameters:
- *       - name: username
- *         in: path
- *         required: true
- *         description: The employee's username
+ *       - in: path
+ *         name: username
  *         schema:
  *           type: string
+ *         required: true
+ *         description: The employee username
  *     requestBody:
  *       required: true
  *       content:
@@ -135,7 +152,7 @@ router.post('/:username/work', async (req, res) => {
  *             properties:
  *               day:
  *                 type: string
- *                 format: date-time
+ *                 format: date
  *                 description: The day of the work shift
  *               start:
  *                 type: integer
@@ -156,7 +173,14 @@ router.post('/:username/work', async (req, res) => {
  *                 work:
  *                   type: array
  *                   items:
- *                     $ref: '#/components/schemas/WorkShift'
+ *                     type: object
+ *                     properties:
+ *                       day:
+ *                         type: string
+ *                       start:
+ *                         type: integer
+ *                       end:
+ *                         type: integer
  *       400:
  *         description: Missing day, start, or end parameters
  *       404:
@@ -178,7 +202,7 @@ router.delete('/:username/work', async (req, res) => {
         }
 
         const initialLength = employee.work.length;
-        employee.work = employee.work.filter(shift => 
+        employee.work = employee.work.filter(shift =>
             !(new Date(shift.day).toISOString() === new Date(day).toISOString() && shift.start === start && shift.end === end)
         );
 
@@ -193,22 +217,19 @@ router.delete('/:username/work', async (req, res) => {
     }
 });
 
-
-// Add a new work shift for an employee
-
 /**
  * @openapi
  * /employee/{username}/work/add:
  *   post:
  *     summary: Add a new work shift for an employee
- *     description: Add a new work shift for an employee, ensuring no duplicate shifts are added.
+ *     tags: [Employee]
  *     parameters:
- *       - name: username
- *         in: path
- *         required: true
- *         description: The employee's username
+ *       - in: path
+ *         name: username
  *         schema:
  *           type: string
+ *         required: true
+ *         description: The employee username
  *     requestBody:
  *       required: true
  *       content:
@@ -218,7 +239,7 @@ router.delete('/:username/work', async (req, res) => {
  *             properties:
  *               day:
  *                 type: string
- *                 format: date-time
+ *                 format: date
  *                 description: The day of the work shift
  *               start:
  *                 type: integer
@@ -239,17 +260,23 @@ router.delete('/:username/work', async (req, res) => {
  *                 work:
  *                   type: array
  *                   items:
- *                     $ref: '#/components/schemas/WorkShift'
+ *                     type: object
+ *                     properties:
+ *                       day:
+ *                         type: string
+ *                       start:
+ *                         type: integer
+ *                       end:
+ *                         type: integer
  *       400:
  *         description: Missing day, start, or end parameters
  *       404:
  *         description: Employee not found
  *       409:
- *         description: Conflict - Duplicate work schedule
+ *         description: Conflict: Duplicate work schedule
  *       500:
  *         description: Internal server error
  */
-
 router.post('/:username/work/add', async (req, res) => {
     const { day, start, end } = req.body;
 
@@ -278,6 +305,5 @@ router.post('/:username/work/add', async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
-
 
 module.exports = router;
