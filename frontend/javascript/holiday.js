@@ -23,7 +23,7 @@ function setCalendar() {
 
     // Verifica se il token è presente
         console.log('prova');
-            fetch('https://medicare-p67f.onrender.com/auth/readUsernameFromToken', {
+            fetch('https://medicare-p67f.onrender.com/auth/tokens', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -116,7 +116,7 @@ function addEventButton() {
 	const currentToken = localStorage.getItem('token')
 	if (date && title) {
 
-		fetch('https://medicare-p67f.onrender.com/auth/readUsernameFromToken', {
+		fetch('https://medicare-p67f.onrender.com/auth/tokens', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
