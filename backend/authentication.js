@@ -16,6 +16,7 @@ require('dotenv').config();
  * /auth:
  *   post:
  *     description: Authenticates a user and returns a JWT token
+ *     tags: [Authentication]
  *     requestBody:
  *       required: true
  *       content:
@@ -113,6 +114,7 @@ router.post('', async (req, res) => {
  * /auth/tokens:
  *   post:
  *     description: Verifies a JWT token and returns the associated username
+ *     tags: [Authentication]
  *     requestBody:
  *       required: true
  *       content:
