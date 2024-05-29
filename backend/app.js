@@ -23,25 +23,17 @@ const employees = require('./employees');
 
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./swagger'); 
-const port = 3050;
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // Abilita CORS per tutte le richieste
 app.use(cors());
 
-
 // Serve the Swagger UI documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use('/auth', authentication);
-
-
-
-
-
-
-
 
 //If you want you can make a middleware for authentication 
 /*
@@ -52,7 +44,5 @@ app.use('/holiday',holiday);
 
 app.use('/employees', employees);
 
-app.listen(port, () => {
-    console.log(`Server lisening to port: ${port}`);
-});
+module.exports = app;
 
