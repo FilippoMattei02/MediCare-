@@ -61,7 +61,7 @@ router.get('/:username', async (req, res) => {
 
 /**
  * @openapi
- * /employee/{username}/work:
+ * /{username}/work:
  *   post:
  *     summary: Modify work schedule for an employee
  *     tags: [Employee]
@@ -95,7 +95,7 @@ router.get('/:username', async (req, res) => {
  *       404:
  *         description: Employee not found
  *       409:
- *         description: Conflict: Duplicate work schedule
+ *         description: Conflict, duplicate work schedule
  *       500:
  *         description: Internal server error
  */
@@ -116,7 +116,7 @@ router.post('/:username/work', async (req, res) => {
         for (let newWork of work) {
             for (let existingWork of employee.work) {
                 if (newWork.day === existingWork.day && newWork.start === existingWork.start && newWork.end === existingWork.end) {
-                    return res.status(409).json({ error: 'Conflict: Duplicate work schedule' });
+                    return res.status(409).json({ error: 'Conflict, duplicate work schedule' });
                 }
             }
         }
@@ -132,7 +132,7 @@ router.post('/:username/work', async (req, res) => {
 
 /**
  * @openapi
- * /employee/{username}/work:
+ * /{username}/work:
  *   delete:
  *     summary: Delete a specific work shift for an employee
  *     tags: [Employee]
@@ -273,7 +273,7 @@ router.delete('/:username/work', async (req, res) => {
  *       404:
  *         description: Employee not found
  *       409:
- *         description: Conflict: Duplicate work schedule
+ *         description: Conflict, Duplicate work schedule
  *       500:
  *         description: Internal server error
  */
@@ -293,7 +293,7 @@ router.post('/:username/work/add', async (req, res) => {
         // Check if the shift already exists
         for (let existingWork of employee.work) {
             if (existingWork.day === day && existingWork.start === start && existingWork.end === end) {
-                return res.status(409).json({ error: 'Conflict: Duplicate work schedule' });
+                return res.status(409).json({ error: 'Conflict, Duplicate work schedule' });
             }
         }
 
