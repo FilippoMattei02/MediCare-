@@ -55,12 +55,12 @@ describe('Holiday API', () => {
     const res = await request(app).get('/holiday/tester/2024-12-25'); 
     expect(res.statusCode).toBe(200);
     expect(res.body).toBeInstanceOf(Array);
-    expect(res.body[0]).toHaveProperty('Users', 'testuser');
+    expect(res.body[0]).toHaveProperty('Users', 'test.user@apss.it');
   });
 
   test('POST /holiday/listOfDates/:id - Add a list of holidays for an employee', async () => {
     const res = await request(app)
-      .post('/holiday/listOfDates/testuser')
+      .post('/holiday/listOfDates/test.user@apss.it')
       .send({ date: ['2024-12-26'] });
     expect(res.statusCode).toBe(201);
     expect(res.body).toHaveProperty('message', 'holiday added');
@@ -69,7 +69,7 @@ describe('Holiday API', () => {
 
   test('POST /holiday/:id - Add a holiday for an employee', async () => {
     const res = await request(app)
-      .post('/holiday/testuser')
+      .post('/holiday/test.user@apss.it')
       .send({ date: '2024-12-27' });
     expect(res.statusCode).toBe(201);
     expect(res.body).toHaveProperty('message', 'holiday added');
@@ -78,7 +78,7 @@ describe('Holiday API', () => {
 
   test('DELETE /holiday/:id - Remove a holiday for an employee', async () => {
     const res = await request(app)
-      .delete('/holiday/testuser')
+      .delete('/holiday/test.user@apss.it')
       .send({ date: '2024-12-25' });
     expect(res.statusCode).toBe(200);
     expect(res.body).toHaveProperty('message', 'date removed');
@@ -94,7 +94,7 @@ describe('Holiday API', () => {
 
   test('POST /holiday/listOfDates/:id - Missing date', async () => {
     const res = await request(app)
-      .post('/holiday/listOfDates/testuser')
+      .post('/holiday/listOfDates/test.user@apss.it')
       .send({});
     expect(res.statusCode).toBe(400);
     expect(res.body).toHaveProperty('error', 'missing date ');
@@ -102,7 +102,7 @@ describe('Holiday API', () => {
 
   test('POST /holiday/:id - Holiday already set', async () => {
     const res = await request(app)
-      .post('/holiday/testuser')
+      .post('/holiday/test.user@apss.it')
       .send({ date: '2024-12-26' });
     expect(res.statusCode).toBe(400);
     expect(res.body).toHaveProperty('error', 'holiday already set');
@@ -110,7 +110,7 @@ describe('Holiday API', () => {
 
   test('DELETE /holiday/:id - Date not present', async () => {
     const res = await request(app)
-      .delete('/holiday/testuser')
+      .delete('/holiday/test.user@apss.it')
       .send({ date: '2024-12-28' });
     expect(res.statusCode).toBe(400);
     expect(res.body).toHaveProperty('error', 'date not present');

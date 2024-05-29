@@ -14,9 +14,10 @@ function dateToString(date){
 
 /**
  * @openapi
- * /{id}:
+ * /holiday/{id}:
  *   get:
  *     description: Get holidays list for an employee
+ *     tags: [Holidays]
  *     parameters:
  *       - name: id
  *         in: path
@@ -48,17 +49,27 @@ router.get('/:id', async (req, res) => {
         return res.status(404).json({ error: 'user not found' });
     }
     let holidays = await holiday.findOne({ employee: id }).exec();
+    if(Array.isArray(holidays.holidays_list)){
+        var holidaysString= [];
+        holidays.holidays_list.forEach((element)=>{
+            holidaysString.push(dateToString(element));
+        });
+    }else{
+        
+        var holidaysString=dateToString(holiday.holidays_list);
+    }
     res.status(200).json({
         employee: id,
-        holidays_list: holidays.holidays_list
+        holidays_list: holidaysString
     });
 });
 
 /**
  * @openapi
- * /{role}/{date}:
+ * /holiday/{role}/{date}:
  *   get:
  *     description: Get employees by role and holiday date
+ *     tags: [Holidays]
  *     parameters:
  *       - name: role
  *         in: path
@@ -125,9 +136,10 @@ router.get('/:role/:date', async (req, res) => {
 
 /**
  * @openapi
- * /listOfDates/{id}:
+ * /holiday/listOfDates/{id}:
  *   post:
  *     description: Add a list of holidays for an employee
+ *     tags: [Holidays]
  *     parameters:
  *       - name: id
  *         in: path
@@ -164,23 +176,27 @@ router.post('/listOfDates/:id', async (req, res) => {
     if (!req.body.date) {
         return res.status(400).json({ error: 'missing date ' });
     }
-     
+    if(!(Array.isArray(req.body.date))){
+        return res.status(400).json({ error: 'Not given an array' });
+    }
+    let value=false;
     const date = req.body.date;
     let newDate = [];
     date.forEach((element) => {
         let dates = new Date(element);
         newDate.push(dates);
         if ((element !== dateToString(dates))) {
-            return res.status(400).json({ error: 'Date field is not of type yyyy-mm-dd' });
+            value=true;
         }
     });
+    if(value==true)return res.status(400).json({ error: 'Date field is not of type yyyy-mm-dd' });
     
     let holidays = await holiday.findOne({ employee: id }).exec();
     let addedHolidays = [];
     newDate.forEach((element) => {
         if (holidays.holidays_list == undefined) {
             holidays.holidays_list.push(element);
-            addedHolidays.push(element);
+            addedHolidays.push(dateToString(element));
         } else {
             var value = false;
             holidays.holidays_list.forEach(date => {
@@ -188,7 +204,7 @@ router.post('/listOfDates/:id', async (req, res) => {
             });
             if (value == false) {
                 holidays.holidays_list.push(element);
-                addedHolidays.push(element);
+                addedHolidays.push(dateToString(element));
             }
         }
     });
@@ -199,9 +215,10 @@ router.post('/listOfDates/:id', async (req, res) => {
 
 /**
  * @openapi
- * /{id}:
+ * /holiday/{id}:
  *   post:
  *     description: Add a holiday for an employee
+ *     tags: [Holidays]
  *     parameters:
  *       - name: id
  *         in: path
@@ -267,9 +284,10 @@ router.post('/:id', async (req, res) => {
 
 /**
  * @openapi
- * /{id}:
+ * /holiday/{id}:
  *   delete:
  *     description: Remove a holiday for an employee
+ *     tags: [Holidays]
  *     parameters:
  *       - name: id
  *         in: path
@@ -323,7 +341,7 @@ router.delete('/:id', async (req, res) => {
         holidays.holidays_list = holidays.holidays_list.filter(date => date.toString() !== newDate.toString());
         holidays.save();
         res.status(200).json({
-            message: 'date removed ',
+            message: 'date removed',
             document: holidays.holidays_list
         });
     }
