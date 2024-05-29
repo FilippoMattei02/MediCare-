@@ -1,0 +1,11 @@
+PER ESEGUIRE:
+
+(1) da terminale vai su /backend e digitia 'npm start' , cosi facendo si avvierà il server creato in app.js
+
+(2) Una volta avviato il server, dal'interfaccia grafica del tuo pc, fai doppio click sul file 'index.html' , nel path /frontend.
+    cosi facendo potrai interagire con il server tramite il frontend appena aperto.
+
+PS:
+    - codice per la connessione al db sono nel file app.js
+    - l'invio di password ed email dal frontend (per il backend) sono nel file index.js
+    - API esposta dal backend per gestire l'authentizaione è nel file authentications.js
