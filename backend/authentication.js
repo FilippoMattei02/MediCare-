@@ -11,7 +11,66 @@ require('dotenv').config();
 
 
 
-
+/**
+ * @openapi
+ * /auth:
+ *   post:
+ *     description: Authenticates a user and returns a JWT token
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 description: The username of the user
+ *               password:
+ *                 type: string
+ *                 description: The password of the user
+ *             required:
+ *               - username
+ *               - password
+ *     responses:
+ *       200:
+ *         description: Returns a JWT token if authentication is successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *       400:
+ *         description: Username and password are required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *       401:
+ *         description: Authentication failed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ */
 router.post('', async (req, res) => {
     if (!req.body || !req.body.username || !req.body.password) {
         return res.status(400).json({ error: 'Username e password sono richiesti' });
@@ -50,7 +109,58 @@ router.post('', async (req, res) => {
     }
 });
 
-router.post('/readUsernameFromToken', (req, res) => {
+/**
+ * @openapi
+ * /auth/tokens:
+ *   post:
+ *     description: Verifies a JWT token and returns the associated username
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               token:
+ *                 type: string
+ *                 description: The JWT token to be verified
+ *             required:
+ *               - token
+ *     responses:
+ *       200:
+ *         description: Returns the username associated with the token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: The username associated with the token
+ *       400:
+ *         description: Token is missing
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   description: Error message indicating that the token is missing
+ *       403:
+ *         description: Failed to authenticate token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Error message indicating that the token authentication failed
+ */
+
+router.post('/tokens', (req, res) => {
     const token = req.body.token;
 
     // Verifica se il token è presente nei dati della richiesta
