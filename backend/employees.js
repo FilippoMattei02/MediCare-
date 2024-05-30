@@ -113,22 +113,26 @@ router.post('/:username/work', async (req, res) => {
         }
 
         // Check if date already exists
-        for (let newWork of work) {
-            for (let existingWork of employee.work) {
-                if (newWork.day === existingWork.day && newWork.start === existingWork.start && newWork.end === existingWork.end) {
-                    return res.status(409).json({ error: 'Conflict, duplicate work schedule' });
-                }
-            }
+        const isDuplicate = work.some(newWork => 
+            employee.work.some(existingWork =>
+                new Date(existingWork.day).toISOString() === new Date(newWork.day).toISOString() &&
+                existingWork.start === newWork.start && existingWork.end === newWork.end
+            )
+        );
+
+        if (isDuplicate) {
+            return res.status(409).json({ error: 'Conflict, duplicate work schedule' });
         }
 
         // Update work schedule
         employee.work = work;
         await employee.save();
-        res.status(201).json({ message: 'Work schedule updated successfully' });
+        res.status(201).json({ message: 'Work schedule updated successfully', employee });
     } catch (error) {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
+
 
 /**
  * @openapi
@@ -211,15 +215,16 @@ router.delete('/:username/work', async (req, res) => {
         }
 
         await employee.save();
-        res.status(200).json({ message: 'Shift deleted successfully', work: employee.work });
+        res.status(200).json({ message: 'Shift deleted successfully', employee });
     } catch (error) {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
 
+
 /**
  * @openapi
- * /employee/{username}/work/add:
+ * /{username}/work/add:
  *   post:
  *     summary: Add a new work shift for an employee
  *     tags: [Employee]
@@ -291,10 +296,13 @@ router.post('/:username/work/add', async (req, res) => {
         }
 
         // Check if the shift already exists
-        for (let existingWork of employee.work) {
-            if (existingWork.day === day && existingWork.start === start && existingWork.end === end) {
-                return res.status(409).json({ error: 'Conflict, Duplicate work schedule' });
-            }
+        const isDuplicate = employee.work.some(existingWork =>
+            new Date(existingWork.day).toISOString() === new Date(day).toISOString() &&
+            existingWork.start === start && existingWork.end === end
+        );
+
+        if (isDuplicate) {
+            return res.status(409).json({ error: 'Conflict, Duplicate work schedule' });
         }
 
         // Add the new shift
@@ -305,5 +313,6 @@ router.post('/:username/work/add', async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
+
 
 module.exports = router;

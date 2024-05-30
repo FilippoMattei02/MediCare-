@@ -23,7 +23,6 @@ const employees = require('./employees');
 
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./swagger'); 
-const port = 3050;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -44,7 +43,4 @@ app.use('/auth', authentication);
 app.use('/holiday',holiday);
 app.use('/employees', employees);
 
-app.listen(port, () => {
-    console.log(`Server lisening to port: ${port}`);
-});
-
+module.exports = app;
