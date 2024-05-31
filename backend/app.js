@@ -31,7 +31,6 @@ app.use(express.urlencoded({ extended: true }));
 // Abilita CORS per tutte le richieste
 app.use(cors());
 
-
 // Serve the Swagger UI documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
