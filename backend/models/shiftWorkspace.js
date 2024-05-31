@@ -9,16 +9,12 @@ module.exports = internalDBConnection.model('Employee', new Schema({
     peopleForShift:{type:Number,required:true},
     shiftDuration:{type:Number,required:true},
 	daysOfWork:[{ 
-        day:{type:Number},
+        date:{type:String},
         shift:[{
 			email:{type:String},
 			start:{type:Number},
 			end:{type:Number}
 		}],
-		
 	}]
-	
-
-
 }));
 

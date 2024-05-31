@@ -67,7 +67,7 @@ async function generateWorkSets(peopleList, numberOfDays, peopleForShift, shiftD
             }
         });
 
-        sets.set(i, shifts);
+        sets.set(date, shifts);
     }
 
     // occurrencesMap.forEach((value, key) => {

@@ -4,17 +4,18 @@ const holiday = require('./models/holidays');
 const employee = require('./models/employee');
 const shiftWorkspace = require('./models/shiftWorkspace');
 const automaticTool = require('./generateCasualShifts');
+const app = require('./app');
 
 
 require('dotenv').config();
 
 
 router.post('/workspace', async (req, res) => {
-    const month = req.params.month;
-    const year = req.body.year;
-    const role= req.body.role;
-    const peopleForShift= req.body.peopleForShift;
-    const shiftDuration= req.body.shiftDuration;
+    const month = parseInt(req.body.month, 10);
+    const year = parseInt(req.body.year, 10);
+    const role = req.body.role;
+    const peopleForShift = parseInt(req.body.peopleForShift, 10);
+    const shiftDuration = parseInt(req.body.shiftDuration, 10);
 
     if (!month) {
         return res.status(400).json({ error: 'missing month' });
@@ -60,6 +61,7 @@ router.post('/workspace', async (req, res) => {
         return res.status(400).json({ error: 'shift duration not a strictly positive integer' });
     }
     else if(!(24%shiftDuration==0)){
+        
         return res.status(400).json({ error: 'shift duration not a submultiple of 24!' });
     }
 
@@ -75,66 +77,17 @@ router.post('/workspace', async (req, res) => {
         role:role,
         peopleForShift:peopleForShift,
         shiftDuration:shiftDuration,
-        day:[]
+        daysOfWork:[]
     });
     return res.status(200).json({message:"Workspace created successfully!"});
     
 });
 
-router.update('/workspace', async (req, res) => {
+router.put('/workspace', async (req, res) => {
 
-    const year=req.body.year;
-    const month=req.body.year;;
-    const role=req.body.year;
-
-    const numberOfDays=getNumberOfDays(month,year);
-    
-
-    let users = await employee.find({ role: role }).exec();
-    let employeeList = [];
-    
-    if (Array.isArray(users)) {
-        users.forEach((user) => {
-            employeeList.push(user.username);
-        });
-    }else if(users==undefined){
-        return res.status(400).json({ error: 'No users for this role' });
-    }
-    else{
-        employeeList.push(users.username);
-    }
-    let workspace = await shiftWorkspace.findOne({ year: year, month: month,role:role }).exec(); 
-    
-    let peopleForShift=workspace.peopleForShift;
-    let shiftDuration=workspace.shiftDuration;
-    let yearMonth=""+year+"-"+month.toString().padStart(2,'0')+"-";
-
-    let workSets=automaticTool(employeeList,numberOfDays,peopleForShift,shiftDuration,role,yearMonth);
-    let daysOfWork = [];
-    workSets.forEach((shifts, dayIndex) => {
-        const day = {
-            day: dayIndex+1,
-            shift: shifts.map(shift => ({
-                email: shift.employee,
-                start: shift.startHour,
-                end: shift.endHour
-            }))
-        };
-        daysOfWork.push(day);
-    });
-
-    await workspace.daysOfWork.push(daysOfWork);
-
-    await workspace.save();
-    res.status(200).json({messagge:"Days of work casually generated and added correctly"});
-});
-
-
-router.update('/workspace', async (req, res) => {
-
-    const year=req.body.year;
-    const month=req.body.year;;
-    const role=req.body.year;
+    const year = parseInt(req.body.year, 10);
+    const month = parseInt(req.body.month, 10);
+    const role=req.body.role;
 
     const numberOfDays=getNumberOfDays(month,year);
     
@@ -160,9 +113,9 @@ router.update('/workspace', async (req, res) => {
 
     let workSets=automaticTool(employeeList,numberOfDays,peopleForShift,shiftDuration,role,yearMonth);
     let daysOfWork = [];
-    workSets.forEach((shifts, dayIndex) => {
+    workSets.forEach((shifts, date) => {
         const day = {
-            day: dayIndex+1,
+            date,
             shift: shifts.map(shift => ({
                 email: shift.employee,
                 start: shift.startHour,
@@ -172,11 +125,67 @@ router.update('/workspace', async (req, res) => {
         daysOfWork.push(day);
     });
 
-    await workspace.daysOfWork.push(daysOfWork);
+    workspace.daysOfWork.push(...daysOfWork);
 
     await workspace.save();
     res.status(200).json({messagge:"Days of work casually generated and added correctly"});
 });
+
+
+
+router.put('/employee/:role/work', async (req, res) => {
+    const year = parseInt(req.params.year, 10);
+    const month = parseInt(req.body.month, 10);
+    const role = req.params.role;
+
+    const numberOfDays = getNumberOfDays(month, year);
+
+    let workspace = await shiftWorkspace.findOne({ year: year, month: month, role: role }).exec();
+
+    if (!workspace) {
+        return res.status(404).json({ error: 'Workspace not found' });
+    }
+
+    const postWorkShift = async (email, day, start, end) => {
+        const url = `http://localhost:3050/employees/${email}/work/add`;
+        const payload = { day, start, end };
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log(data);
+            return data;
+
+        } catch (error) {
+            console.error('Error during API call:', error);
+        }
+    };
+
+    for (const dayOfWork of workspace.daysOfWork) {
+        for (const shift of dayOfWork.shift) {
+            try {
+                await postWorkShift(shift.email, dayOfWork.date, shift.start, shift.end);
+            } catch (error) {
+                console.error(`Error adding work shift for ${shift.email}:`, error);
+            }
+        }
+    }
+
+    res.status(200).json({ message: "Work shifts added to employee schedules" });
+});
+
+router.get
 
 
 
