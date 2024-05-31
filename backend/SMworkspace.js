@@ -9,7 +9,55 @@ const automaticTool = require('./generateCasualShifts');
 
 require('dotenv').config();
 
-
+/**
+ * @openapi
+ * /workspace/:role/:year/:month/shifts:
+ *   get:
+ *     summary: Retrieve shifts for a specific role, year, and month
+ *     tags: [Workspace]
+ *     parameters:
+ *       - name: role
+ *         in: path
+ *         required: true
+ *         description: Role identifier
+ *         schema:
+ *           type: string
+ *       - name: year
+ *         in: path
+ *         required: true
+ *         description: Year
+ *         schema:
+ *           type: integer
+ *       - name: month
+ *         in: path
+ *         required: true
+ *         description: Month
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       '200':
+ *         description: Successfully retrieved shifts
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   username:
+ *                     type: string
+ *                   work:
+ *                     type: array
+ *                     items:
+ *                       type: object
+ *                       properties:
+ *                         day:
+ *                           type: string
+ *                         start:
+ *                           type: string
+ *                         end:
+ *                           type: string
+ */
 app.get('/:role/:year/:month/shifts', async (req, res) => {
     const month = parseInt(req.params.month, 10);
     const year = parseInt(req.params.year, 10);
@@ -77,7 +125,37 @@ app.get('/:role/:year/:month/shifts', async (req, res) => {
     }
 });
 
-// POST endpoint to create a new shiftWorkspace instance
+/**
+ * @openapi
+ * /workspace/:role/:year/:month:
+ *   post:
+ *     summary: Create a new shift workspace for a specific role, year, and month
+ *     tags: [Workspace]
+ *     parameters:
+ *       - name: role
+ *         in: path
+ *         required: true
+ *         description: Role identifier
+ *         schema:
+ *           type: string
+ *       - name: year
+ *         in: path
+ *         required: true
+ *         description: Year
+ *         schema:
+ *           type: integer
+ *       - name: month
+ *         in: path
+ *         required: true
+ *         description: Month
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       '200':
+ *         description: Workspace created successfully
+ *       '409':
+ *         description: Workspace already exists for this month
+ */
 router.post('/:role/:year/:month', async (req, res) => {
     const month = parseInt(req.params.month, 10);
     const year = parseInt(req.params.year, 10);
@@ -123,7 +201,48 @@ router.post('/:role/:year/:month', async (req, res) => {
     return res.status(200).json({message:"Workspace created successfully!"});
 });
 
-
+/**
+ * @openapi
+ * /workspace/:role/:year/:month/shiftType:
+ *   put:
+ *     summary: Update shift type parameters for a specific role, year, and month
+ *     tags: [Workspace]
+ *     parameters:
+ *       - name: role
+ *         in: path
+ *         required: true
+ *         description: Role identifier
+ *         schema:
+ *           type: string
+ *       - name: year
+ *         in: path
+ *         required: true
+ *         description: Year
+ *         schema:
+ *           type: integer
+ *       - name: month
+ *         in: path
+ *         required: true
+ *         description: Month
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               peopleForShift:
+ *                 type: integer
+ *               shiftDuration:
+ *                 type: integer
+ *     responses:
+ *       '200':
+ *         description: Workspace updated successfully
+ *       '404':
+ *         description: Workspace not found for this month
+ */
 router.put('/:role/:year/:month/shiftType', async (req, res) => {
     const month = parseInt(req.params.month, 10);
     const year = parseInt(req.params.year, 10);
@@ -189,7 +308,39 @@ router.put('/:role/:year/:month/shiftType', async (req, res) => {
     return res.status(200).json({message:"Workspace updated successfully!"});
 });
 
-
+/**
+ * @openapi
+ * /workspace/automate/:role/:year/:month/daysOfWork:
+ *   put:
+ *     summary: Generate casual shift days of work for a specific role, year, and month
+ *     tags: [Workspace]
+ *     parameters:
+ *       - name: role
+ *         in: path
+ *         required: true
+ *         description: Role identifier
+ *         schema:
+ *           type: string
+ *       - name: year
+ *         in: path
+ *         required: true
+ *         description: Year
+ *         schema:
+ *           type: integer
+ *       - name: month
+ *         in: path
+ *         required: true
+ *         description: Month
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       '200':
+ *         description: Days of work generated and added correctly
+ *       '400':
+ *         description: Invalid input parameters
+ *       '404':
+ *         description: No users found for this role or workspace not found
+ */
 router.put('/automate/:role/:year/:month/daysOfWork', async (req, res) => {
 
     const month = parseInt(req.params.month, 10);
@@ -265,7 +416,39 @@ router.put('/automate/:role/:year/:month/daysOfWork', async (req, res) => {
 });
 
 
-
+/**
+ * @openapi
+ * /workspace/employee/:role/:year/:month/work:
+ *   put:
+ *     summary: Add work shifts to employees for a specific role, year, and month
+ *     tags: [Workspace]
+ *     parameters:
+ *       - name: role
+ *         in: path
+ *         required: true
+ *         description: Role identifier
+ *         schema:
+ *           type: string
+ *       - name: year
+ *         in: path
+ *         required: true
+ *         description: Year
+ *         schema:
+ *           type: integer
+ *       - name: month
+ *         in: path
+ *         required: true
+ *         description: Month
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       '200':
+ *         description: Work shifts added to employee schedules
+ *       '400':
+ *         description: Invalid input parameters
+ *       '404':
+ *         description: Workspace not found
+ */
 router.put('/employee/:role/:year/:month/work', async (req, res) => {
     const year = parseInt(req.params.year, 10);
     const month = parseInt(req.params.month, 10);
@@ -344,7 +527,39 @@ router.put('/employee/:role/:year/:month/work', async (req, res) => {
     res.status(200).json({ message: "Work shifts added to employee schedules" });
 });
 
-
+/**
+ * @openapi
+ * /workspace/:role/:year/:month/daysOfWork:
+ *   delete:
+ *     summary: Delete all days of work for a specific role, year, and month
+ *     tags: [Workspace]
+ *     parameters:
+ *       - name: role
+ *         in: path
+ *         required: true
+ *         description: Role identifier
+ *         schema:
+ *           type: string
+ *       - name: year
+ *         in: path
+ *         required: true
+ *         description: Year
+ *         schema:
+ *           type: integer
+ *       - name: month
+ *         in: path
+ *         required: true
+ *         description: Month
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       '200':
+ *         description: Days of work removed
+ *       '400':
+ *         description: Invalid input parameters
+ *       '404':
+ *         description: Workspace not found
+ */
 router.delete('/:role/:year/:month/daysOfWork', async (req, res) => {
     const year = parseInt(req.params.year, 10);
     const month = parseInt(req.params.month, 10);
@@ -388,7 +603,6 @@ router.delete('/:role/:year/:month/daysOfWork', async (req, res) => {
     });
 });
 
-
 function getNumberOfDays(month,year){
     if(month==4|| month == 6 || month== 9 || month == 11){
         return 30;
@@ -405,7 +619,5 @@ function getNumberOfDays(month,year){
     }
     
 }
-
-
 
 module.exports = router;

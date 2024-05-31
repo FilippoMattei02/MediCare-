@@ -20,6 +20,7 @@ const holiday=require('./holidays');
 const Holidays = require('./models/holidays');
 const shifts = require('./shifts');
 const employees = require('./employees');
+const workspace= require('./SMworkspace')
 
 
 const swaggerUi = require('swagger-ui-express');
@@ -42,7 +43,8 @@ app.use('/auth', authentication);
 */
 
 app.use('/holiday',holiday);
-app.use('/employees', employees);
+app.use('/employees', employeess);
 app.use('/shifts',shifts);
+app.use('/workspace',workspace);
 
 module.exports = app;
