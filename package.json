@@ -5,7 +5,7 @@
   "main": "backend/app.js",
   "scripts": {
     "start": "node backend/app.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "build": "npm install && npm fund"
   },
   "keywords": [],
@@ -25,6 +25,8 @@
     "swagger-ui-express": "^5.0.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.0"
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.0",
+    "supertest": "^7.0.0"
   }
 }
