@@ -3,7 +3,7 @@ const router = express.Router();
 const holiday = require('./models/holidays');
 const employee = require('./models/employee');
 const shiftWorkspace = require('./models/shiftWorkspace');
-const automaticTool = require('./generateCasualShifts');
+const generateCasualShifts = require('./generateCasualShifts');
 
 
 
@@ -58,7 +58,7 @@ require('dotenv').config();
  *                         end:
  *                           type: string
  */
-app.get('/:role/:year/:month/shifts', async (req, res) => {
+router.get('/:role/:year/:month/shifts', async (req, res) => {
     const month = parseInt(req.params.month, 10);
     const year = parseInt(req.params.year, 10);
     const role = req.params.role;
@@ -395,7 +395,7 @@ router.put('/automate/:role/:year/:month/daysOfWork', async (req, res) => {
     let shiftDuration=workspace.shiftDuration;
     let yearMonth=""+year+"-"+month.toString().padStart(2,'0')+"-";
 
-    let workSets=automaticTool(employeeList,numberOfDays,peopleForShift,shiftDuration,role,yearMonth);
+    let workSets= await generateCasualShifts(employeeList,numberOfDays,peopleForShift,shiftDuration,role,yearMonth);
     let daysOfWork = [];
     workSets.forEach((shifts, date) => {
         const day = {
@@ -420,7 +420,7 @@ router.put('/automate/:role/:year/:month/daysOfWork', async (req, res) => {
  * @openapi
  * /workspace/employee/:role/:year/:month/work:
  *   put:
- *     summary: Add work shifts to employees for a specific role, year, and month
+ *     summary: publish work shifts to employees calendar for a specific role, year, and month
  *     tags: [Workspace]
  *     parameters:
  *       - name: role

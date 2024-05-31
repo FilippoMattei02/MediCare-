@@ -7,25 +7,29 @@ async function generateWorkSets(peopleList, numberOfDays, peopleForShift, shiftD
 
     const targetFrequency = Math.ceil(numberOfDays * peopleForWorkday / peopleCount);
     //console.log(targetFrequency);
-
+    
     const occurrencesMap = new Map();
+    if(peopleList.length<peopleForWorkday){console.log("----------------ERRORE-----------------");return 0;}
     peopleList.forEach(person => occurrencesMap.set(person, 0));
 
     // Start date for shift generation
     let availablePeople = [];
     let unavailablePeople = [];
     let variable = 3;
+    
     for (let i = 0; i < numberOfDays; i++) {
         const shifts = [];
+       
         
         let date = (i + 1).toString().padStart(2, '0');
         date = yearMonth + date;
         
         let usersHoliday = await getUsersByRoleAndDate(role, date);
+        
         //console.log(usersHoliday);
         availablePeople = peopleList.filter(person => (occurrencesMap.get(person) < targetFrequency - variable) && !(usersHoliday.includes(person)));
         unavailablePeople = peopleList.filter(person => (occurrencesMap.get(person) >= targetFrequency - variable) && !(usersHoliday.includes(person)));
-
+        
         if ((availablePeople.length == 0) && variable > 0) {
             variable--;
         }
@@ -33,7 +37,7 @@ async function generateWorkSets(peopleList, numberOfDays, peopleForShift, shiftD
         const shuffledPeople = shuffle(availablePeople);
         shuffle(unavailablePeople);
         let selectedPeople = [];
-
+        
         if (shuffledPeople.length < peopleForWorkday) {
             shuffledPeople.push(...unavailablePeople);
             selectedPeople = shuffledPeople.slice(0, peopleForWorkday);
@@ -42,13 +46,15 @@ async function generateWorkSets(peopleList, numberOfDays, peopleForShift, shiftD
         }
 
         selectedPeople = shuffle(selectedPeople);  // Ensure selectedPeople is shuffled correctly
-
+        if(selectedPeople<peopleForWorkday){console.log("----------------ERRORE 2-----------------");return 0;}
+   
         for (let l = 0; l < shiftForDay; l++) {
+          
             for (let k = 0; k < peopleForShift; k++) {
                 const startHour = l * shiftDuration;
                 const endHour = startHour + shiftDuration;
                 const personIndex = l * peopleForShift + k;
-
+                
                 if (personIndex < selectedPeople.length) {
                     const shift = {
                         employee: selectedPeople[personIndex],
@@ -69,6 +75,7 @@ async function generateWorkSets(peopleList, numberOfDays, peopleForShift, shiftD
 
         sets.set(date, shifts);
     }
+  
 
     // occurrencesMap.forEach((value, key) => {
     //     console.log(`${key}: ${value}`);
@@ -91,18 +98,21 @@ async function getUsersByRoleAndDate(role, date) {
     const url = `http://localhost:3050/holiday/${role}/${date}`;
     
     try {
+        
         const response = await fetch(url);
         
         // Check if the response is ok
         if (!response.ok) {
+            
             throw new Error(`HTTP error! status: ${response.status}`);
+            
         }
         
         // Convert the response to JSON
         const data = await response.json();
         
         // Process the data (e.g., log the data)
-        console.log(data);
+        //console.log(data);
         
         // Return the data for further processing
         return data;
@@ -112,5 +122,6 @@ async function getUsersByRoleAndDate(role, date) {
         console.error('Error during API call:', error);
     }
 }
+
 
 module.exports= generateWorkSets;

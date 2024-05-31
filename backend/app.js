@@ -43,7 +43,7 @@ app.use('/auth', authentication);
 */
 
 app.use('/holiday',holiday);
-app.use('/employees', employeess);
+app.use('/employees', employees);
 app.use('/shifts',shifts);
 app.use('/workspace',workspace);
 

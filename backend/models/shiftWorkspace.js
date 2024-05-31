@@ -6,8 +6,8 @@ module.exports = internalDBConnection.model('ShiftWorkspace', new Schema({
 	year:{type:Number, required:true },
     month:{type:Number, required:true},
 	role:{ type:String,required:true },
-    peopleForShift:{type:Number,required:true},
-    shiftDuration:{type:Number,required:true},
+    peopleForShift:{type:Number},
+    shiftDuration:{type:Number},
 	daysOfWork:[{ 
         date:{type:String},
         shift:[{
