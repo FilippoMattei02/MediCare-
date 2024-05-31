@@ -1,4 +1,4 @@
-function generateRandomSets(peopleList, numberOfDays, peopleForShift, shiftDuration, role, yearMonth) {
+async function generateWorkSets(peopleList, numberOfDays, peopleForShift, shiftDuration, role, yearMonth) {
     const sets = new Map();
     
     const peopleCount = peopleList.length;
@@ -6,7 +6,7 @@ function generateRandomSets(peopleList, numberOfDays, peopleForShift, shiftDurat
     const shiftForDay = 24 / shiftDuration;
 
     const targetFrequency = Math.ceil(numberOfDays * peopleForWorkday / peopleCount);
-    console.log(targetFrequency);
+    //console.log(targetFrequency);
 
     const occurrencesMap = new Map();
     peopleList.forEach(person => occurrencesMap.set(person, 0));
@@ -21,8 +21,8 @@ function generateRandomSets(peopleList, numberOfDays, peopleForShift, shiftDurat
         let date = (i + 1).toString().padStart(2, '0');
         date = yearMonth + date;
         
-        let usersHoliday = getUsersByRoleAndDate(role, date);
-
+        let usersHoliday = await getUsersByRoleAndDate(role, date);
+        //console.log(usersHoliday);
         availablePeople = peopleList.filter(person => (occurrencesMap.get(person) < targetFrequency - variable) && !(usersHoliday.includes(person)));
         unavailablePeople = peopleList.filter(person => (occurrencesMap.get(person) >= targetFrequency - variable) && !(usersHoliday.includes(person)));
 
@@ -67,12 +67,12 @@ function generateRandomSets(peopleList, numberOfDays, peopleForShift, shiftDurat
             }
         });
 
-        sets.set(`Day ${i + 1}`, shifts);
+        sets.set(i, shifts);
     }
 
-    occurrencesMap.forEach((value, key) => {
-        console.log(`${key}: ${value}`);
-    });
+    // occurrencesMap.forEach((value, key) => {
+    //     console.log(`${key}: ${value}`);
+    // });
 
     return sets;
 }
@@ -88,7 +88,7 @@ function shuffle(array) {
 }
 
 async function getUsersByRoleAndDate(role, date) {
-    const url = `http://localhost:3050/${role}/${date}`;
+    const url = `http://localhost:3050/holiday/${role}/${date}`;
     
     try {
         const response = await fetch(url);
@@ -113,18 +113,4 @@ async function getUsersByRoleAndDate(role, date) {
     }
 }
 
-// List of people
-const peopleList = ['Persona 1', 'Persona 2', 'Persona 3', 'Persona 4', 'Persona 5',
-    'Persona 6', 'Persona 7', 'Persona 8', 'Persona 9', 'Persona 10',
-    'Persona 11', 'Persona 12', 'Persona 13', 'Persona 14', 'Persona 15'];
-
-// Generate 20 sets of 8 people each with shift information
-const randomSets = generateRandomSets(peopleList, 31, 2, 8, "nurse", "2024-12-");
-
-// Output the generated arrays with shift information
-// randomSets.forEach((shifts, day) => {
-//     console.log(`${day}:`);
-//     shifts.forEach(shift => {
-//         console.log(`  ${shift.employee}: ${shift.startHour} - ${shift.endHour}`);
-//     });
-// });
+module.exports= generateWorkSets;
