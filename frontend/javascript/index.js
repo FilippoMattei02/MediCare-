@@ -18,7 +18,7 @@ function login() {
     }
 
     // Chiama le API usando POST per il login
-    fetch('https://medicare-p67f.onrender.com/auth', {
+    fetch('http://localhost:3050/auth', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -39,7 +39,37 @@ function login() {
             localStorage.setItem('token', data.token);
             console.log('Token salvato: ', localStorage.getItem('token'));
         }
-        window.location.href = "html/homeUser.html";
+        fetch(`http://localhost:3050/employees/role/${username}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Errore di rete: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Controlla se il ruolo è stato ricevuto
+            console.log('Ruolo ricevuto:', data.shiftManager);
+                // Puoi salvare il ruolo in localStorage o usarlo come preferisci
+            //localStorage.setItem('employeeRole', data.shiftManager);
+            //const shift = data.shiftManager;
+            // Esegui altre operazioni basate sul ruolo, ad esempio reindirizzamento
+            if (data) {
+                window.location.href = "html/homeShiftManager.html";
+            } else {
+                window.location.href = "html/homeUser.html";
+            }
+        })
+        .catch(error => {
+            // Gestione degli errori durante la richiesta al server
+            console.error('Errore durante il recupero del ruolo:', error);
+            alert("Errore durante il recupero del ruolo. Per favore, riprova.");
+        });
+        //window.location.href = "html/homeUser.html";
     })
     .catch(error => {
         // Gestione degli errori durante la richiesta al server

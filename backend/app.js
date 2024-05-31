@@ -18,6 +18,7 @@ require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 const authentication = require('./authentication');
 const holiday=require('./holidays');
 const Holidays = require('./models/holidays');
+const shifts = require('./shifts');
 const employees = require('./employees');
 
 
@@ -42,5 +43,6 @@ app.use('/auth', authentication);
 
 app.use('/holiday',holiday);
 app.use('/employees', employees);
+app.use('/shifts',shifts);
 
 module.exports = app;
