@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 const {externalDBconnection,internalDBConnection} = require('../database');
 
-module.exports = internalDBConnection.model('Employee', new Schema({ 
+module.exports = internalDBConnection.model('ShiftWorkspace', new Schema({ 
 	year:{type:Number, required:true },
     month:{type:Number, required:true},
 	role:{ type:String,required:true },
