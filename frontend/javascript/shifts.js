@@ -169,7 +169,7 @@ function outOfRange(date){
     }
  }
 
-class Shift{
+/*class Shift{
     date;
     user;
     begin;
@@ -211,71 +211,129 @@ class Shift{
   retEnd(){
     return end;
   }
+}*/
+
+function formatDateToISO(dateString, timeString = "00:00:00.000Z") {
+    const date = new Date(dateString);
+    
+    if (isNaN(date)) {
+        throw new Error("Invalid Date");
+    }
+    
+    const [hours, minutes, seconds] = timeString.split(/[:.]/);
+    
+    date.setUTCHours(hours, minutes, seconds, 0);
+    
+    return date.toISOString();
 }
 
-/*
-var datep=new Date();
-//datep.setDate(22);
-var user ='Jamal';
+document.getElementById('deleteBtn').addEventListener('click', async () => {
+    const email = document.getElementById('email').value;
+    const date = document.getElementById('date').value;
+    const startInput = document.getElementById('start').value;
+    const endInput = document.getElementById('end').value;
 
-var shift=new Shift();
-shift.setterdate(datep);
-shift.setteruser(user);
-var begin=9;
-var end=15;
-shift.setterhours(begin, end);
-/*var shift=new Shift(datep,user);
-var help=shift.retDate();
-var help2=shift.retUser();*/
-//addTask('current', dayCalculator(shift.date), 1, 'Guardare la vernice asciugarsi', shift.user);
-/*
-for(var j=shift.retBegin();j<shift.retEnd();j++){
+    // Verifica se gli input sono valori numerici
+    const start = parseInt(startInput);
+    const end = parseInt(endInput);
 
-    if(isCurrent(shift.retDate())==true){
-        addTask('current', dayCalculator(shift.retDate()) , j, 'Guardare la vernice asciugarsi', 'Jamal');
-    }else{
-        addTask('next', dayCalculator(shift.retDate()) , j, 'Guardare la vernice asciugarsi', shift.retUser());
-    }
-
-
-}
-*/
-
-
-// Esempio di utilizzo: caricare i task quando la pagina è pronta
-/*document.addEventListener('DOMContentLoaded', async () => {
-    var username = await connector();
-    console.log("Il mio username ha valore: ", username);
-    if (!username) {
-        console.error('Username non trovato o errore durante la connessione.');
+    if (isNaN(start) || isNaN(end)) {
+        alert('I valori di inizio e fine devono essere numerici');
         return;
     }
-    var tasks = await fetchTasks(username);
-    if (!tasks) {
-        console.error('Nessun task trovato o errore durante il caricamento.');
+
+    if (!email || !date) {
+        alert('Tutti i campi sono obbligatori');
         return;
     }
-    console.log("stampa nello shift:", tasks);
-    for (var k = 0; k < tasks.length; k++) {
-        // Corregge la data del task sottraendo un giorno
-        let taskDate = new Date(tasks[k].day);
-        taskDate.setDate(taskDate.getDate() - 1);
 
-        if (!outOfRange(taskDate)) {
-            var y = tasks[k].start;
-            while (y < tasks[k].end && y < 24) {
-                if (isCurrent(taskDate)) {
-                    addTask('current', dayCalculator(taskDate), y, 'Guardare la vernice asciugarsi', username);
-                } else {
-                    addTask('next', dayCalculator(taskDate), y, 'Guardare la vernice asciugarsi', username);
-                }
-                y++;
-            }
+
+    try {
+        const formattedDate = formatDateToISO(date, "22:00:00.000Z");
+
+        const response = await fetch(`http://localhost:3050/employees/${email}/work`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                day: formattedDate,
+                start: start,
+                end: end
+            })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            alert('Shift eliminato con successo');
+            // Aggiorna la vista del calendario se necessario
+            //await updateCalendar();
+            window.location.reload();
+        } else {
+            alert(`Errore: ${result.error}`);
         }
+    } catch (error) {
+        console.error('Errore durante l\'eliminazione dello shift:', error);
+        alert('Errore durante l\'eliminazione dello shift');
     }
-});*/
+});
 
-document.addEventListener('DOMContentLoaded', async () => {
+document.getElementById('addBtn').addEventListener('click', async () => {
+    const email = document.getElementById('email').value;
+    const date = document.getElementById('date').value;
+    
+    const startInput = document.getElementById('start').value;
+    const endInput = document.getElementById('end').value;
+
+    // Verifica se gli input sono valori numerici
+    const start = parseInt(startInput);
+    const end = parseInt(endInput);
+
+    if (isNaN(start) || isNaN(end)) {
+        alert('I valori di inizio e fine devono essere numerici');
+        return;
+    }
+
+    console.log("date:", date);console.log("start:", start);console.log("end:", end);
+    if (!email || !date ) {
+        alert('Tutti i campi sono obbligatori');
+        return;
+    }
+
+
+    try {
+        const formattedDate = formatDateToISO(date, "22:00:00.000Z");
+
+        const response = await fetch(`http://localhost:3050/employees/${email}/work/add`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                day: formattedDate,
+                start: start,
+                end: end
+            })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            alert('Shift aggiunto con successo');
+            // Aggiorna la vista del calendario se necessario
+            //await updateCalendar();
+            window.location.reload();
+        } else {
+            alert(`Errore: ${result.error}`);
+        }
+    } catch (error) {
+        console.error('Errore durante l\'aggiunta dello shift:', error);
+        alert('Errore durante l\'aggiunta dello shift');
+    }
+});
+
+/*document.addEventListener('DOMContentLoaded', async () => {
     var username = await connector();
     console.log("Il mio username ha valore: ", username);
     if (!username) {
@@ -314,10 +372,72 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
     });
+});*/
+
+
+document.addEventListener('DOMContentLoaded', async () => {
+    var username = await connector();
+    console.log("Il mio username ha valore: ", username);
+    if (!username) {
+        console.error('Username non trovato o errore durante la connessione.');
+        return;
+    }
+
+    var tasks = await fetchTasks(username);
+    if (!tasks) {
+        console.error('Nessun task trovato o errore durante il caricamento.');
+        return;
+    }
+
+    console.log("stampa nello shift:", tasks);
+
+    for (var k = 0; k < tasks.length; k++) {
+        let task = tasks[k];
+        task.work.forEach(workItem => {
+            let taskDate = new Date(workItem.day);
+            taskDate.setDate(taskDate.getDate() - 1);
+
+            if (!outOfRange(taskDate)) {
+                var startHour = workItem.start;
+                var endHour = workItem.end;
+
+                var st = task.username;
+                var formattedUsername = st.replace("@apss.it", "").replace(".", " ");
+
+                if (startHour < endHour) {
+                    // Turno nello stesso giorno
+                    for (var y = startHour; y < endHour && y < 24; y++) {
+                        if (isCurrent(taskDate)) {
+                            addTask('current', dayCalculator(taskDate), y, 'Guardare la vernice asciugarsi', formattedUsername);
+                        } else {
+                            addTask('next', dayCalculator(taskDate), y, 'Guardare la vernice asciugarsi', formattedUsername);
+                        }
+                    }
+                } else {
+                    // Turno che attraversa la mezzanotte
+                    for (var y = startHour; y < 24; y++) {
+                        if (isCurrent(taskDate)) {
+                            addTask('current', dayCalculator(taskDate), y, 'Guardare la vernice asciugarsi', formattedUsername);
+                        } else {
+                            addTask('next', dayCalculator(taskDate), y, 'Guardare la vernice asciugarsi', formattedUsername);
+                        }
+                    }
+
+                    // Incrementa la data per il giorno successivo
+                    taskDate.setDate(taskDate.getDate() + 1);
+
+                    for (var y = 0; y < endHour && y < 24; y++) {
+                        if (isCurrent(taskDate)) {
+                            addTask('current', dayCalculator(taskDate), y, 'Guardare la vernice asciugarsi', formattedUsername);
+                        } else {
+                            addTask('next', dayCalculator(taskDate), y, 'Guardare la vernice asciugarsi', formattedUsername);
+                        }
+                    }
+                }
+            }
+        });
+    }
 });
-
-
-
 
 
 
