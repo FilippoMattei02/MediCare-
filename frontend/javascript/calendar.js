@@ -50,18 +50,12 @@ async function fetchTasks(username) {
 
 
 // Funzione per aggiungere un task a una cella specifica
-function addTask(calendar, day, timeSlot, task, user) {
-    if(calendar=="current"){
-    const cellId = `${day}-${timeSlot}`;
+function addTask(calendar, day, timeSlot, user) {
+    const formattedUser = formatUsername(user);
+    const cellId = calendar === "current" ? `${day}-${timeSlot}` : `${day}-${calendar}-${timeSlot}`;
     const cell = document.getElementById(cellId);
-    cell.innerHTML += `<div> <span class="user">(${user})</span></div>`;
-    }else{
-       
-            const cellId = `${day}-${calendar}-${timeSlot}`;
-            const cell = document.getElementById(cellId);
-            cell.innerHTML += `<div> <span class="user">(${user})</span></div>`;
-        
-        
+    if (cell) {
+        cell.innerHTML += `<div> <span class="user">(${formattedUser})</span></div>`;
     }
 }
 //funzioni potenzialmente funzionanti
@@ -168,81 +162,69 @@ function outOfRange(date){
      return false;
     }
  }
+
+ function formatUsername(email) {
+    if (!email) return '';
+    let [name, domain] = email.split('@');
+    let [firstName, lastName] = name.split('.');
+    return `${capitalize(firstName)} ${capitalize(lastName)}`;
+}
+
+function capitalize(word) {
+    if (!word) return '';
+    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+}
+
 //fine funzioni potenzialmente funzionanti
 //inserire connessione a DB qui 
 
 //inizio prova
-class Shift{
-    date;
-    user;
-    begin;
-    end;
-    Shift(){
-        date=new Date();
-        user='';
-        begin=0;
-        end=0;
-    }
-   Shift(date,user,begin,end){
-    date=new Date();
-        user='';
-   this.date=date;
-   this.user=user;
-   this.begin=begin;
-   this.end=end;
 
-   }
-   retDate(){
-       return this.date;
-  }
-  setterdate(val){
-    this.date=val;
-  }
-  setteruser(val){
-    this.user=val;
-  }
-  setterhours(val1, val2){
-    begin=val1;
-    end=val2;
-  }
-  retUser(){
-    return user;
-  }
-  retBegin(){
-    return begin;
-  }
-  retEnd(){
-    return end;
-  }
-}
 
-/*
-var datep=new Date();
-//datep.setDate(22);
-var user ='Jamal';
 
-var shift=new Shift();
-shift.setterdate(datep);
-shift.setteruser(user);
-var begin=9;
-var end=15;
-shift.setterhours(begin, end);
-/*var shift=new Shift(datep,user);
-var help=shift.retDate();
-var help2=shift.retUser();*/
-//addTask('current', dayCalculator(shift.date), 1, 'Guardare la vernice asciugarsi', shift.user);
-/*
-for(var j=shift.retBegin();j<shift.retEnd();j++){
+document.getElementById('downloadBtn').addEventListener('click', downloadCSV);
 
-    if(isCurrent(shift.retDate())==true){
-        addTask('current', dayCalculator(shift.retDate()) , j, 'Guardare la vernice asciugarsi', 'Jamal');
-    }else{
-        addTask('next', dayCalculator(shift.retDate()) , j, 'Guardare la vernice asciugarsi', shift.retUser());
+document.getElementById('downloadBtn').addEventListener('click', downloadCSV);
+
+function downloadCSV() {
+    const currentWeekTable = document.querySelector('#currentWeek table');
+    const nextWeekTable = document.querySelector('#nextWeek table');
+
+    let csv = [];
+    
+    // Funzione per estrarre i dati da una tabella e formattarli come CSV
+    function extractTableData(table, title) {
+        let rows = table.querySelectorAll('tr');
+        csv.push(title);  // Aggiungi un titolo per la sezione della tabella
+        rows.forEach((row, rowIndex) => {
+            let rowData = [];
+            row.querySelectorAll('th, td').forEach(cell => {
+                let cellText = cell.innerText.replace(/,/g, '');  // Rimuovi eventuali virgole
+                rowData.push(`"${cellText}"`); // Aggiungi virgolette per gestire il testo lungo
+            });
+            csv.push(rowData.join(','));
+        });
+        csv.push('');  // Aggiungi una riga vuota per separare le tabelle
     }
 
+    // Estrai i dati della tabella della settimana corrente
+    extractTableData(currentWeekTable, 'Settimana Corrente');
 
+    // Estrai i dati della tabella della prossima settimana
+    extractTableData(nextWeekTable, 'Settimana Successiva');
+
+    // Unisce tutte le linee in un'unica stringa separata da caratteri di nuova linea
+    let csvContent = csv.join('\n');
+
+    // Crea un blob e scaricalo
+    let blob = new Blob([csvContent], { type: 'text/csv' });
+    let url = URL.createObjectURL(blob);
+    let a = document.createElement('a');
+    a.setAttribute('href', url);
+    a.setAttribute('download', 'calendario_settimanale.csv');
+    a.click();
+    URL.revokeObjectURL(url);
 }
-*/
 
 
 // Esempio di utilizzo: caricare i task quando la pagina è pronta
@@ -260,19 +242,42 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     for (var k = 0; k < tasks.length; k++) {
-        // Corregge la data del task sottraendo un giorno
         let taskDate = new Date(tasks[k].day);
         taskDate.setDate(taskDate.getDate() - 1);
 
         if (!outOfRange(taskDate)) {
-            var y = tasks[k].start;
-            while (y < tasks[k].end && y < 24) {
-                if (isCurrent(taskDate)) {
-                    addTask('current', dayCalculator(taskDate), y, 'Guardare la vernice asciugarsi', username);
-                } else {
-                    addTask('next', dayCalculator(taskDate), y, 'Guardare la vernice asciugarsi', username);
+            var startHour = tasks[k].start;
+            var endHour = tasks[k].end;
+
+            if (startHour < endHour) {
+                // Turno nello stesso giorno
+                for (var y = startHour; y < endHour && y < 24; y++) {
+                    if (isCurrent(taskDate)) {
+                        addTask('current', dayCalculator(taskDate), y, username);
+                    } else {
+                        addTask('next', dayCalculator(taskDate), y, username);
+                    }
                 }
-                y++;
+            } else {
+                // Turno che attraversa la mezzanotte
+                for (var y = startHour; y < 24; y++) {
+                    if (isCurrent(taskDate)) {
+                        addTask('current', dayCalculator(taskDate), y, username);
+                    } else {
+                        addTask('next', dayCalculator(taskDate), y, username);
+                    }
+                }
+
+                // Incrementa la data per il giorno successivo
+                taskDate.setDate(taskDate.getDate() + 1);
+
+                for (var y = 0; y < endHour && y < 24; y++) {
+                    if (isCurrent(taskDate)) {
+                        addTask('current', dayCalculator(taskDate), y, username);
+                    } else {
+                        addTask('next', dayCalculator(taskDate), y, username);
+                    }
+                }
             }
         }
     }
