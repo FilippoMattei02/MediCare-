@@ -480,42 +480,33 @@ router.put('/employee/:role/:year/:month/work', async (req, res) => {
             return res.status(404).json({ error: 'Workspace not found' });
         }
 
-        const postWorkShift = async (email, day, start, end) => {
-            try {
-                const response = await fetch(`http://localhost:3050/employees/${email}/work/add`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ day, start, end }),
-                });
+        try {
+            // Chiamata asincrona a getWorkShift
+            const jsonData = await getWorkShift(role, year, month);
 
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
-                const data = await response.json();
-                console.log(data);
-                return data;
-
-            } catch (error) {
-                console.error('Error during API call:', error);
-                throw error;
-            }
-        };
-
-        for (const dayOfWork of workspace.daysOfWork) {
-            for (const shift of dayOfWork.shift) {
+            // Iterazione sui dati ottenuti per aggiungere i turni di lavoro
+            for (const user of jsonData) {
+                const { username, work } = user;
                 try {
-                    await postWorkShift(shift.email, dayOfWork.date, shift.start, shift.end);
+                    await postWorkShift(username, work);
+                    console.log(`Successfully added work shifts for ${username}`);
                 } catch (error) {
-                    console.error(`Error adding work shift for ${shift.email}:`, error);
+                    console.error(`Error adding work shifts for ${username}:`, error);
+                    // Potresti voler inviare una risposta parziale in caso di errori specifici
                 }
             }
+
+            res.status(200).json({ message: "Work shifts added to employee schedules" });
+
+        } catch (error) {
+            console.error('Error fetching or processing work shifts:', error);
+            res.status(500).json({ error: 'Failed to process work shifts' });
         }
 
-        res.status(200).json({ message: "Work shifts added to employee schedules" });
     } catch (error) {
         console.error('Error:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
-
 });
 
 
@@ -561,32 +552,6 @@ router.delete('/employee/:role/:year/:month/work', async (req, res) => {
     if (!workspace) {
         return res.status(404).json({ error: 'Workspace not found' });
     }
-
-    const deleteWorkShift = async (email, day, start, end) => {
-        const url = `http://localhost:3050/employees/${email}/work`;
-        const payload = { day, start, end };
-
-        try {
-            const response = await fetch(url, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload),
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-            console.log(data);
-            return data;
-
-        } catch (error) {
-            console.error('Error during API call:', error);
-        }
-    };
 
     for (const dayOfWork of workspace.daysOfWork) {
         for (const shift of dayOfWork.shift) {
@@ -701,5 +666,67 @@ function getNumberOfDays(month,year){
     }
     
 }
+
+async function getWorkShift  (role, year, month) {
+    console.log(role,year,month);
+    try {
+        const response = await fetch(`http://localhost:3050/workspace/${role}/${year}/${month}/shifts `);
+
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+        const data = await response.json();
+        //console.log(data);
+        return data;
+
+    } catch (error) {
+        console.error('Error during API call:', error);
+        throw error;
+    }
+};
+
+ async function postWorkShift (email, shiftList) {
+    try {
+        const response = await fetch(`http://localhost:3050/employees/${email}/work/listOfShifts `, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(shiftList),
+        });
+
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+        const data = await response.json();
+        //console.log(data);
+        return data;
+
+    } catch (error) {
+        console.error('Error during API call:', error);
+        throw error;
+    }
+};
+async function deleteWorkShift (email, day, start, end) {
+    const url = `http://localhost:3050/employees/${email}/work`;
+    const payload = { day, start, end };
+
+    try {
+        const response = await fetch(url, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        //console.log(data);
+        return data;
+
+    } catch (error) {
+        console.error('Error during API call:', error);
+    }
+};
 
 module.exports = router;
