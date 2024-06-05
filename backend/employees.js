@@ -319,7 +319,7 @@ router.post('/:username/work/add', async (req, res) => {
 
 /**
  * @openapi
- * /{username}/work/addList:
+ * /{username}/work/listOfShifts:
  *   post:
  *     summary: Add multiple work shifts for an employee
  *     tags: [Employee]
@@ -424,7 +424,7 @@ router.post('/:username/work/add', async (req, res) => {
  */
 
 
-router.post('/:username/work/addList', async (req, res) => {
+router.post('/:username/work/listOfShifts', async (req, res) => {
     const workSchedules = req.body;
 
     if (!Array.isArray(workSchedules) || workSchedules.length === 0) {
