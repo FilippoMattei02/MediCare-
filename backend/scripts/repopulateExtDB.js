@@ -26,7 +26,7 @@ const crypto=require('crypto');
 	// Clear users
 User.deleteMany().then(()=>{
     
-    let n_user=10;
+    let n_user=50;
     let j=0;
 
     for(let i=0;i<n_user;i++){

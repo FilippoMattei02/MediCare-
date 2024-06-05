@@ -63,60 +63,43 @@ router.get('/:role/:year/:month/shifts', async (req, res) => {
     const year = parseInt(req.params.year, 10);
     const role = req.params.role;
 
-    if (!month) {
-        return res.status(400).json({ error: 'missing month' });
+    if (!month || !Number.isInteger(month) || month < 1 || month > 12) {
+        return res.status(400).json({ error: 'Invalid or missing month' });
     }
-    if(!Number.isInteger(month)){
-        return res.status(400).json({ error: 'Month not a integer' });
-    } else if(month < 1 || month > 12){
-        return res.status(400).json({ error: 'Month not in the range 1-12' });
+
+    if (!year || !Number.isInteger(year) || year < 0) {
+        return res.status(400).json({ error: 'Invalid or missing year' });
     }
-    
-    if (!year) {
-        return res.status(400).json({ error: 'missing year' });
-    }
-    if(!Number.isInteger(year)){
-        return res.status(400).json({ error: 'year not an integer' });
-    } else if(year < 0){
-        return res.status(400).json({ error: 'year not a positive integer' });
-    }
-    
-    if (!role) {
-        return res.status(400).json({ error: 'missing role' });
-    }
-    if(Array.isArray(role)){
-        return res.status(400).json({ error: 'role not a string' });
+
+    if (!role || typeof role !== 'string') {
+        return res.status(400).json({ error: 'Invalid or missing role' });
     }
 
     try {
-        const shifts = await shiftWorkspace.find({
-            role: role,
-            year: parseInt(year),
-            month: parseInt(month)
-        });
+        console.log(role);
+        const employees = await employee.findOne({ role: role }).select('username').exec();
+        if (!employees || employees.length === 0) {
+            return res.status(400).json({ error: 'Not a valid role' });
+        }
 
-        
+        const workspace = await shiftWorkspace.findOne({ role, year, month }).exec();
+        if (!workspace) {
+            return res.status(404).json({ error: 'Workspace not found for this month' });
+        }
+
         let workWithUsernames = [];
-
-
-        shifts.forEach(shift => {
-            
-            shift.daysOfWork.forEach(day => {
-                
-                day.shift.forEach(employeeShift => {
-                    const { email, start, end } = employeeShift;
-                                        
-                    let employeeData = workWithUsernames.find(item => item.username === email);
-                                       
-                    if (!employeeData) {
-                        employeeData = { username: email, work: [] };
-                        workWithUsernames.push(employeeData);
-                    }
-                                       
-                    employeeData.work.push({ day: day.date, start, end });
-                });
+        workspace.daysOfWork.forEach(day => {
+            day.shift.forEach(employeeShift => {
+                const { email, start, end } = employeeShift;
+                let employeeData = workWithUsernames.find(item => item.username === email);
+                if (!employeeData) {
+                    employeeData = { username: email, work: [] };
+                    workWithUsernames.push(employeeData);
+                }
+                employeeData.work.push({ day: day.date, start, end });
             });
         });
+
         res.status(200).json(workWithUsernames);
 
     } catch (err) {
@@ -184,6 +167,11 @@ router.post('/:role/:year/:month', async (req, res) => {
     }
     if(Array.isArray(role)){
         return res.status(400).json({ error: 'role not a string' });
+    }
+
+    let employees=await employee.find({role:role}).exec();
+    if(!employees || employees.length === 0){
+        return res.status(400).json({ error: 'not a valid role' });
     }
 
     let shiftWorkspace_ = await shiftWorkspace.findOne({ year: year, month: month, role: role }).exec();                 
@@ -295,6 +283,12 @@ router.put('/:role/:year/:month/shiftType', async (req, res) => {
         return res.status(400).json({ error: 'shift duration not a submultiple of 24!' });
     }
 
+    let employees=await employee.find({role:role}).exec();
+    if(!employees || employees.length === 0){
+        return res.status(400).json({ error: 'not a valid role' });
+    }else if(employees.length < 24/shiftDuration*peopleForShift){
+        return res.status(400).json({ error: 'people of this role required for a day of work are not enough: decrease the number of people for shift or increase the shift duration number' });
+    }
     let shiftWorkspace_ = await shiftWorkspace.findOne({ year: year, month: month, role: role }).exec();                 
     
     if (!shiftWorkspace_) {
@@ -370,6 +364,10 @@ router.put('/automate/:role/:year/:month/daysOfWork', async (req, res) => {
     }
     if(Array.isArray(role)){
         return res.status(400).json({ error: 'role not a string' });
+    }
+    let employees=await employee.find({role:role}).exec();
+    if(!employees || employees.length === 0){
+        return res.status(400).json({ error: 'not a valid role' });
     }
 
 
@@ -450,6 +448,79 @@ router.put('/automate/:role/:year/:month/daysOfWork', async (req, res) => {
  *         description: Workspace not found
  */
 router.put('/employee/:role/:year/:month/work', async (req, res) => {
+    const { year, month, role } = req.params;
+    const parsedYear = parseInt(year, 10);
+    const parsedMonth = parseInt(month, 10);
+
+    const isValidMonth = (month) => Number.isInteger(month) && month >= 1 && month <= 12;
+    const isValidYear = (year) => Number.isInteger(year) && year >= 0;
+
+    if (!parsedMonth || !isValidMonth(parsedMonth)) {
+        return res.status(400).json({ error: 'Invalid or missing month' });
+    }
+
+    if (!parsedYear || !isValidYear(parsedYear)) {
+        return res.status(400).json({ error: 'Invalid or missing year' });
+    }
+
+    if (!role || typeof role !== 'string') {
+        return res.status(400).json({ error: 'Invalid or missing role' });
+    }
+
+    try {
+        const employees = await employee.find({ role }).exec();
+        if (!employees || employees.length === 0) {
+            return res.status(400).json({ error: 'Not a valid role' });
+        }
+
+        const numberOfDays = getNumberOfDays(parsedMonth, parsedYear);
+        const workspace = await shiftWorkspace.findOne({ year: parsedYear, month: parsedMonth, role }).exec();
+
+        if (!workspace) {
+            return res.status(404).json({ error: 'Workspace not found' });
+        }
+
+        const postWorkShift = async (email, day, start, end) => {
+            try {
+                const response = await fetch(`http://localhost:3050/employees/${email}/work/add`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ day, start, end }),
+                });
+
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+                const data = await response.json();
+                console.log(data);
+                return data;
+
+            } catch (error) {
+                console.error('Error during API call:', error);
+                throw error;
+            }
+        };
+
+        for (const dayOfWork of workspace.daysOfWork) {
+            for (const shift of dayOfWork.shift) {
+                try {
+                    await postWorkShift(shift.email, dayOfWork.date, shift.start, shift.end);
+                } catch (error) {
+                    console.error(`Error adding work shift for ${shift.email}:`, error);
+                }
+            }
+        }
+
+        res.status(200).json({ message: "Work shifts added to employee schedules" });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+
+});
+
+
+
+router.delete('/employee/:role/:year/:month/work', async (req, res) => {
     const year = parseInt(req.params.year, 10);
     const month = parseInt(req.params.month, 10);
     const role = req.params.role;
@@ -478,7 +549,10 @@ router.put('/employee/:role/:year/:month/work', async (req, res) => {
     if(Array.isArray(role)){
         return res.status(400).json({ error: 'role not a string' });
     }
-
+    let employees=await employee.find({role:role}).exec();
+    if(!employees || employees.length === 0){
+        return res.status(400).json({ error: 'not a valid role' });
+    }
 
     const numberOfDays = getNumberOfDays(month, year);
 
@@ -488,13 +562,13 @@ router.put('/employee/:role/:year/:month/work', async (req, res) => {
         return res.status(404).json({ error: 'Workspace not found' });
     }
 
-    const postWorkShift = async (email, day, start, end) => {
-        const url = `http://localhost:3050/employees/${email}/work/add`;
+    const deleteWorkShift = async (email, day, start, end) => {
+        const url = `http://localhost:3050/employees/${email}/work`;
         const payload = { day, start, end };
 
         try {
             const response = await fetch(url, {
-                method: 'POST',
+                method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -517,15 +591,17 @@ router.put('/employee/:role/:year/:month/work', async (req, res) => {
     for (const dayOfWork of workspace.daysOfWork) {
         for (const shift of dayOfWork.shift) {
             try {
-                await postWorkShift(shift.email, dayOfWork.date, shift.start, shift.end);
+                await deleteWorkShift(shift.email, dayOfWork.date, shift.start, shift.end);
             } catch (error) {
-                console.error(`Error adding work shift for ${shift.email}:`, error);
+                console.error(`Error deleting work shift for ${shift.email}:`, error);
             }
         }
     }
 
-    res.status(200).json({ message: "Work shifts added to employee schedules" });
+    res.status(200).json({ message: "Work shifts removed from employee schedules" });
 });
+
+
 
 /**
  * @openapi
@@ -589,6 +665,10 @@ router.delete('/:role/:year/:month/daysOfWork', async (req, res) => {
     if(Array.isArray(role)){
         return res.status(400).json({ error: 'role not a string' });
     }
+    let employees=await employee.find({role:role}).exec();
+    if(!employees || employees.length === 0){
+        return res.status(400).json({ error: 'not a valid role' });
+    }
 
     let workspace = await shiftWorkspace.findOne({ year: year, month: month, role: role }).exec();
 
@@ -602,6 +682,8 @@ router.delete('/:role/:year/:month/daysOfWork', async (req, res) => {
         message: 'days of work removed',
     });
 });
+
+
 
 function getNumberOfDays(month,year){
     if(month==4|| month == 6 || month== 9 || month == 11){
