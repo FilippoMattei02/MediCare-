@@ -5,22 +5,23 @@ const db=require("./database")
 
 
 
-//const mongoose = require('mongoose');
-//const bcrypt = require('bcryptjs'); 
 
 const User   = require('./models/user');
-const Employees=require('./models/employee')
+const Employees=require('./models/employee');
+const Holidays = require('./models/holidays');
 
-//var jsonData = require ('./static/names.json');
+
+
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 const authentication = require('./authentication');
 const holiday=require('./holidays');
-const Holidays = require('./models/holidays');
+
 const shifts = require('./shifts');
 const employees = require('./employees');
-const workspace= require('./SMworkspace')
+const workspace= require('./SMworkspace');
+const coverage= require('./coverage');
 
 
 const swaggerUi = require('swagger-ui-express');
@@ -45,5 +46,6 @@ app.use('/holiday',holiday);
 app.use('/employees', employees);
 app.use('/shifts',shifts);
 app.use('/workspace',workspace);
+app.use('/coverage',coverage);
 
 module.exports = app;
