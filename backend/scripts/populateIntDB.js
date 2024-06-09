@@ -14,7 +14,7 @@ async function populateDatabase() {
         await Employee.deleteMany();
         await Holidays.deleteMany().then(console.log("db cleaned"));
 
-        let n_user = 10;
+        let n_user = 50;
 
         for (let i = 0; i < n_user; i++) {
             const json_name = jsonData.names[i % jsonData.names.length];

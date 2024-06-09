@@ -18,18 +18,18 @@ require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 const authentication = require('./authentication');
 const holiday=require('./holidays');
 const Holidays = require('./models/holidays');
+const shifts = require('./shifts');
 const employees = require('./employees');
+const workspace= require('./SMworkspace')
 
 
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./swagger'); 
-const port = 3050;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // Abilita CORS per tutte le richieste
 app.use(cors());
-
 
 // Serve the Swagger UI documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
@@ -43,8 +43,7 @@ app.use('/auth', authentication);
 
 app.use('/holiday',holiday);
 app.use('/employees', employees);
+app.use('/shifts',shifts);
+app.use('/workspace',workspace);
 
-app.listen(port, () => {
-    console.log(`Server lisening to port: ${port}`);
-});
-
+module.exports = app;
