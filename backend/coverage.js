@@ -53,7 +53,9 @@ router.get('/:role/', async (req, res) => {
         return res.status(404).json({error: 'role not found' });
     }
 
-    let covReq= await coverage.find({ role: role,status:false });
+    let covReq= await coverage.find({ role: role,state:false });
+    // console.log(covReq);
+    // console.log(role);
     if (!covReq) {
         covReq=[];
         return res.status(200).json({message: 'no coverage requests',work:covReq });
@@ -514,7 +516,6 @@ router.post('/:role/:username', async (req, res) => {
  *       '404':
  *         description: User or coverage request not found
  */
-
 router.put('/:role/:resUsername', async (req, res) => {
     const role = req.params.role;
     const res_username = req.params.resUsername;
