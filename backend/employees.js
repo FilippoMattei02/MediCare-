@@ -263,6 +263,7 @@ router.delete('/:username/work', async (req, res) => {
         if (!employee) {
             return res.status(404).json({ error: 'Employee not found' });
         }
+        console.log("1");
 
         const initialLength = employee.work.length;
         employee.work = employee.work.filter(shift =>
@@ -344,7 +345,10 @@ router.delete('/:username/work', async (req, res) => {
 
 
 router.post('/:username/work/add', async (req, res) => {
-    const { day, start, end } = req.body;
+    let { day, start, end } = req.body;
+    start =parseInt(start,10);
+    end =parseInt(end,10);
+
 
     if (!day || start == null || end == null) {
         return res.status(400).json({ error: 'Day, start, and end are required' });

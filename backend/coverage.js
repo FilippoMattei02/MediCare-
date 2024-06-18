@@ -566,7 +566,7 @@ router.put('/:role/:resUsername', async (req, res) => {
     if (!covReq) {
         return res.status(404).json({message: 'coverage request not found or already covered'});
     }
-    covReq.status=true;
+    covReq.state=true;
     covReq.res_username=res_username;
     
     
@@ -574,6 +574,7 @@ router.put('/:role/:resUsername', async (req, res) => {
     if(state==1){
         return res.status(500).json({ error: 'Problem in the edit of work shifts' });
     }
+    
     await covReq.save();
     return res.status(200).json({
         response:"coverage request accepted:",
@@ -669,8 +670,8 @@ function dateToString(date){
 
 async function publishWorkShifts(start,end,day,req_username,res_username,role){
     try {
-        await deleteWorkShift(req_username, day, start, end);         
-        
+        const data=await deleteWorkShift(req_username, day, start, end);         
+        console.log(data);
         try {
             await postWorkShift(res_username, day,start,end);
             console.log(`Successfully added work shifts for ${res_username}`);
@@ -709,7 +710,8 @@ async function postWorkShift (email, day, start, end) {
 };
 async function deleteWorkShift (email, day, start, end) {
     const url = `http://localhost:3050/employees/${email}/work`;
-    const payload = { day, start, end };
+    const newDate=new Date(day)
+    const payload = { newDate, start, end };
 
     try {
         const response = await fetch(url, {
@@ -725,7 +727,7 @@ async function deleteWorkShift (email, day, start, end) {
         }
 
         const data = await response.json();
-        //console.log(data);
+        console.log(data);
         return data;
 
     } catch (error) {
