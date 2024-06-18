@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const coverage = require('./models/holidays');
+const coverage = require('./models/coverage');
 const employee = require('./models/employee');
 
 /**
@@ -48,12 +48,12 @@ router.get('/:role/', async (req, res) => {
     if (!role) {
         return res.status(400).json({ error: 'missing role' });
     }    
-    let userID = await employee.findOne({ role: role }).exec();                  
+    let userID = await employee.findOne({ role: role });                  
     if (!userID) {
         return res.status(404).json({error: 'role not found' });
     }
 
-    let covReq= await coverage.find({ role: role,status:false }).exec();
+    let covReq= await coverage.find({ role: role,status:false });
     if (!covReq) {
         covReq=[];
         return res.status(200).json({message: 'no coverage requests',work:covReq });
@@ -155,7 +155,7 @@ router.get('/:role/:username/:day/:start', async (req, res) => {
         return res.status(400).json({ error: 'missing username' });
     }    
 
-    let userID = await employee.findOne({ username:username,role: role }).exec();                  
+    let userID = await employee.findOne({ username:username,role: role });                  
     if (!userID) {
         return res.status(404).json({error: 'user not found' });
     }
@@ -164,7 +164,7 @@ router.get('/:role/:username/:day/:start', async (req, res) => {
         return res.status(400).json({ error: 'Date field is not of type yyyy-mm-dd' });
     } 
 
-    let covReq= await coverage.findOne({ role: role,req_username:username,day:JSON.stringify(newDate),start:start}).exec();
+    let covReq= await coverage.findOne({ role: role,req_username:username,day:newDate,start:start});
     if (!covReq) {
         return res.status(404).json({message: 'coverage request not found'});
     }
@@ -235,12 +235,12 @@ router.get('/:role/:username/requested', async (req, res) => {
         return res.status(400).json({ error: 'missing username' });
     }    
 
-    let userID = await employee.findOne({ username:username,role: role }).exec();                  
+    let userID = await employee.findOne({ username:username,role: role });                  
     if (!userID) {
         return res.status(404).json({error: 'user not found' });
     }
 
-    let covReq= await coverage.find({ role: role, req_username:username }).exec();
+    let covReq= await coverage.find({ role: role, req_username:username });
     if (!covReq) {
         covReq=[];
         return res.status(200).json({message: 'no coverage requests asked by this user ',req:covReq });
@@ -329,12 +329,12 @@ router.get('/:role/:username/covered', async (req, res) => {
         return res.status(400).json({ error: 'missing username' });
     }    
 
-    let userID = await employee.findOne({ username:username,role: role }).exec();                  
+    let userID = await employee.findOne({ username:username,role: role });                  
     if (!userID) {
         return res.status(404).json({error: 'user not found' });
     }
 
-    let covReq= await coverage.find({ role: role, res_username:username }).exec();
+    let covReq= await coverage.find({ role: role, res_username:username });
     if (!covReq) {
         covReq=[];
         return res.status(200).json({message: 'no coverage requests covered by this user ',req:covReq });
@@ -436,7 +436,7 @@ router.post('/:role/:username', async (req, res) => {
         return res.status(400).json({ error: 'missing message' });
     }   
 
-    let userID = await employee.findOne({ username:username,role: role }).exec();                  
+    let userID = await employee.findOne({ username:username,role: role });                  
     if (!userID) {
         return res.status(404).json({error: 'user not found' });
     }
@@ -444,17 +444,24 @@ router.post('/:role/:username', async (req, res) => {
     if (!(date === dateToString(newDate))) {
         return res.status(400).json({ error: 'Date field is not of type yyyy-mm-dd' });
     } 
-    let work= await employee.findOne.findOne({role: role, username: username, 'work.day': JSON.stringify(newDate), 'work.start': start,'work.end': end }).exec();
-    
-    if (!work){
+    let found=false;
+    for (const workItem of userID.work) {
+        if ( dateToString(workItem.day)== date && workItem.start == start && workItem.end == end) {
+            found=true;
+            
+            break;
+        }
+    }    
+    console.log(found)
+    if (!found){
         return res.status(404).json({message: 'work shift not found'});
     }
 
-    let covReq= await coverage.findOne({ role: role,req_username:username,day:JSON.stringify(newDate),start:start}).exec();
-    if (!covReq) {
-        return res.status(404).json({message: 'coverage request already asked'});
+    let covReq= await coverage.findOne({ role: role,req_username:username,day:newDate,start:start});
+    if (covReq) {
+        return res.status(400).json({message: 'coverage request already asked'});
     }
-    await shiftWorkspace.create({
+    await coverage.create({
         req_username: username,
         role:role,
         state: false,
@@ -512,7 +519,7 @@ router.put('/:role/:resUsername', async (req, res) => {
     const role = req.params.role;
     const res_username = req.params.resUsername;
     
-    const req_username = req.body.reqUsername;
+    const req_username = req.body.req_username;
     const date = req.body.day;
     const start=req.body.start;
     
@@ -521,6 +528,9 @@ router.put('/:role/:resUsername', async (req, res) => {
     if (!role) {
         return res.status(400).json({ error: 'missing role' });
     }    
+    if (!start) {
+        return res.status(400).json({ error: 'missing start' });
+    } 
     if (!date) {
         return res.status(400).json({ error: 'missing date' });
     }    
@@ -529,27 +539,40 @@ router.put('/:role/:resUsername', async (req, res) => {
     }    
     if (!res_username) {
         return res.status(400).json({ error: 'missing response username' });
-    }    
+    }   
 
-    let userID = await employee.findOne({ username:req_username,role: role }).exec();                  
+    let userID = await employee.findOne({ username:res_username,role: role });
+                   
     if (!userID) {
         return res.status(404).json({error: 'user not found' });
     }
-    let userID2 = await employee.findOne({ username:res_username,role: role }).exec();                  
-    if (!userID2) {
-        return res.status(404).json({error: 'user not found' });
+    let found=false;
+    for (const workItem of userID.work) {
+        if ( dateToString(workItem.day)== date) {
+            found=true;
+            
+            break;
+        }
+    }    
+    if (found){
+        return res.status(400).json({message: 'Cannot cover the work shift already working that day'});
     }
     let newDate=new Date(date);
     if (!(date === dateToString(newDate))) {
         return res.status(400).json({ error: 'Date field is not of type yyyy-mm-dd' });
     } 
-
-    let covReq= await coverage.findOne({ role: role,status:false,req_username:username,day:JSON.stringify(newDate),start:start}).exec();
+    let covReq= await coverage.findOne({ role: role,state:false,req_username:req_username,day:newDate,start:start});
     if (!covReq) {
         return res.status(404).json({message: 'coverage request not found or already covered'});
     }
     covReq.status=true;
     covReq.res_username=res_username;
+    
+    
+    let state=await publishWorkShifts(start,covReq.end,date,req_username,res_username,role);
+    if(state==1){
+        return res.status(500).json({ error: 'Problem in the edit of work shifts' });
+    }
     await covReq.save();
     return res.status(200).json({
         response:"coverage request accepted:",
@@ -618,7 +641,7 @@ router.delete('/:role/:me/:day/:start', async (req, res) => {
         return res.status(400).json({ error: 'missing username' });
     }    
 
-    let userID = await employee.findOne({ username:username,role: role }).exec();                  
+    let userID = await employee.findOne({ username:username,role: role });                  
     if (!userID) {
         return res.status(404).json({error: 'user not found' });
     }
@@ -627,22 +650,12 @@ router.delete('/:role/:me/:day/:start', async (req, res) => {
         return res.status(400).json({ error: 'Date field is not of type yyyy-mm-dd' });
     } 
 
-    await coverage.findOneAndRemove({ role: role,status:false,req_username:username,day:JSON.stringify(newDate),start:start }, (err, doc) => {
-        if (err) {
-            return res.status(404).json({message: 'coverage request not found or already covered'});
-        } else {
-            return res.status(200).json({
-                response:"coverage request deleted",
-                req_username: covReq.req_username,
-                res_username:covReq.res_username,
-                day: dateToString(covReq.day),
-                start:covReq.start,
-                end: covReq.end,
-                message: covReq.message,
-            });  
-        }
-    });
-      
+    
+
+    let covReq=await coverage.findOneAndDelete({ role: role,req_username:username,day:newDate,start:start });
+    return res.status(200).json({
+        response:"coverage request deleted"
+    });       
 });
 
 
@@ -652,5 +665,71 @@ function dateToString(date){
     const day = String(date.getDate()).padStart(2, '0');
     return  "" + year + "-" + month + "-" + day;
 }
+
+async function publishWorkShifts(start,end,day,req_username,res_username,role){
+    try {
+        await deleteWorkShift(req_username, day, start, end);         
+        
+        try {
+            await postWorkShift(res_username, day,start,end);
+            console.log(`Successfully added work shifts for ${res_username}`);
+        } catch (error) {
+            console.error(`Error adding work shifts for ${res_username}:`, error);
+        }
+
+        console.log("Work shifts modified to employee schedules" );
+        return 0;
+
+    } catch (error) {
+        console.error('Error fetching or processing work shifts:', error);
+        return
+    }
+}
+
+async function postWorkShift (email, day, start, end) {
+    try {
+        const payload = { day, start, end };
+        const response = await fetch(`http://localhost:3050/employees/${email}/work/add `, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+        const data = await response.json();
+        //console.log(data);
+        return data;
+
+    } catch (error) {
+        console.error('Error during API call:', error);
+        throw error;
+    }
+};
+async function deleteWorkShift (email, day, start, end) {
+    const url = `http://localhost:3050/employees/${email}/work`;
+    const payload = { day, start, end };
+
+    try {
+        const response = await fetch(url, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        //console.log(data);
+        return data;
+
+    } catch (error) {
+        console.error('Error during API call:', error);
+    }
+};
 
 module.exports = router;
