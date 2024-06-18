@@ -252,29 +252,32 @@ router.post('/:username/work', async (req, res) => {
  *         description: Internal server error
  */
 router.delete('/:username/work', async (req, res) => {
-    const { day, start, end } = req.body;
+    let { day, start, end } = req.body;
+    end=parseInt(end,10);
+    start=parseInt(start,10);
 
     if (!day || start == null || end == null) {
         return res.status(400).json({ error: 'Day, start, and end are required' });
     }
 
     try {
+        
         const employee = await Employee.findOne({ username: req.params.username }).exec();
         if (!employee) {
             return res.status(404).json({ error: 'Employee not found' });
         }
-        console.log("1");
+        
 
         const initialLength = employee.work.length;
         employee.work = employee.work.filter(shift =>
             !(new Date(shift.day).toISOString() === new Date(day).toISOString() && shift.start === start && shift.end === end)
         );
-
+       
         if (employee.work.length === initialLength) {
             return res.status(404).json({ error: 'Shift not found' });
         }
-
         await employee.save();
+        
         res.status(200).json({ message: 'Shift deleted successfully', employee });
     } catch (error) {
         res.status(500).json({ error: 'Internal server error' });

@@ -670,8 +670,8 @@ function dateToString(date){
 
 async function publishWorkShifts(start,end,day,req_username,res_username,role){
     try {
-        const data=await deleteWorkShift(req_username, day, start, end);         
-        console.log(data);
+        await deleteWorkShift(req_username, day, start, end);         
+        
         try {
             await postWorkShift(res_username, day,start,end);
             console.log(`Successfully added work shifts for ${res_username}`);
@@ -708,10 +708,10 @@ async function postWorkShift (email, day, start, end) {
         throw error;
     }
 };
-async function deleteWorkShift (email, day, start, end) {
+async function deleteWorkShift (email, day1, start, end) {
     const url = `http://localhost:3050/employees/${email}/work`;
-    const newDate=new Date(day)
-    const payload = { newDate, start, end };
+    const day=new Date(day1).toISOString();
+    const payload = { day, start, end };
 
     try {
         const response = await fetch(url, {
@@ -727,7 +727,7 @@ async function deleteWorkShift (email, day, start, end) {
         }
 
         const data = await response.json();
-        console.log(data);
+        
         return data;
 
     } catch (error) {
