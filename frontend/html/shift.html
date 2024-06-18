@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shift Calendar</title>
+    <link rel="stylesheet" href="../css/shifts.css">
+    <link rel="stylesheet" type="text/css" href="../css/home.css">
+</head>
+<body>
+    <header>
+        <h1>Medicare</h1>
+    </header>
+    <h1>Calendario Settimanale</h1>
+    <div class="input-fields">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+        
+        <label for="date">Date:</label>
+        <input type="date" id="date" name="date" required>
+        
+        <label for="start">Start:</label>
+        <input type="text" id="start" name="start" required>
+        
+        <label for="end">End:</label>
+        <input type="text" id="end" name="end" required>
+        
+        <button id="addBtn">Add</button>
+        <button id="deleteBtn">Delete</button>
+    </div>
+    <div>
+        <label for="Month">Month:</label>
+        <input type="text" id="month2" name="month2" required>
+        <label for="Year">Year:</label>
+        <input type="text" id="year2" name="year2" required>
+        <label for="role">Role:</label>
+        <input type="text" id="role2" name="role2" required>
+        <label for="shiftDuration">Shift Duration:</label>
+        <input type="text" id="shiftDuration" name="shiftDuration" required>
+        <label for="employeesForShift">Employees for Shift:</label>
+        <input type="text" id="employeesForShift" name="employeesForShift" required>
+        <button id="automateButton">Automate</button>
+    </div>
+    <div class="buttons">
+        <button id="nextWeekBtn">Settimana Successiva</button>
+        <button id="prevWeekBtn" style="display:none;">Settimana Corrente</button>
+    </div>
+    <div id="currentWeek" class="calendar">
+        <table>
+            <thead>
+                <tr>
+                    <th>Ora</th>
+                    <th>Lunedì</th>
+                    <th>Martedì</th>
+                    <th>Mercoledì</th>
+                    <th>Giovedì</th>
+                    <th>Venerdì</th>
+                    <th>Sabato</th>
+                    <th>Domenica</th>
+                </tr>
+            </thead>
+            <tbody>
+              <!-- Fasce orarie di 1 ora -->
+            <tr><td>00:00 - 01:00</td><td id="mon-0"></td><td id="tue-0"></td><td id="wed-0"></td><td id="thu-0"></td><td id="fri-0"></td><td id="sat-0"></td><td id="sun-0"></td></tr>
+            <tr><td>01:00 - 02:00</td><td id="mon-1"></td><td id="tue-1"></td><td id="wed-1"></td><td id="thu-1"></td><td id="fri-1"></td><td id="sat-1"></td><td id="sun-1"></td></tr>
+            <tr><td>02:00 - 03:00</td><td id="mon-2"></td><td id="tue-2"></td><td id="wed-2"></td><td id="thu-2"></td><td id="fri-2"></td><td id="sat-2"></td><td id="sun-2"></td></tr>
+            <tr><td>03:00 - 04:00</td><td id="mon-3"></td><td id="tue-3"></td><td id="wed-3"></td><td id="thu-3"></td><td id="fri-3"></td><td id="sat-3"></td><td id="sun-3"></td></tr>
+            <tr><td>04:00 - 05:00</td><td id="mon-4"></td><td id="tue-4"></td><td id="wed-4"></td><td id="thu-4"></td><td id="fri-4"></td><td id="sat-4"></td><td id="sun-4"></td></tr>
+            <tr><td>05:00 - 06:00</td><td id="mon-5"></td><td id="tue-5"></td><td id="wed-5"></td><td id="thu-5"></td><td id="fri-5"></td><td id="sat-5"></td><td id="sun-5"></td></tr>
+            <tr><td>06:00 - 07:00</td><td id="mon-6"></td><td id="tue-6"></td><td id="wed-6"></td><td id="thu-6"></td><td id="fri-6"></td><td id="sat-6"></td><td id="sun-6"></td></tr>
+            <tr><td>07:00 - 08:00</td><td id="mon-7"></td><td id="tue-7"></td><td id="wed-7"></td><td id="thu-7"></td><td id="fri-7"></td><td id="sat-7"></td><td id="sun-7"></td></tr>
+            <tr><td>08:00 - 09:00</td><td id="mon-8"></td><td id="tue-8"></td><td id="wed-8"></td><td id="thu-8"></td><td id="fri-8"></td><td id="sat-8"></td><td id="sun-8"></td></tr>
+            <tr><td>09:00 - 10:00</td><td id="mon-9"></td><td id="tue-9"></td><td id="wed-9"></td><td id="thu-9"></td><td id="fri-9"></td><td id="sat-9"></td><td id="sun-9"></td></tr>
+            <tr><td>10:00 - 11:00</td><td id="mon-10"></td><td id="tue-10"></td><td id="wed-10"></td><td id="thu-10"></td><td id="fri-10"></td><td id="sat-10"></td><td id="sun-10"></td></tr>
+            <tr><td>11:00 - 12:00</td><td id="mon-11"></td><td id="tue-11"></td><td id="wed-11"></td><td id="thu-11"></td><td id="fri-11"></td><td id="sat-11"></td><td id="sun-11"></td></tr>
+            <tr><td>12:00 - 13:00</td><td id="mon-12"></td><td id="tue-12"></td><td id="wed-12"></td><td id="thu-12"></td><td id="fri-12"></td><td id="sat-12"></td><td id="sun-12"></td></tr>
+            <tr><td>13:00 - 14:00</td><td id="mon-13"></td><td id="tue-13"></td><td id="wed-13"></td><td id="thu-13"></td><td id="fri-13"></td><td id="sat-13"></td><td id="sun-13"></td></tr>
+            <tr><td>14:00 - 15:00</td><td id="mon-14"></td><td id="tue-14"></td><td id="wed-14"></td><td id="thu-14"></td><td id="fri-14"></td><td id="sat-14"></td><td id="sun-14"></td></tr>
+            <tr><td>15:00 - 16:00</td><td id="mon-15"></td><td id="tue-15"></td><td id="wed-15"></td><td id="thu-15"></td><td id="fri-15"></td><td id="sat-15"></td><td id="sun-15"></td></tr>
+            <tr><td>16:00 - 17:00</td><td id="mon-16"></td><td id="tue-16"></td><td id="wed-16"></td><td id="thu-16"></td><td id="fri-16"></td><td id="sat-16"></td><td id="sun-16"></td></tr>
+            <tr><td>17:00 - 18:00</td><td id="mon-17"></td><td id="tue-17"></td><td id="wed-17"></td><td id="thu-17"></td><td id="fri-17"></td><td id="sat-17"></td><td id="sun-17"></td></tr>
+            <tr><td>18:00 - 19:00</td><td id="mon-18"></td><td id="tue-18"></td><td id="wed-18"></td><td id="thu-18"></td><td id="fri-18"></td><td id="sat-18"></td><td id="sun-18"></td></tr>
+            <tr><td>19:00 - 20:00</td><td id="mon-19"></td><td id="tue-19"></td><td id="wed-19"></td><td id="thu-19"></td><td id="fri-19"></td><td id="sat-19"></td><td id="sun-19"></td></tr>
+            <tr><td>20:00 - 21:00</td><td id="mon-20"></td><td id="tue-20"></td><td id="wed-20"></td><td id="thu-20"></td><td id="fri-20"></td><td id="sat-20"></td><td id="sun-20"></td></tr>
+            <tr><td>21:00 - 22:00</td><td id="mon-21"></td><td id="tue-21"></td><td id="wed-21"></td><td id="thu-21"></td><td id="fri-21"></td><td id="sat-21"></td><td id="sun-21"></td></tr>
+            <tr><td>22:00 - 23:00</td><td id="mon-22"></td><td id="tue-22"></td><td id="wed-22"></td><td id="thu-22"></td><td id="fri-22"></td><td id="sat-22"></td><td id="sun-22"></td></tr>
+            <tr><td>23:00 - 00:00</td><td id="mon-23"></td><td id="tue-23"></td><td id="wed-23"></td><td id="thu-23"></td><td id="fri-23"></td><td id="sat-23"></td><td id="sun-23"></td></tr>
+            </tbody>
+        </table>
+    </div>
+    <div id="nextWeek" class="calendar" style="display:none;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Ora</th>
+                    <th>Lunedì</th>
+                    <th>Martedì</th>
+                    <th>Mercoledì</th>
+                    <th>Giovedì</th>
+                    <th>Venerdì</th>
+                    <th>Sabato</th>
+                    <th>Domenica</th>
+                </tr>
+            </thead>
+            <tbody>
+              <!-- Fasce orarie di 1 ora -->
+            <tr><td>00:00 - 01:00</td><td id="mon-next-0"></td><td id="tue-next-0"></td><td id="wed-next-0"></td><td id="thu-next-0"></td><td id="fri-next-0"></td><td id="sat-next-0"></td><td id="sun-next-0"></td></tr>
+            <tr><td>01:00 - 02:00</td><td id="mon-next-1"></td><td id="tue-next-1"></td><td id="wed-next-1"></td><td id="thu-next-1"></td><td id="fri-next-1"></td><td id="sat-next-1"></td><td id="sun-next-1"></td></tr>
+            <tr><td>02:00 - 03:00</td><td id="mon-next-2"></td><td id="tue-next-2"></td><td id="wed-next-2"></td><td id="thu-next-2"></td><td id="fri-next-2"></td><td id="sat-next-2"></td><td id="sun-next-2"></td></tr>
+            <tr><td>03:00 - 04:00</td><td id="mon-next-3"></td><td id="tue-next-3"></td><td id="wed-next-3"></td><td id="thu-next-3"></td><td id="fri-next-3"></td><td id="sat-next-3"></td><td id="sun-next-3"></td></tr>
+            <tr><td>04:00 - 05:00</td><td id="mon-next-4"></td><td id="tue-next-4"></td><td id="wed-next-4"></td><td id="thu-next-4"></td><td id="fri-next-4"></td><td id="sat-next-4"></td><td id="sun-next-4"></td></tr>
+            <tr><td>05:00 - 06:00</td><td id="mon-next-5"></td><td id="tue-next-5"></td><td id="wed-next-5"></td><td id="thu-next-5"></td><td id="fri-next-5"></td><td id="sat-next-5"></td><td id="sun-next-5"></td></tr>
+            <tr><td>06:00 - 07:00</td><td id="mon-next-6"></td><td id="tue-next-6"></td><td id="wed-next-6"></td><td id="thu-next-6"></td><td id="fri-next-6"></td><td id="sat-next-6"></td><td id="sun-next-6"></td></tr>
+            <tr><td>07:00 - 08:00</td><td id="mon-next-7"></td><td id="tue-next-7"></td><td id="wed-next-7"></td><td id="thu-next-7"></td><td id="fri-next-7"></td><td id="sat-next-7"></td><td id="sun-next-7"></td></tr>
+            <tr><td>08:00 - 09:00</td><td id="mon-next-8"></td><td id="tue-next-8"></td><td id="wed-next-8"></td><td id="thu-next-8"></td><td id="fri-next-8"></td><td id="sat-next-8"></td><td id="sun-next-8"></td></tr>
+            <tr><td>09:00 - 10:00</td><td id="mon-next-9"></td><td id="tue-next-9"></td><td id="wed-next-9"></td><td id="thu-next-9"></td><td id="fri-next-9"></td><td id="sat-next-9"></td><td id="sun-next-9"></td></tr>
+            <tr><td>10:00 - 11:00</td><td id="mon-next-10"></td><td id="tue-next-10"></td><td id="wed-next-10"></td><td id="thu-next-10"></td><td id="fri-next-10"></td><td id="sat-next-10"></td><td id="sun-next-10"></td></tr>
+            <tr><td>11:00 - 12:00</td><td id="mon-next-11"></td><td id="tue-next-11"></td><td id="wed-next-11"></td><td id="thu-next-11"></td><td id="fri-next-11"></td><td id="sat-next-11"></td><td id="sun-next-11"></td></tr>
+            <tr><td>12:00 - 13:00</td><td id="mon-next-12"></td><td id="tue-next-12"></td><td id="wed-next-12"></td><td id="thu-next-12"></td><td id="fri-next-12"></td><td id="sat-next-12"></td><td id="sun-next-12"></td></tr>
+            <tr><td>13:00 - 14:00</td><td id="mon-next-13"></td><td id="tue-next-13"></td><td id="wed-next-13"></td><td id="thu-next-13"></td><td id="fri-next-13"></td><td id="sat-next-13"></td><td id="sun-next-13"></td></tr>
+            <tr><td>14:00 - 15:00</td><td id="mon-next-14"></td><td id="tue-next-14"></td><td id="wed-next-14"></td><td id="thu-next-14"></td><td id="fri-next-14"></td><td id="sat-next-14"></td><td id="sun-next-14"></td></tr>
+            <tr><td>15:00 - 16:00</td><td id="mon-next-15"></td><td id="tue-next-15"></td><td id="wed-next-15"></td><td id="thu-next-15"></td><td id="fri-next-15"></td><td id="sat-next-15"></td><td id="sun-next-15"></td></tr>
+            <tr><td>16:00 - 17:00</td><td id="mon-next-16"></td><td id="tue-next-16"></td><td id="wed-next-16"></td><td id="thu-next-16"></td><td id="fri-next-16"></td><td id="sat-next-16"></td><td id="sun-next-16"></td></tr>
+            <tr><td>17:00 - 18:00</td><td id="mon-next-17"></td><td id="tue-next-17"></td><td id="wed-next-17"></td><td id="thu-next-17"></td><td id="fri-next-17"></td><td id="sat-next-17"></td><td id="sun-next-17"></td></tr>
+            <tr><td>18:00 - 19:00</td><td id="mon-next-18"></td><td id="tue-next-18"></td><td id="wed-next-18"></td><td id="thu-next-18"></td><td id="fri-next-18"></td><td id="sat-next-18"></td><td id="sun-next-18"></td></tr>
+            <tr><td>19:00 - 20:00</td><td id="mon-next-19"></td><td id="tue-next-19"></td><td id="wed-next-19"></td><td id="thu-next-19"></td><td id="fri-next-19"></td><td id="sat-next-19"></td><td id="sun-next-19"></td></tr>
+            <tr><td>20:00 - 21:00</td><td id="mon-next-20"></td><td id="tue-next-20"></td><td id="wed-next-20"></td><td id="thu-next-20"></td><td id="fri-next-20"></td><td id="sat-next-20"></td><td id="sun-next-20"></td></tr>
+            <tr><td>21:00 - 22:00</td><td id="mon-next-21"></td><td id="tue-next-21"></td><td id="wed-next-21"></td><td id="thu-next-21"></td><td id="fri-next-21"></td><td id="sat-next-21"></td><td id="sun-next-21"></td></tr>
+            <tr><td>22:00 - 23:00</td><td id="mon-next-22"></td><td id="tue-next-22"></td><td id="wed-next-22"></td><td id="thu-next-22"></td><td id="fri-next-22"></td><td id="sat-next-22"></td><td id="sun-next-22"></td></tr>
+            <tr><td>23:00 - 00:00</td><td id="mon-next-23"></td><td id="tue-next-23"></td><td id="wed-next-23"></td><td id="thu-next-23"></td><td id="fri-next-23"></td><td id="sat-next-23"></td><td id="sun-next-23"></td></tr>
+            </tbody>
+        </table>
+    </div>
+    <script src="../javascript/shifts.js"></script>
+</body>
+</html>

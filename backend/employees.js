@@ -61,6 +61,65 @@ router.get('/:username', async (req, res) => {
 
 /**
  * @openapi
+ * /role/{username}:
+ *   get:
+ *     summary: Get the role and work schedule of an employee by username
+ *     tags: [Employee]
+ *     parameters:
+ *       - in: path
+ *         name: username
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The username of the employee
+ *     responses:
+ *       200:
+ *         description: The employee's role and work schedule
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 shiftManager:
+ *                   type: object
+ *                   properties:
+ *                     username:
+ *                       type: string
+ *                     role:
+ *                       type: string
+ *                     work:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           day:
+ *                             type: string
+ *                           start:
+ *                             type: integer
+ *                           end:
+ *                             type: integer
+ *       404:
+ *         description: Employee not found
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/role/:username', async (req, res) => {
+    console.log(`Received GET request for employee username: ${req.params.username}`);
+    try {
+        const employee = await Employee.findOne({ username: req.params.username }).exec();
+        if (!employee) {
+            console.log('Employee not found');
+            return res.status(404).json({ error: 'Employee not found' });
+        }
+        res.status(200).json(employee.shiftManager);
+    } catch (error) {
+        console.error('Internal server error', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+/**
+ * @openapi
  * /{username}/work:
  *   post:
  *     summary: Modify work schedule for an employee
@@ -279,7 +338,9 @@ router.delete('/:username/work', async (req, res) => {
  */
 router.post('/:username/work/add', async (req, res) => {
     const { day, start, end } = req.body;
-
+    console.log("ADD");
+    console.log("username:", req.params.username);
+    console.log("date:", day);console.log("start:", start);console.log("end:", end);
     if (!day || start == null || end == null) {
         return res.status(400).json({ error: 'Day, start, and end are required' });
     }

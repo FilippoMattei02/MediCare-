@@ -6,10 +6,12 @@ let events = [];
 // letiables to store event input fields and reminder list
 let eventDateInput =
 	document.getElementById("eventDate");
+
 let eventTitleInput =
 	document.getElementById("eventTitle");
 let eventDescriptionInput =
 	document.getElementById("eventDescription");
+
 let reminderList =
 	document.getElementById("reminderList");
 
@@ -68,9 +70,9 @@ function setCalendar() {
 						console.log(`Vacanza ${index + 1}:`, date);
 						//eventDateInput.value = eventData.date;
 						eventDateInput.value = date;
-                        eventTitleInput.value = 'title';
-                        eventDescriptionInput.value = 'description';
-						addEvent(date, 'title', 'description');
+                        eventTitleInput.value = 'holiday';
+                        eventDescriptionInput.value = '';
+						addEvent(date, 'holiday', '');
 					});
 				})
 				.catch(error => {
@@ -202,12 +204,12 @@ function displayReminders() {
 			currentYear) {
 			let listItem = document.createElement("li");
 			listItem.innerHTML =
-				`<strong>${event.title}</strong> - 
-			${event.description} on 
+				`<strong>${'holiday'}</strong> - 
+			${''} on 
 			${eventDate.toLocaleDateString()}`;
 
 			// Add a delete button for each reminder item
-			let deleteButton =
+			/*let deleteButton =
 				document.createElement("button");
 			deleteButton.className = "delete-event";
 			deleteButton.textContent = "Delete";
@@ -215,7 +217,7 @@ function displayReminders() {
 				deleteEvent(event.id);
 			};
 
-			listItem.appendChild(deleteButton);
+			listItem.appendChild(deleteButton);*/
 			reminderList.appendChild(listItem);
 		}
 	}

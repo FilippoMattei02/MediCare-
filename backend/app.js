@@ -18,7 +18,10 @@ require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 const authentication = require('./authentication');
 const holiday=require('./holidays');
 const Holidays = require('./models/holidays');
+const shifts = require('./shifts');
+const calendar = require('./calendar');
 const employees = require('./employees');
+const workspace= require('./SMworkspace')
 
 
 const swaggerUi = require('swagger-ui-express');
@@ -43,6 +46,9 @@ app.use('/auth', authentication);
 
 app.use('/holiday',holiday);
 app.use('/employees', employees);
+app.use('/shifts',shifts);
+app.use('/calendar',calendar);
+app.use('/workspace',workspace);
 
 app.listen(port, () => {
     console.log(`Server lisening to port: ${port}`);

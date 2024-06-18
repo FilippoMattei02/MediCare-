@@ -15,6 +15,7 @@
         <div class="btn-container">
             <button class="btn">Calendar</button>
             <button class="btn">Holiday</button>
+            <button class="btn">Shift</button>
         </div>
         <div class="table-container">
             <table id="infoTable" class="display hover">
@@ -41,12 +42,18 @@
     <script src="../javascript/home_table.js"></script>
     <script>
         var helpButton = document.querySelector('.btn-container .btn:nth-child(2)');
+        var shiftButton = document.querySelector('.btn-container .btn:nth-child(3)');
         var calendarButton = document.querySelector('.btn-container .btn:nth-child(1)');
 
         // Aggiungi un gestore di eventi per il clic sul bottone "Help"
         helpButton.addEventListener('click', function() {
             // Reindirizza l'utente alla pagina di help
             window.location.href = "holiday.html"; // Sostituisci "help.html" con il percorso corretto della tua pagina di help
+        });
+
+        shiftButton.addEventListener('click', function() {
+            // Reindirizza l'utente alla pagina di help
+            window.location.href = "../html/shift.html"; // Sostituisci "help.html" con il percorso corretto della tua pagina di help
         });
 
         calendarButton.addEventListener('click', function() {
