@@ -41,11 +41,18 @@
     <script src="../javascript/home_table.js"></script>
     <script>
         var helpButton = document.querySelector('.btn-container .btn:nth-child(2)');
+        var askCoverageButton = document.querySelector('.ask-coverage .btn');
 
         // Aggiungi un gestore di eventi per il clic sul bottone "Help"
         helpButton.addEventListener('click', function() {
             // Reindirizza l'utente alla pagina di help
-            window.location.href = "holiday.html"; // Sostituisci "help.html" con il percorso corretto della tua pagina di help
+            window.location.href = "holiday.html"; // Sostituisci "holiday.html" con il percorso corretto della tua pagina di help
+        });
+
+        // Aggiungi un gestore di eventi per il clic sul bottone "Ask Coverage"
+        askCoverageButton.addEventListener('click', function() {
+            // Reindirizza l'utente alla pagina di ask coverage
+            window.location.href = "cov.html"; // Sostituisci "cov.html" con il percorso corretto della tua pagina dedicata
         });
     </script>
         
