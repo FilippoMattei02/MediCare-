@@ -170,12 +170,10 @@ function outOfRange(date){
  }
 
 
-
-// Function to create a new workspace for a specific role, year, and month
-async function createWorkspace(role, year, month) {
+ async function createWorkspace(role, year, month) {
     console.log(`Creating workspace for role: ${role}, year: ${year}, month: ${month}`);
     try {
-        const response = await fetch(`/workspace/${role}/${year}/${month}`, {
+        const response = await fetch(`http://localhost:3050/workspace/${role}/${year}/${month}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -199,11 +197,12 @@ async function createWorkspace(role, year, month) {
     }
 }
 
+
 // Function to update shift details for a specific role, year, and month
 async function updateShiftType(role, year, month, shiftData) {
     console.log(`Updating shift type for role: ${role}, year: ${year}, month: ${month}`);
     try {
-        const response = await fetch(`/workspace/${role}/${year}/${month}/shiftType`, {
+        const response = await fetch(`http://localhost:3050/workspace/${role}/${year}/${month}/shiftType`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -211,7 +210,8 @@ async function updateShiftType(role, year, month, shiftData) {
             body: JSON.stringify(shiftData)
         });
         console.log(`Response status: ${response.status}`);
-        if (!response.ok) {
+        if (!response.ok && response.status==400 && response.error=='people of this role required for a day of work are not enough: decrease the number of people for shift or increase the shift duration number') {
+            alert(response.error);
             throw new Error('Error in request: ' + response.status);
         }
         const data = await response.json();
@@ -227,7 +227,7 @@ async function updateShiftType(role, year, month, shiftData) {
 async function deleteEmployeeWork(role, year, month) {
     console.log(`Deleting old employee shifts for role: ${role}, year: ${year}, month: ${month}`);
     try {
-        const response = await fetch(`/workspace/employee/${role}/${year}/${month}/work`, {
+        const response = await fetch(`http://localhost:3050/workspace/employee/${role}/${year}/${month}/work`, {
             method: 'DELETE'
         });
         console.log(`Response status: ${response.status}`);
@@ -247,7 +247,7 @@ async function deleteEmployeeWork(role, year, month) {
 async function deleteDaysOfWork(role, year, month) {
     console.log(`Deleting days of work in workspace for role: ${role}, year: ${year}, month: ${month}`);
     try {
-        const response = await fetch(`/workspace/${role}/${year}/${month}/daysOfWork`, {
+        const response = await fetch(`http://localhost:3050/workspace/${role}/${year}/${month}/daysOfWork`, {
             method: 'DELETE'
         });
         console.log(`Response status: ${response.status}`);
@@ -269,7 +269,7 @@ async function automateAndPublishShifts(role, year, month) {
     console.log(`Automating and publishing shifts for role: ${role}, year: ${year}, month: ${month}`);
     try {
         // Automate shifts
-        const automateResponse = await fetch(`/workspace/automate/${role}/${year}/${month}/daysOfWork`, {
+        const automateResponse = await fetch(`http://localhost:3050/workspace/automate/${role}/${year}/${month}/daysOfWork`, {
             method: 'PUT'
         });
         console.log(`Automate response status: ${automateResponse.status}`);
@@ -280,7 +280,7 @@ async function automateAndPublishShifts(role, year, month) {
         console.log('Automated shifts generated successfully:', automateData);
 
         // Publish automated shifts
-        const publishResponse = await fetch(`/workspace/employee/${role}/${year}/${month}/work`, {
+        const publishResponse = await fetch(`http://localhost:3050/workspace/employee/${role}/${year}/${month}/work`, {
             method: 'PUT'
         });
         console.log(`Publish response status: ${publishResponse.status}`);
@@ -577,8 +577,10 @@ document.getElementById("automateButton").addEventListener("click", async () => 
     const shiftData = { peopleForShift: employeesForShift, shiftDuration: shiftDuration };
 
     await createWorkspace(role, year, month);
-    await updateShiftType(role, year, month, shiftData);
-    await automateAndPublishShifts(role, year, month);  
+    let ret=await updateShiftType(role, year, month, shiftData);
+    if(ret!=null){
+        await automateAndPublishShifts(role, year, month); 
+    } 
 
     window.location.reload();
 

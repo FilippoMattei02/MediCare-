@@ -556,7 +556,8 @@ router.delete('/employee/:role/:year/:month/work', async (req, res) => {
     for (const dayOfWork of workspace.daysOfWork) {
         for (const shift of dayOfWork.shift) {
             try {
-                await deleteWorkShift(shift.email, dayOfWork.date, shift.start, shift.end);
+                let newDate=new Date(dayOfWork.date).toISOString();
+                await deleteWorkShift(shift.email, newDate, shift.start, shift.end);
             } catch (error) {
                 console.error(`Error deleting work shift for ${shift.email}:`, error);
             }
