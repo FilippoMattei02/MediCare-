@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Richieste di Copertura - Medicare</title>
+    <link rel="stylesheet" type="text/css" href="../css/cov.css">
+</head>
+<body>
+    <header>
+        <h1>Coverage Request</h1>
+    </header>
+    <div class="container">
+        <form id="coverageForm">
+            <label for="employeeId">Employee ID:</label>
+            <input type="text" id="employeeId" name="employeeId" required>
+            <label for="date">Date:</label>
+            <input type="date" id="date" name="date" required>
+            <label for="role">Role:</label>
+            <input type="text" id="role" name="role" required>
+            <label for="start">Start Time:</label>
+            <input type="time" id="start" name="start" required>
+            <label for="end">End Time:</label>
+            <input type="time" id="end" name="end" required>
+            <label for="message">Message:</label>
+            <textarea id="message" name="message" required></textarea>
+            <button type="submit" class="btn">Send Request</button>
+        </form>
+        <div id="response"></div>
+    </div>
+    <script src="../javascript/cov.js"></script>
+</body>
+</html>
