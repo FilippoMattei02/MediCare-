@@ -4,7 +4,7 @@ async function prova(){
     let month = "11";
     let year = "2024";
     let role = "nurse";
-    let shiftDuration = "12";
+    let shiftDuration = "4";
     let employeesForShift = "1";
     const shiftData = { peopleForShift: employeesForShift, shiftDuration: shiftDuration };
 
@@ -56,15 +56,17 @@ async function updateShiftType(role, year, month, shiftData) {
             body: JSON.stringify(shiftData)
         });
         console.log(`Response status: ${response.status}`);
-        if (!response.ok && response.status==400 && response.error=='people of this role required for a day of work are not enough: decrease the number of people for shift or increase the shift duration number') {
+        const data = await response.json();
+        if (!response.ok && response.status==400 && data.error==='people of this role required for a day of work are not enough: decrease the number of people for shift or increase the shift duration number') {
             alert(response.error);
+            //console.log("ERRORE!"+data.error);
             throw new Error('Error in request: ' + response.status);
         }
-        const data = await response.json();
+        
         console.log('Shift type updated successfully:', data);
         return data;
     } catch (error) {
-        console.error('Error updating shift type:', error);
+        
         return null;
     }
 }
