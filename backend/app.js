@@ -9,7 +9,8 @@ const db=require("./database")
 //const bcrypt = require('bcryptjs'); 
 
 const User   = require('./models/user');
-const Employees=require('./models/employee')
+const Employees=require('./models/employee');
+const Workspace= require('./models/shiftWorkspace');
 
 //var jsonData = require ('./static/names.json');
 const path = require('path');
