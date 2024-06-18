@@ -1,7 +1,6 @@
 const swaggerJSDoc = require('swagger-jsdoc');
 const holidays=require('./holidays');
 const employees = require('./employees');
-const shiftWorkspace = require('./shiftWorkspace');
 
 const swaggerDefinition = {
   openapi: '3.0.0',
