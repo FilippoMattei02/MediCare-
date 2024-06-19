@@ -420,15 +420,19 @@ router.post('/:role/:username', async (req, res) => {
     
 
     if (!role) {
+        
         return res.status(400).json({ error: 'missing role' });
     }    
     if (!date) {
+        
         return res.status(400).json({ error: 'missing date' });
     }    
     if (!username) {
+       
         return res.status(400).json({ error: 'missing username' });
     }
     if (!start) {
+        
         return res.status(400).json({ error: 'missing start' });
     }   
     if (!end) {
@@ -443,12 +447,12 @@ router.post('/:role/:username', async (req, res) => {
         return res.status(404).json({error: 'user not found' });
     }
     let newDate=new Date(date);
-    if (!(date === dateToString(newDate))) {
+    if (!(date === dateToString2(newDate))) {
         return res.status(400).json({ error: 'Date field is not of type yyyy-mm-dd' });
     } 
     let found=false;
     for (const workItem of userID.work) {
-        if ( dateToString(workItem.day)== date && workItem.start == start && workItem.end == end) {
+        if ( dateToString2(workItem.day)== date && workItem.start == start && workItem.end == end) {
             found=true;
             
             break;
@@ -566,7 +570,7 @@ router.put('/:role/:resUsername', async (req, res) => {
     if (!covReq) {
         return res.status(404).json({message: 'coverage request not found or already covered'});
     }
-    covReq.state=true;
+    covReq.status=true;
     covReq.res_username=res_username;
     
     
@@ -574,7 +578,6 @@ router.put('/:role/:resUsername', async (req, res) => {
     if(state==1){
         return res.status(500).json({ error: 'Problem in the edit of work shifts' });
     }
-    
     await covReq.save();
     return res.status(200).json({
         response:"coverage request accepted:",
@@ -668,6 +671,13 @@ function dateToString(date){
     return  "" + year + "-" + month + "-" + day;
 }
 
+function dateToString2(date) {
+    if (!(date instanceof Date)) {
+        date = new Date(date);
+    }
+    return date.toISOString().split('T')[0];
+}
+
 async function publishWorkShifts(start,end,day,req_username,res_username,role){
     try {
         await deleteWorkShift(req_username, day, start, end);         
@@ -708,9 +718,8 @@ async function postWorkShift (email, day, start, end) {
         throw error;
     }
 };
-async function deleteWorkShift (email, day1, start, end) {
+async function deleteWorkShift (email, day, start, end) {
     const url = `http://localhost:3050/employees/${email}/work`;
-    const day=new Date(day1).toISOString();
     const payload = { day, start, end };
 
     try {
@@ -727,7 +736,7 @@ async function deleteWorkShift (email, day1, start, end) {
         }
 
         const data = await response.json();
-        
+        //console.log(data);
         return data;
 
     } catch (error) {

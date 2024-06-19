@@ -17,7 +17,7 @@ function sendRequest() {
         return;
     }
 
-    fetch('https://localhost:3050/auth/tokens', {
+    fetch('http://localhost:3050/auth/tokens', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -34,7 +34,7 @@ function sendRequest() {
         console.log("Data message", data.message);
         const username = data.message;
 
-        fetch(`https://localhost:3050/coverage/${role}/${username}`, {
+        fetch(`http://localhost:3050/coverage/${role}/${username}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
