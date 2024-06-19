@@ -44,7 +44,7 @@ const employee = require('./models/employee');
 
 router.get('/:role/', async (req, res) => {
     const role = req.params.role;
-
+    console.log("ROLE",role);
     if (!role) {
         return res.status(400).json({ error: 'missing role' });
     }    

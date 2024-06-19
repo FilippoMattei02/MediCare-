@@ -1,40 +1,68 @@
- // Array di oggetti contenente le informazioni da inserire nella tabella
- var data = [            
-    { id: 1, date: "2024-04-26", points: 80, role: "Doctor", description: "I cannot work on this day due to a personal emergency." },
-    { id: 2, date: "2024-04-27", points: 65, role: "Nurse", description: "I have a medical appointment scheduled for this day." },            
-    { id: 3, date: "2024-04-28", points: 55, role: "Anesthetist", description: "I need to attend a family event on this day." },
-    { id: 4, date: "2024-04-29", points: 90, role: "Doctor", description: "I am feeling unwell and unable to come to work." },            
-    { id: 5, date: "2024-04-30", points: 70, role: "Nurse", description: "My car broke down, and I cannot arrange alternative transportation." },            
-    { id: 6, date: "2024-05-01", points: 45, role: "Anesthetist", description: "I have a training session scheduled for this day." },            
-    { id: 7, date: "2024-05-02", points: 85, role: "Doctor", description: "I need to take care of a family member who is unwell." },            
-    { id: 8, date: "2024-05-03", points: 60, role: "Nurse", description: "I have an important personal commitment and cannot come to work." },            
-    { id: 9, date: "2024-05-04", points: 40, role: "Anesthetist", description: "I will be on vacation during this time period." }        
-];
+document.addEventListener('DOMContentLoaded', function() {
+    var tbody = document.querySelector("#infoTable tbody");
 
-var tbody = document.querySelector("#infoTable tbody");
+    // Funzione per riempire la tabella con i dati
+    function populateTable(data, role) {
+        // Cancella il contenuto precedente della tabella
+        tbody.innerHTML = "";
 
- // Per ogni oggetto nell'array data, crea una nuova riga nella tabella
- data.forEach(function(item) {
-     var row = document.createElement("tr");
-     row.innerHTML = "<td>" + item.id + "</td>" +
-                     "<td>" + item.date + "</td>" +
-                     "<td>" + item.points + "</td>" +
-                     "<td>" + item.role + "</td>" +
-                     "<td>" + item.description + "</td>";
-     tbody.appendChild(row);
+        // Per ogni oggetto nell'array data, crea una nuova riga nella tabella
+        data.forEach(function(item, index) {
+            var row = document.createElement("tr");
+            row.innerHTML = "<td>" + (index + 1) + "</td>" + // Genera un ID incrementale
+                            "<td>" + item.day + "</td>" +
+                            "<td>" + item.start + " - " + item.end + "</td>" + // Mostra l'intervallo di tempo
+                            "<td>" + item.req_username + "</td>" + // Mostra l'username
+                            "<td>" + item.message + "</td>" +
+                            "<td>" + role + "</td>"; // Mostra il ruolo inserito dall'utente
+            tbody.appendChild(row);
 
-     // Aggiungi un listener di evento al clic sulla riga per reindirizzare l'utente
-     row.addEventListener("click", function() {
-         // Genera l'URL della pagina di destinazione con i parametri relativi alla riga selezionata
-         var url = "game.html?id=" + encodeURIComponent(item.id) +
-                   "&day=" + encodeURIComponent(item.date) +
-                   "&points=" + encodeURIComponent(item.points) +
-                   "&role=" + encodeURIComponent(item.role) +
-                   "&description=" + encodeURIComponent(item.description);
+            // Aggiungi un listener di evento al clic sulla riga per reindirizzare l'utente
+            row.addEventListener("click", function() {
+                // Genera l'URL della pagina di destinazione con i parametri relativi alla riga selezionata
+                var url = "game.html?id=" + encodeURIComponent(index + 1) +
+                          "&day=" + encodeURIComponent(item.day) +
+                          "&start=" + encodeURIComponent(item.start) +
+                          "&end=" + encodeURIComponent(item.end) +
+                          "&req_username=" + encodeURIComponent(item.req_username) +
+                          "&message=" + encodeURIComponent(item.message) +
+                          "&role=" + encodeURIComponent(role); // Aggiungi il ruolo all'URL
 
-         // Reindirizza alla pagina di destinazione
-         window.location.href = url;
-     });
+                // Reindirizza alla pagina di destinazione
+                window.location.href = url;
+            });
 
-     tbody.appendChild(row);
- });
+            tbody.appendChild(row);
+        });
+    }
+
+    // Funzione per ottenere i dati dall'API
+    function fetchData(role) {
+        fetch(`http://localhost:3050/coverage/${role}`)
+            .then(response => response.json())
+            .then(data => {
+                // Popola la tabella con i dati ottenuti dall'API e il ruolo inserito
+                populateTable(data, role);
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    }
+
+    // Aggiungi un listener di evento per il campo di input del ruolo
+    var roleInput = document.getElementById('role');
+    roleInput.addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            var role = roleInput.value;
+            fetchData(role);
+        }
+    });
+
+    // Aggiungi un listener di evento per il clic sul pulsante Fetch Data
+    var fetchRoleBtn = document.getElementById('fetchRoleBtn');
+    fetchRoleBtn.addEventListener('click', function() {
+        var role = roleInput.value;
+        fetchData(role);
+    });
+
+    // Esegui una richiesta iniziale con un valore di ruolo predefinito (opzionale)
+    fetchData('defaultRole'); // Sostituisci 'defaultRole' con un ruolo predefinito, se desiderato
+});

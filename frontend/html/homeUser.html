@@ -16,6 +16,11 @@
             <button class="btn">Calendar</button>
             <button class="btn">Help</button>
         </div>
+        <div class="role-container">
+            <label for="role">Enter Role:</label>
+            <input type="text" id="role" placeholder="Enter role">
+            <button id="fetchRoleBtn" class="btn">Fetch Data</button>
+        </div>
         <div class="table-container">
             <table id="infoTable" class="display hover">
                 <!-- Intestazione della tabella -->
@@ -23,9 +28,10 @@
                     <tr>
                         <th>ID</th>
                         <th>Date</th>
-                        <th>Points</th>
-                        <th>Role</th>
-                        <th>Description</th>
+                        <th>Time</th>
+                        <th>Requested by</th>
+                        <th>Message</th>
+                        <th>Role</th> <!-- Nuova colonna -->
                     </tr>
                 </thead>
                 <!-- Corpo della tabella -->
@@ -55,6 +61,5 @@
             window.location.href = "cov.html"; // Sostituisci "cov.html" con il percorso corretto della tua pagina dedicata
         });
     </script>
-        
 </body>
 </html>
