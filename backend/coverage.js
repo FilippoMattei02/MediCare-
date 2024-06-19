@@ -447,12 +447,12 @@ router.post('/:role/:username', async (req, res) => {
         return res.status(404).json({error: 'user not found' });
     }
     let newDate=new Date(date);
-    if (!(date === dateToString2(newDate))) {
+    if (!(date === dateToString(newDate))) {
         return res.status(400).json({ error: 'Date field is not of type yyyy-mm-dd' });
     } 
     let found=false;
     for (const workItem of userID.work) {
-        if ( dateToString2(workItem.day)== date && workItem.start == start && workItem.end == end) {
+        if ( dateToString(workItem.day)== date && workItem.start == start && workItem.end == end) {
             found=true;
             
             break;
@@ -664,14 +664,14 @@ router.delete('/:role/:me/:day/:start', async (req, res) => {
 });
 
 
-function dateToString(date){
+/*function dateToString(date){
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0'); 
     const day = String(date.getDate()).padStart(2, '0');
     return  "" + year + "-" + month + "-" + day;
-}
+}*/
 
-function dateToString2(date) {
+function dateToString(date) {
     if (!(date instanceof Date)) {
         date = new Date(date);
     }
