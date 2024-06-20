@@ -570,7 +570,7 @@ router.put('/:role/:resUsername', async (req, res) => {
     if (!covReq) {
         return res.status(404).json({message: 'coverage request not found or already covered'});
     }
-    covReq.status=true;
+    covReq.state=true;
     covReq.res_username=res_username;
     
     
