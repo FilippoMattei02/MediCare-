@@ -2,7 +2,7 @@ let Helper;
 //API per prendere i dati
 async function connector() {
     const currentToken = localStorage.getItem('token');
-    console.log("currentToken: ", currentToken);
+    //console.log("currentToken: ", currentToken);
 
     try {
         const response = await fetch('https://medicare-p67f.onrender.com/auth/tokens', {
@@ -32,8 +32,19 @@ async function connector() {
 
 async function fetchTasks(username) {
     console.log(`Fetching tasks for username: ${username}`);
+    const currentToken = localStorage.getItem('token');
+    console.log("currentToken: ", currentToken);
+    // Recupera il token da localStorage
+    //const currentToken = 'prova1'; // Assicurati di memorizzare il token in localStorage
     try {
-        const response = await fetch(`http://localhost:3050/calendar/${username}`);
+        const response = await fetch(`http://localhost:3050/calendar/${username}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `${currentToken}` // Aggiungi il token nell'intestazione
+            }
+        });
+
         console.log(`Response status: ${response.status}`);
         if (!response.ok) {
             throw new Error('Errore nella richiesta: ' + response.status);

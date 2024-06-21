@@ -3,6 +3,8 @@ const router = express.Router();
 const Employee = require('./models/employee');
 require('dotenv').config();
 
+const loggerMiddleware = require('./loggerMiddleware'); // Importa il middleware
+
 // Funzione per ottenere il lavoro per username
 async function getWorkByUsername(username) {
     try {
@@ -24,6 +26,9 @@ async function getWorkByUsername(username) {
         throw error;
     }
 }
+
+// Usa il middleware per tutte le richieste a questo router
+router.use(loggerMiddleware);
 
 // Endpoint API per ottenere i task
 router.get('/:username', async (req, res) => {
