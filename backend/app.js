@@ -22,6 +22,7 @@ const Holidays = require('./models/holidays');
 const shifts = require('./shifts');
 const calendar = require('./calendar');
 const employees = require('./employees');
+const coverage = require('./coverage');
 const workspace= require('./SMworkspace')
 
 
@@ -49,6 +50,7 @@ app.use('/holiday',holiday);
 app.use('/employees', employees);
 app.use('/shifts',shifts);
 app.use('/calendar',calendar);
+app.use('/coverage',coverage);
 app.use('/workspace',workspace);
 
 app.listen(port, () => {

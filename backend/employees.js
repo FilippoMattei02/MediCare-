@@ -120,6 +120,64 @@ router.get('/role/:username', async (req, res) => {
 
 /**
  * @openapi
+ * /role/type/{username}:
+ *   get:
+ *     summary: Get the role of an employee by username
+ *     tags: [Employee]
+ *     parameters:
+ *       - in: path
+ *         name: username
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The username of the employee
+ *     responses:
+ *       200:
+ *         description: The employee's role
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 role:
+ *                   type: string
+ *       404:
+ *         description: Employee not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Employee not found
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: Internal server error
+ */
+router.get('/role/type/:username', async (req, res) => {
+    try {
+        const employee = await Employee.findOne({ username: req.params.username }).exec();
+        if (!employee) {
+            console.log('Employee not found');
+            return res.status(404).json({ error: 'Employee not found' });
+        }
+        res.status(200).json({ role: employee.role });
+    } catch (error) {
+        console.error('Internal server error', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+/**
+ * @openapi
  * /{username}/work:
  *   post:
  *     summary: Modify work schedule for an employee

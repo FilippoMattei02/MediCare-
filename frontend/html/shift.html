@@ -30,15 +30,24 @@
     </div>
     <div>
         <label for="Month">Month:</label>
-        <input type="text" id="month2" name="month2" required>
-        <label for="Year">Year:</label>
-        <input type="text" id="year2" name="year2" required>
+        <input type="month" id="month2" name="month2" placeholder="YYYY-MM" required>
+        <!-- <label for="Year">Year:</label>
+        <input type="text" id="year2" name="year2" required> -->
         <label for="role">Role:</label>
         <input type="text" id="role2" name="role2" required>
         <label for="shiftDuration">Shift Duration:</label>
-        <input type="text" id="shiftDuration" name="shiftDuration" required>
+        <select id="shiftDuration" name="shiftDuration" required>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="6">2</option>
+            <option value="8">8</option>
+            <option value="12">12</option>
+            <option value="24">24</option>
+        </select>
         <label for="employeesForShift">Employees for Shift:</label>
-        <input type="text" id="employeesForShift" name="employeesForShift" required>
+        <input type="number" id="employeesForShift" name="employeesForShift"  min="1" required>
         <button id="automateButton">Automate</button>
     </div>
     <div class="buttons">

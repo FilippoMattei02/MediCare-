@@ -19,7 +19,7 @@ const swaggerDefinition = {
 
 const options = {
   swaggerDefinition,
-  apis: ['./holidays.js', './employees.js', './authentication.js', './calendar.js', './shifts.js', './SMworkspace.js'],
+  apis: ['./holidays.js', './employees.js', './authentication.js', './calendar.js', './shifts.js', './SMworkspace.js', './coverage.js'],
 };
 
 const swaggerSpec = swaggerJSDoc(options);

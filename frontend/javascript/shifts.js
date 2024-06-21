@@ -569,8 +569,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 document.getElementById("automateButton").addEventListener("click", async () => {
     
-    let month = document.getElementById("month2").value;
-    let year = document.getElementById("year2").value;
+    const monthYearString = document.getElementById('month2').value;
+    const [year, month] = monthYearString.split('-');
     let role = document.getElementById("role2").value;
     let shiftDuration = document.getElementById("shiftDuration").value;
     let employeesForShift = document.getElementById("employeesForShift").value;

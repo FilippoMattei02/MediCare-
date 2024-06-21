@@ -10,28 +10,28 @@
     <header>
         <h1>Medicare</h1>
     </header>
-    <!-- Contenitore per i bottoni e la tabella -->
+    
     <div class="container">
         <div class="btn-container">
-            <button class="btn">Calendar</button>
+            <button id="calendarButton" class="btn">Calendar</button>
             <button class="btn">Holiday</button>
             <button class="btn">Shift</button>
         </div>
         <div class="table-container">
             <table id="infoTable" class="display hover">
-                <!-- Intestazione della tabella -->
+                
                 <thead>
                     <tr>
                         <th>ID</th>
                         <th>Date</th>
-                        <th>Points</th>
-                        <th>Role</th>
-                        <th>Description</th>
-                    </tr>
+                        <th>Time</th>
+                        <th>Requested by</th>
+                        <th>Message</th>
+                        <th>Role</th> 
                 </thead>
-                <!-- Corpo della tabella -->
+                
                 <tbody>
-                    <!-- Le righe della tabella verranno aggiunte tramite JavaScript -->
+                   
                 </tbody>
             </table>
         </div>
@@ -41,24 +41,31 @@
     </div>
     <script src="../javascript/home_table.js"></script>
     <script>
+        var calendarButton = document.querySelector('#calendarButton');
         var helpButton = document.querySelector('.btn-container .btn:nth-child(2)');
         var shiftButton = document.querySelector('.btn-container .btn:nth-child(3)');
-        var calendarButton = document.querySelector('.btn-container .btn:nth-child(1)');
+        var askCoverageButton = document.querySelector('.ask-coverage .btn');
 
-        // Aggiungi un gestore di eventi per il clic sul bottone "Help"
+        calendarButton.addEventListener('click', function() {
+           
+            window.location.href = "calendar.html";
+        });
+
+       
         helpButton.addEventListener('click', function() {
-            // Reindirizza l'utente alla pagina di help
-            window.location.href = "holiday.html"; // Sostituisci "help.html" con il percorso corretto della tua pagina di help
+           
+            window.location.href = "holiday.html"; 
         });
 
         shiftButton.addEventListener('click', function() {
-            // Reindirizza l'utente alla pagina di help
-            window.location.href = "../html/shift.html"; // Sostituisci "help.html" con il percorso corretto della tua pagina di help
+            
+            window.location.href = "../html/shift.html"; 
         });
 
-        calendarButton.addEventListener('click', function() {
-            // Reindirizza l'utente alla pagina di help
-            window.location.href = "../html/calendar.html"; // Sostituisci "help.html" con il percorso corretto della tua pagina di help
+        
+         askCoverageButton.addEventListener('click', function() {
+           
+            window.location.href = "cov.html"; 
         });
     </script>
         
