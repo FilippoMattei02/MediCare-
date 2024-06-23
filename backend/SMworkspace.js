@@ -732,7 +732,7 @@ async function deleteWorkShift (email, day, start, end) {
     const url = `http://medicare-p67f.onrender.com/employees/${email}/work`;
     const payload = { day, start, end };
 
-    
+    try{
         const response = await fetch(url, {
             method: 'DELETE',
             headers: {
