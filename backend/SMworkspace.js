@@ -579,6 +579,7 @@ router.delete('/employee/:role/:year/:month/work', async (req, res) => {
     for (const dayOfWork of workspace.daysOfWork) {
         for (const shift of dayOfWork.shift) {
             try {
+                console.log("prova");
                 let newDate=new Date(dayOfWork.date).toISOString();
                 await deleteWorkShift(shift.email, newDate, shift.start, shift.end);
             } catch (error) {
@@ -710,7 +711,7 @@ async function getWorkShift  (role, year, month) {
 
  async function postWorkShift (email, shiftList) {
     try {
-        const response = await fetch(`http://medicare-p67f.onrender.com/employees/${email}/work `, {
+        const response = await fetch(`http://medicare-p67f.onrender.com/employees/${email}/work/listOfShifts `, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(shiftList),
@@ -731,7 +732,7 @@ async function deleteWorkShift (email, day, start, end) {
     const url = `http://medicare-p67f.onrender.com/employees/${email}/work`;
     const payload = { day, start, end };
 
-    try {
+    
         const response = await fetch(url, {
             method: 'DELETE',
             headers: {
@@ -739,13 +740,13 @@ async function deleteWorkShift (email, day, start, end) {
             },
             body: JSON.stringify(payload),
         });
-
+        
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         const data = await response.json();
-        //console.log(data);
+        
         return data;
 
     } catch (error) {

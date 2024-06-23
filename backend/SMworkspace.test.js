@@ -7,6 +7,7 @@ require('dotenv').config();
 
 describe('Employees API', () => {
     let connection;
+    jest.setTimeout(10000);
   
     let testShiftWorkspace ={
         year: 2024,
@@ -68,7 +69,7 @@ describe('Employees API', () => {
     };
 
     beforeAll(async () => {
-        jest.setTimeout(30000);
+        
         jest.unmock('mongoose');
         // connection = await mongoose.connect(process.env.TEST_DB_URL);
         console.log('Database connected!');
@@ -860,12 +861,12 @@ describe('Employees API', () => {
         const year = 2024;
         const month = 3;
         
-        let before=Employees.findOne({username:"test.user3@apss.it"});
-
+        let before=await Employees.findOne({username:"test.user3@apss.it"});
+        
         const res = await request(app)
             .delete(`/workspace/employee/${role}/${year}/${month}/work`);
         
-        let after=Employees.findOne({username:"test.user3@apss.it"});
+        let after= await Employees.findOne({username:"test.user3@apss.it"});
         expect(res.statusCode).toBe(200);
         expect(res.body).toEqual({ message: 'Work shifts removed from employee schedules' });
         expect(before!=after);
