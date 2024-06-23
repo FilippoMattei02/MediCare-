@@ -95,7 +95,7 @@ function shuffle(array) {
 }
 
 async function getUsersByRoleAndDate(role, date) {
-    const url = `http://localhost:3050/holiday/${role}/${date}`;
+    const url = `https://medicare-p67f.onrender.com/holiday/${role}/${date}`;
     
     try {
         
