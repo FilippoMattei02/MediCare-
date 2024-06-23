@@ -1,8 +1,8 @@
 const request = require('supertest');
 const mongoose = require('mongoose');
 const app = require('./app');
-const testHolidays = require('./models/testHolidays'); 
-const testEmployees = require('./models/testEmployee'); 
+const Holidays = require('./models/holidays'); 
+const Employees = require('./models/employee'); 
 
 require('dotenv').config();
 
@@ -25,21 +25,21 @@ describe('Holiday API', () => {
   beforeAll(async () => {
     jest.setTimeout(30000);
     jest.unmock('mongoose')
-    connection = await mongoose.connect(process.env.TEST_DB_URL);
     console.log('Database connected!');
 
-    await mongoose.connection.dropDatabase();
+    await Employees.deleteMany({role:"tester"});
+    await Holidays.deleteMany({role:"tester"});
 
     
 
     
-    await testEmployees.create(testEmployee);
-    await testHolidays.create(testHoliday);
+    await Employees.create(testEmployee);
+    await Holidays.create(testHoliday);
   });
 
   afterAll(async () => {
-    await mongoose.connection.dropDatabase();
-    await mongoose.connection.close();
+    await Employees.deleteMany({role:"tester"});
+    await Holidays.deleteMany({role:"tester"});
     console.log("Database connection closed");
   });
 
