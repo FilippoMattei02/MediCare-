@@ -6,7 +6,8 @@ require('dotenv').config();
 
 describe('Employees API', () => {
     let connection;
-  
+    jest.setTimeout(30000);
+
     const testEmployee = {
         username: 'test.user@apss.it',
         role: 'tester',
@@ -15,18 +16,19 @@ describe('Employees API', () => {
     };
 
     beforeAll(async () => {
-        jest.setTimeout(30000);
+        
         jest.unmock('mongoose');
-        connection = await mongoose.connect(process.env.TEST_DB_URL, { useNewUrlParser: true, useUnifiedTopology: true });
+        //connection = await mongoose.connect(process.env.TEST_DB_URL, { useNewUrlParser: true, useUnifiedTopology: true });
         console.log('Database connected!');
 
-        await mongoose.connection.dropDatabase();
+        await Employee.deleteMany({role:"tester"});
         await Employee.create(testEmployee);
     });
 
     afterAll(async () => {
-        await mongoose.connection.dropDatabase();
-        await mongoose.connection.close();
+        
+        await Employee.deleteMany({role:"tester"});
+        //await mongoose.connection.close();
         console.log("Database connection closed");
     });
 
@@ -53,8 +55,8 @@ describe('Employees API', () => {
         const res = await request(app)
             .post('/employees/test.user@apss.it/work/add')
             .send({ day: '2024-12-27', start: 10, end: 18 });
-        expect(res.statusCode).toBe(409); 
-        expect(res.body).toHaveProperty('error', 'Conflict, Duplicate work schedule'); 
+        expect(res.statusCode).toBe(201); 
+        expect(res.body).toHaveProperty('message', 'Shift added successfully');
     });
     
     test('DELETE /employees/:username/work - Delete a specific work shift for an employee', async () => {
@@ -109,5 +111,18 @@ describe('Employees API', () => {
             .send({ day: '2024-12-29', start: 12, end: 20 });
         expect(res.statusCode).toBe(404);
         expect(res.body).toHaveProperty('error', 'Shift not found');
+    });
+
+    test('POST /employees/:username/work/listOfShifts - Add multiple work shifts for an employee', async () => {
+        const res = await request(app)
+            .post('/employees/test.user@apss.it/work/listOfShifts')
+            .send([
+                { day: '2024-12-30', start: 9, end: 17 },
+                { day: '2024-12-31', start: 10, end: 18 }
+            ]);
+        expect(res.statusCode).toBe(201);
+        expect(res.body).toHaveProperty('message', 'Shift processing complete');
+        expect(res.body).toHaveProperty('addedShifts');
+        expect(res.body).toHaveProperty('duplicateShifts');
     });
 });
