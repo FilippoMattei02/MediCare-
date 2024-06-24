@@ -25,7 +25,47 @@ async function getWorkByUsername(username) {
     }
 }
 
-// Endpoint API per ottenere i task
+/**
+ * @openapi
+ * /calendar/{username}:
+ *   get:
+ *     summary: Get tasks by username
+ *     description: Retrieve tasks assigned to an employee by their username.
+ *     tags: [Calendar]
+ *     parameters:
+ *       - in: path
+ *         name: username
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The username of the employee to retrieve tasks for.
+ *     responses:
+ *       '200':
+ *         description: A JSON array of tasks assigned to the employee.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   taskName:
+ *                     type: string
+ *                     description: The name of the task.
+ *                   description:
+ *                     type: string
+ *                     description: Description of the task.
+ *                   deadline:
+ *                     type: string
+ *                     format: date-time
+ *                     description: Deadline for the task.
+ *       '400':
+ *         description: Bad request. Username parameter is missing.
+ *       '404':
+ *         description: No tasks found for the provided username.
+ *       '500':
+ *         description: Internal server error.
+ */
 router.get('/:username', async (req, res) => {
     const username = req.params.username;
 
