@@ -14,7 +14,7 @@ async function connector() {
         });
 
         if (!response.ok) {
-            throw new Error('Errore di rete: ' + response.status);
+            throw new Error('Network error: ' + response.status);
         }
 
         const data = await response.json();
@@ -22,8 +22,8 @@ async function connector() {
         Helper = data.message;
         return Helper; // Restituisce l'username
     } catch (error) {
-        console.error('Errore durante il login:', error);
-        alert("Credenziali errate o errore di rete.");
+        console.error('Error during login: ', error);
+        alert("Wrong credentials or network error.");
         return null;
     }
 }
@@ -36,13 +36,13 @@ async function fetchTasks(username) {
         const response = await fetch(`https://medicare-p67f.onrender.com/calendar/${username}`);
         console.log(`Response status: ${response.status}`);
         if (!response.ok) {
-            throw new Error('Errore nella richiesta: ' + response.status);
+            throw new Error('Request error: ' + response.status);
         }
         const tasks = await response.json();
-        console.log('Tasks ricevuti:', tasks);
+        console.log('Tasks received:', tasks);
         return tasks;
     } catch (error) {
-        console.error('Errore nel caricamento dei task', error);
+        console.error('Loading task error', error);
         return null;
     }
 }
