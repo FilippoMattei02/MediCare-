@@ -872,6 +872,106 @@ describe('Employees API', () => {
         expect(before!=after);
     });
 
+//-------------------------------------------------------------------------------------------
+    // DELETE workspace/employee/:role/:year/:month/work
+
+
+
+    // Test for non-integer month
+    test('DELETE workspace/:role/:year/:month/daysOfWork - should return 400 if month is not an integer', async () => {
+        const role = 'tester';
+        const year = 2024;
+        const month = 'June'; // Non-integer month
+
+        const res = await request(app)
+            .delete(`/workspace/${role}/${year}/${month}/daysOfWork`);
+
+        expect(res.statusCode).toBe(400);
+        expect(res.body).toEqual({ error: 'invalid month' });
+    });
+
+    // Test for month not in range 1-12
+    test('DELETE workspace/:role/:year/:month/daysOfWork - should return 400 if month is not in the range 1-12', async () => {
+        const role = 'tester';
+        const year = 2024;
+        const month = 13; // Month not in range 1-12
+
+        const res = await request(app)
+            .delete(`/workspace/${role}/${year}/${month}/daysOfWork`);
+
+        expect(res.statusCode).toBe(400);
+        expect(res.body).toEqual({ error: 'invalid month' });
+    });
+
+    // Test for non-integer year
+    test('DELETE workspace/:role/:year/:month/daysOfWork - should return 400 if year is not an integer', async () => {
+        const role = 'tester';
+        const year = 'prova'; // Non-integer year
+        const month = 1;
+
+        const res = await request(app)
+            .delete(`/workspace/${role}/${year}/${month}/daysOfWork`);
+
+        expect(res.statusCode).toBe(400);
+        expect(res.body).toEqual({ error: 'invalid year' });
+    });
+
+    // Test for non-positive year
+    test('DELETE workspace/:role/:year/:month/daysOfWork - should return 400 if year is not a positive integer', async () => {
+        const role = 'tester';
+        const year = -2024; // Non-positive year
+        const month = 1;
+
+        const res = await request(app)
+            .delete(`/workspace/${role}/${year}/${month}/daysOfWork`);
+
+        expect(res.statusCode).toBe(400);
+        expect(res.body).toEqual({ error: 'invalid year' });
+    });
+    // Test for invalid role
+    test('DELETE workspace/:role/:year/:month/daysOfWork - should return 400 if role is not valid', async () => {
+        const role = 'invalidRole';
+        const year = 2024;
+        const month = 1;
+
+
+        const res = await request(app)
+            .delete(`/workspace/${role}/${year}/${month}/daysOfWork`);
+
+        expect(res.statusCode).toBe(400);
+        expect(res.body).toEqual({ error: 'not a valid role' });
+    });
+
+    // Test for workspace not found
+    test('DELETE workspace/:role/:year/:month/daysOfWork - should return 404 if workspace is not found', async () => {
+        const role = 'tester';
+        const year = 1900;
+        const month = 10;
+
+        const res = await request(app)
+            .delete(`/workspace/${role}/${year}/${month}/daysOfWork`);
+
+        expect(res.statusCode).toBe(404);
+        expect(res.body).toEqual({ error: 'Workspace not found' });
+    });
+
+    // Test for successfully removing days of work
+    test('DELETE workspace/:role/:year/:month/daysOfWork - should successfully remove days of work for valid inputs', async () => {
+        const role = 'tester';
+        const year = 2024;
+        const month = 1;
+        
+        const res = await request(app)
+            .delete(`/workspace/${role}/${year}/${month}/daysOfWork`);
+
+        expect(res.statusCode).toBe(200);
+        expect(res.body).toEqual({ message: 'days of work removed' });
+        let workspace = await Workspace.findOne({ year: year, month: month, role: role });
+        expect (workspace.daysOfWork.length==0);
+    });
+
+
+
 
     
     

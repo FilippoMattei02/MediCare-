@@ -631,35 +631,23 @@ router.delete('/:role/:year/:month/daysOfWork', async (req, res) => {
     const month = parseInt(req.params.month, 10);
     const role = req.params.role;
 
-    if (!month) {
-        return res.status(400).json({ error: 'missing month' });
-    }
-    if(!Number.isInteger(month)){
-        return res.status(400).json({ error: 'Month not a integer' });
-    } else if(month < 1 || month > 12){
-        return res.status(400).json({ error: 'Month not in the range 1-12' });
-    }
+    if(!Number.isInteger(month) || !month || month < 1 || month > 12){
+        return res.status(400).json({ error: 'invalid month' });
+    } 
     
-    if (!year) {
-        return res.status(400).json({ error: 'missing year' });
-    }
-    if(!Number.isInteger(year)){
-        return res.status(400).json({ error: 'year not an integer' });
-    } else if(year < 0){
-        return res.status(400).json({ error: 'year not a positive integer' });
-    }
+    if(!Number.isInteger(year)|| !year  || year<0){
+        return res.status(400).json({ error: 'invalid year' });
+    } 
     
-    if (!role) {
+    if (role==undefined) {
         return res.status(400).json({ error: 'missing role' });
     }
-    if(Array.isArray(role)){
-        return res.status(400).json({ error: 'role not a string' });
-    }
+
     let employees=await employee.find({role:role}).exec();
     if(!employees || employees.length === 0){
         return res.status(400).json({ error: 'not a valid role' });
     }
-
+    
     let workspace = await shiftWorkspace.findOne({ year: year, month: month, role: role }).exec();
 
     if (!workspace) {
