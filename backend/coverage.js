@@ -664,8 +664,11 @@ router.delete('/:role/:me/:day/:start', async (req, res) => {
         return res.status(404).json({error: 'user not found' });
     }
     let newDate=new Date(date);
+<<<<<<< HEAD
     
     
+=======
+>>>>>>> automate
 
     let covReq=await coverage.findOneAndDelete({ role: role,req_username:username,day:newDate,start:start });
     if(!covReq){

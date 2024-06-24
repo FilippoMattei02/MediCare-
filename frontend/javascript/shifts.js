@@ -170,12 +170,19 @@ function outOfRange(date){
  }
 
 
+<<<<<<< HEAD
 
 // Function to create a new workspace for a specific role, year, and month
 async function createWorkspace(role, year, month) {
     console.log(`Creating workspace for role: ${role}, year: ${year}, month: ${month}`);
     try {
         const response = await fetch(`https://medicare-p67f.onrender.com/workspace/${role}/${year}/${month}`, {
+=======
+ async function createWorkspace(role, year, month) {
+    console.log(`Creating workspace for role: ${role}, year: ${year}, month: ${month}`);
+    try {
+        const response = await fetch(`http://localhost:3050/workspace/${role}/${year}/${month}`, {
+>>>>>>> automate
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -199,17 +206,26 @@ async function createWorkspace(role, year, month) {
     }
 }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> automate
 // Function to update shift details for a specific role, year, and month
 async function updateShiftType(role, year, month, shiftData) {
     console.log(`Updating shift type for role: ${role}, year: ${year}, month: ${month}`);
     try {
+<<<<<<< HEAD
         const response = await fetch(`https://medicare-p67f.onrender.com/workspace/${role}/${year}/${month}/shiftType`, {
+=======
+        const response = await fetch(`http://localhost:3050/workspace/${role}/${year}/${month}/shiftType`, {
+>>>>>>> automate
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(shiftData)
         });
+<<<<<<< HEAD
         const data = await response.json();
         if (!response.ok && response.status==400 && data.error==='people of this role required for a day of work are not enough: decrease the number of people for shift or increase the shift duration number') {
             alert(response.error);
@@ -219,6 +235,20 @@ async function updateShiftType(role, year, month, shiftData) {
         return data;
     } catch (error) {
         console.error('Error updating shift type:', error);
+=======
+        console.log(`Response status: ${response.status}`);
+        const data = await response.json();
+        if (!response.ok && response.status==400 && data.error==='people of this role required for a day of work are not enough: decrease the number of people for shift or increase the shift duration number') {
+            alert(response.error);
+            //console.log("ERRORE!"+data.error);
+            throw new Error('Error in request: ' + response.status);
+        }
+        
+        console.log('Shift type updated successfully:', data);
+        return data;
+    } catch (error) {
+        
+>>>>>>> automate
         return null;
     }
 }
@@ -227,7 +257,11 @@ async function updateShiftType(role, year, month, shiftData) {
 async function deleteEmployeeWork(role, year, month) {
     console.log(`Deleting old employee shifts for role: ${role}, year: ${year}, month: ${month}`);
     try {
+<<<<<<< HEAD
         const response = await fetch(`https://medicare-p67f.onrender.com/workspace/employee/${role}/${year}/${month}/work`, {
+=======
+        const response = await fetch(`http://localhost:3050/workspace/employee/${role}/${year}/${month}/work`, {
+>>>>>>> automate
             method: 'DELETE'
         });
         console.log(`Response status: ${response.status}`);
@@ -247,7 +281,11 @@ async function deleteEmployeeWork(role, year, month) {
 async function deleteDaysOfWork(role, year, month) {
     console.log(`Deleting days of work in workspace for role: ${role}, year: ${year}, month: ${month}`);
     try {
+<<<<<<< HEAD
         const response = await fetch(`https://medicare-p67f.onrender.com/workspace/${role}/${year}/${month}/daysOfWork`, {
+=======
+        const response = await fetch(`http://localhost:3050/workspace/${role}/${year}/${month}/daysOfWork`, {
+>>>>>>> automate
             method: 'DELETE'
         });
         console.log(`Response status: ${response.status}`);
@@ -269,7 +307,11 @@ async function automateAndPublishShifts(role, year, month) {
     console.log(`Automating and publishing shifts for role: ${role}, year: ${year}, month: ${month}`);
     try {
         // Automate shifts
+<<<<<<< HEAD
         const automateResponse = await fetch(`https://medicare-p67f.onrender.com/workspace/automate/${role}/${year}/${month}/daysOfWork`, {
+=======
+        const automateResponse = await fetch(`http://localhost:3050/workspace/automate/${role}/${year}/${month}/daysOfWork`, {
+>>>>>>> automate
             method: 'PUT'
         });
         console.log(`Automate response status: ${automateResponse.status}`);
@@ -280,7 +322,11 @@ async function automateAndPublishShifts(role, year, month) {
         console.log('Automated shifts generated successfully:', automateData);
 
         // Publish automated shifts
+<<<<<<< HEAD
         const publishResponse = await fetch(`https://medicare-p67f.onrender.com/workspace/employee/${role}/${year}/${month}/work`, {
+=======
+        const publishResponse = await fetch(`http://localhost:3050/workspace/employee/${role}/${year}/${month}/work`, {
+>>>>>>> automate
             method: 'PUT'
         });
         console.log(`Publish response status: ${publishResponse.status}`);
@@ -379,7 +425,11 @@ document.getElementById('deleteBtn').addEventListener('click', async () => {
     try {
         const formattedDate = formatDateToISO(date, "22:00:00.000Z");
 
+<<<<<<< HEAD
         const response = await fetch(`https://medicare-p67f.onrender.com/employees/${email}/work`, {
+=======
+        const response = await fetch(`http://localhost:3050/employees/${email}/work`, {
+>>>>>>> automate
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json'
@@ -433,7 +483,11 @@ document.getElementById('addBtn').addEventListener('click', async () => {
     try {
         const formattedDate = formatDateToISO(date, "22:00:00.000Z");
 
+<<<<<<< HEAD
         const response = await fetch(`https://medicare-p67f.onrender.com/employees/${email}/work/add`, {
+=======
+        const response = await fetch(`http://localhost:3050/employees/${email}/work/add`, {
+>>>>>>> automate
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -575,13 +629,21 @@ document.getElementById("automateButton").addEventListener("click", async () => 
     let shiftDuration = document.getElementById("shiftDuration").value;
     let employeesForShift = document.getElementById("employeesForShift").value;
     const shiftData = { peopleForShift: employeesForShift, shiftDuration: shiftDuration };
+<<<<<<< HEAD
 
     await createWorkspace(role, year, month);
     let ret=await updateShiftType(role, year, month, shiftData);
     if(ret!=null){
         await automateAndPublishShifts(role, year, month); 
     } 
+=======
+>>>>>>> automate
 
+    await createWorkspace(role, year, month);
+    let ret=await updateShiftType(role, year, month, shiftData);
+    if(ret!=null){
+        await automateAndPublishShifts(role, year, month); 
+    } 
 
     window.location.reload();
 
