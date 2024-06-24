@@ -5,7 +5,7 @@
   "main": "backend/app.js",
   "scripts": {
     "start": "node backend/app.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "build": "npm install && npm fund"
   },
   "keywords": [],

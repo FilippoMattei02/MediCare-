@@ -1,7 +1,7 @@
 const request = require('supertest');
 const mongoose = require('mongoose');
 const app = require('./app');
-const Employee = require('./models/testEmployee');
+const Employee = require('./models/employee');
 require('dotenv').config();
 
 describe('Employees API', () => {
