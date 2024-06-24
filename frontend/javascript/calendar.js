@@ -33,7 +33,9 @@ async function connector() {
 async function fetchTasks(username) {
     console.log(`Fetching tasks for username: ${username}`);
     try {
-        const response = await fetch(`https://medicare-p67f.onrender.com/calendar/${username}`);
+        const response = await fetch(`https://medicare-p67f.onrender.com/calendar/${username}`),{
+            'Authorization': `${currentToken}`
+        };
         console.log(`Response status: ${response.status}`);
         if (!response.ok) {
             throw new Error('Errore nella richiesta: ' + response.status);

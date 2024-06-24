@@ -531,6 +531,7 @@ router.post('/:role/:username', async (req, res) => {
 router.put('/:role/:resUsername', async (req, res) => {
     const role = req.params.role;
     const res_username = req.params.resUsername;
+    let token = req.headers['authorization'];
     
     const req_username = req.body.req_username;
     const date = req.body.day;
@@ -587,7 +588,7 @@ router.put('/:role/:resUsername', async (req, res) => {
     covReq.res_username=res_username;
     
     
-    let state=await publishWorkShifts(start,covReq.end,date,req_username,res_username,role);
+    let state=await publishWorkShifts(start,covReq.end,date,req_username,res_username,role,token);
     if(state==1){
         return res.status(500).json({ error: 'Problem in the edit of work shifts' });
     }
@@ -691,12 +692,12 @@ function dateToString(date) {
     return date.toISOString().split('T')[0];
 }
 
-async function publishWorkShifts(start,end,day,req_username,res_username,role){
+async function publishWorkShifts(start,end,day,req_username,res_username,role,token){
     try {
-        await deleteWorkShift(req_username, day, start, end);         
+        await deleteWorkShift(req_username, day, start, end,token);         
         
         try {
-            await postWorkShift(res_username, day,start,end);
+            await postWorkShift(res_username, day,start,end,token);
             console.log(`Successfully added work shifts for ${res_username}`);
         } catch (error) {
             console.error(`Error adding work shifts for ${res_username}:`, error);
@@ -711,12 +712,12 @@ async function publishWorkShifts(start,end,day,req_username,res_username,role){
     }
 }
 
-async function postWorkShift (email, day, start, end) {
+async function postWorkShift (email, day, start, end,token) {
     try {
         const payload = { day, start, end };
         const response = await fetch(`https://medicare-p67f.onrender.com/employees/${email}/work/add `, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json','Authorization': `${token}` },
             body: JSON.stringify(payload),
         });
 
@@ -731,7 +732,8 @@ async function postWorkShift (email, day, start, end) {
         throw error;
     }
 };
-async function deleteWorkShift (email, day, start, end) {
+
+async function deleteWorkShift (email, day, start, end,token) {
     const url = `https://medicare-p67f.onrender.com/employees/${email}/work`;
     const payload = { day, start, end };
 
@@ -740,6 +742,8 @@ async function deleteWorkShift (email, day, start, end) {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `${token}`
+
             },
             body: JSON.stringify(payload),
         });

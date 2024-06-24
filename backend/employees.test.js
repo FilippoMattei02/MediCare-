@@ -1,6 +1,7 @@
 const request = require('supertest');
 const mongoose = require('mongoose');
 const app = require('./app');
+const jwt = require('jsonwebtoken');
 const Employee = require('./models/employee');
 require('dotenv').config();
 
@@ -14,6 +15,9 @@ describe('Employees API', () => {
         work: [{ day: new Date('2024-12-26T00:00:00.000Z'), start: 9, end: 17 }],
         shiftManager: true
     };
+    var payload = {email: 'test.user@apss.it'}
+    var options = {expiresIn: 86400 }
+    let token1 = jwt.sign(payload, process.env.SUPER_SECRET, options);
 
     beforeAll(async () => {
         
@@ -34,7 +38,8 @@ describe('Employees API', () => {
     });
 
     test('GET /employees/:username - Get an employee by username', async () => {
-        const res = await request(app).get('/employees/test.user@apss.it');
+        const res = await request(app).get('/employees/test.user@apss.it')
+            .set({'Authorization': `${token1}`});
         expect(res.statusCode).toBe(200);
         expect(res.body).toHaveProperty('username', 'test.user@apss.it');
         expect(res.body).toHaveProperty('role', 'tester');
@@ -47,7 +52,8 @@ describe('Employees API', () => {
     test('POST /employees/:username/work - Modify work schedule for an employee', async () => {
         const res = await request(app)
             .post('/employees/test.user@apss.it/work')
-            .send({ work: [{ day: '2024-12-26', start: 9, end: 17 }] });
+            .send({ work: [{ day: '2024-12-26', start: 9, end: 17 }] })
+            .set({'Authorization': `${token1}`});
         expect(res.statusCode).toBe(409); 
         expect(res.body).toHaveProperty('error', 'Conflict, duplicate work schedule'); 
     });
@@ -55,7 +61,8 @@ describe('Employees API', () => {
     test('POST /employees/:username/work/add - Add a new work shift for an employee', async () => {
         const res = await request(app)
             .post('/employees/test.user@apss.it/work/add')
-            .send({ day: '2024-12-27', start: 10, end: 18 });
+            .send({ day: '2024-12-27', start: 10, end: 18 })
+            .set({'Authorization': `${token1}`});
         expect(res.statusCode).toBe(201); 
         expect(res.body).toHaveProperty('message', 'Shift added successfully');
     });
@@ -63,17 +70,20 @@ describe('Employees API', () => {
     test('DELETE /employees/:username/work - Delete a specific work shift for an employee', async () => {
         await request(app)
             .post('/employees/test.user@apss.it/work/add')
-            .send({ day: '2024-12-25', start: 8, end: 16 });
+            .send({ day: '2024-12-25', start: 8, end: 16 })
+            .set({'Authorization': `${token1}`});
     
         const res = await request(app)
             .delete('/employees/test.user@apss.it/work')
-            .send({ day: '2024-12-25', start: 8, end: 16 });
+            .send({ day: '2024-12-25', start: 8, end: 16 })
+            .set({'Authorization': `${token1}`});
         expect(res.statusCode).toBe(200);
         expect(res.body).toHaveProperty('message', 'Shift deleted successfully');
     });
     
     test('GET /employees/:username - Employee not found', async () => {
-        const res = await request(app).get('/employees/nonexistentuser');
+        const res = await request(app).get('/employees/nonexistentuser')
+        .set({'Authorization': `${token1}`});
         expect(res.statusCode).toBe(404); 
         expect(res.body).toHaveProperty('error', 'Employee not found');
     });
@@ -81,7 +91,8 @@ describe('Employees API', () => {
     test('POST /employees/:username/work - Work schedule must be an array', async () => {
         const res = await request(app)
             .post('/employees/test.user@apss.it/work')
-            .send({ work: { day: '2024-12-26', start: 9, end: 17 } });
+            .send({ work: { day: '2024-12-26', start: 9, end: 17 } })
+            .set({'Authorization': `${token1}`});
         expect(res.statusCode).toBe(400);
         expect(res.body).toHaveProperty('error', 'Work schedule must be an array');
     });
@@ -89,11 +100,13 @@ describe('Employees API', () => {
     test('POST /employees/:username/work/add - Conflict, duplicate work schedule', async () => {
         await request(app)
             .post('/employees/test.user@apss.it/work/add')
-            .send({ day: '2024-12-28', start: 11, end: 19 });
+            .send({ day: '2024-12-28', start: 11, end: 19 })
+            .set({'Authorization': `${token1}`});
 
         const res = await request(app)
             .post('/employees/test.user@apss.it/work/add')
-            .send({ day: '2024-12-28', start: 11, end: 19 });
+            .send({ day: '2024-12-28', start: 11, end: 19 })
+            .set({'Authorization': `${token1}`});
         expect(res.statusCode).toBe(409);
         expect(res.body).toHaveProperty('error', 'Conflict, Duplicate work schedule');
     });
@@ -101,7 +114,8 @@ describe('Employees API', () => {
     test('DELETE /employees/:username/work - Missing day, start, or end parameters', async () => {
         const res = await request(app)
             .delete('/employees/test.user@apss.it/work')
-            .send({ start: 8, end: 16 });
+            .send({ start: 8, end: 16 })
+            .set({'Authorization': `${token1}`});
         expect(res.statusCode).toBe(400);
         expect(res.body).toHaveProperty('error', 'Day, start, and end are required');
     });
@@ -109,7 +123,8 @@ describe('Employees API', () => {
     test('DELETE /employees/:username/work - Shift not found', async () => {
         const res = await request(app)
             .delete('/employees/test.user@apss.it/work')
-            .send({ day: '2024-12-29', start: 12, end: 20 });
+            .send({ day: '2024-12-29', start: 12, end: 20 })
+            .set({'Authorization': `${token1}`});
         expect(res.statusCode).toBe(404);
         expect(res.body).toHaveProperty('error', 'Shift not found');
     });
@@ -120,7 +135,8 @@ describe('Employees API', () => {
             .send([
                 { day: '2024-12-30', start: 9, end: 17 },
                 { day: '2024-12-31', start: 10, end: 18 }
-            ]);
+            ])
+            .set({'Authorization': `${token1}`});
         expect(res.statusCode).toBe(201);
         expect(res.body).toHaveProperty('message', 'Shift processing complete');
         expect(res.body).toHaveProperty('addedShifts');

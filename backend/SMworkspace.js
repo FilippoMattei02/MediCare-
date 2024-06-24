@@ -410,6 +410,9 @@ router.put('/employee/:role/:year/:month/work', async (req, res) => {
     const parsedYear = parseInt(year, 10);
     const parsedMonth = parseInt(month, 10);
 
+    let token = req.headers['authorization'];
+    
+   
     const isValidMonth = (month) => Number.isInteger(month) && month >= 1 && month <= 12;
     const isValidYear = (year) => Number.isInteger(year) && year >= 0;
 
@@ -438,11 +441,11 @@ router.put('/employee/:role/:year/:month/work', async (req, res) => {
         }
 
         try {
-            const jsonData = await getWorkShift(role, year, month);         
+            const jsonData = await getWorkShift(role, year, month,token);         
             for (const user of jsonData) {
                 const { username, work } = user;
                 try {
-                    await postWorkShift(username, work);
+                    await postWorkShift(username, work,token);
                     //console.log(`Successfully added work shifts for ${username}`);
                 } catch (error) {
                     console.error(`Error adding work shifts for ${username}:`, error);
@@ -542,6 +545,8 @@ router.delete('/employee/:role/:year/:month/work', async (req, res) => {
     const year = parseInt(req.params.year, 10);
     const month = parseInt(req.params.month, 10);
     const role = req.params.role;
+    let token = req.headers['authorization'];
+    
 
     if(!Number.isInteger(month) || !month || month < 1 || month > 12){
         return res.status(400).json({ error: 'invalid month' });
@@ -573,7 +578,7 @@ router.delete('/employee/:role/:year/:month/work', async (req, res) => {
         for (const shift of dayOfWork.shift) {
             try {
                 let newDate=new Date(dayOfWork.date).toISOString();
-                await deleteWorkShift(shift.email, newDate, shift.start, shift.end);
+                await deleteWorkShift(shift.email, newDate, shift.start, shift.end,token);
             } catch (error) {
                 console.error(`Error deleting work shift for ${shift.email}:`, error);
             }
@@ -672,10 +677,13 @@ function getNumberOfDays(month,year){
     
 }
 
-async function getWorkShift  (role, year, month) {
+async function getWorkShift  (role, year, month,token) {
     //console.log(role,year,month);
     try {
-        const response = await fetch(`http://medicare-p67f.onrender.com/workspace/${role}/${year}/${month}/shifts `);
+        const response = await fetch(`http://medicare-p67f.onrender.com/workspace/${role}/${year}/${month}/shifts `,{
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' ,'Authorization': `${token}`},
+        });
 
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
@@ -689,11 +697,11 @@ async function getWorkShift  (role, year, month) {
     }
 };
 
- async function postWorkShift (email, shiftList) {
+ async function postWorkShift (email, shiftList,token) {
     try {
         const response = await fetch(`http://medicare-p67f.onrender.com/employees/${email}/work/listOfShifts `, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json' ,'Authorization': `${token}`},
             body: JSON.stringify(shiftList),
         });
 
@@ -708,7 +716,7 @@ async function getWorkShift  (role, year, month) {
         throw error;
     }
 };
-async function deleteWorkShift (email, day, start, end) {
+async function deleteWorkShift (email, day, start, end,token) {
     const url = `http://medicare-p67f.onrender.com/employees/${email}/work`;
     const payload = { day, start, end };
 
@@ -717,6 +725,7 @@ async function deleteWorkShift (email, day, start, end) {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `${token}`
             },
             body: JSON.stringify(payload),
         });

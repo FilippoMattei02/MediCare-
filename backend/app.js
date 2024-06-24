@@ -10,6 +10,7 @@ const User   = require('./models/user');
 const Employees=require('./models/employee');
 const Workspace= require('./models/shiftWorkspace');
 const Holidays = require('./models/holidays');
+const tokenChecker= require('./loggerMiddleware');
 
 
 
@@ -42,9 +43,15 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/auth', authentication);
 
 //If you want you can make a middleware for authentication 
-/*
-*app.use('/holiday', tokenChecker);
-*/
+
+app.use('/employees', tokenChecker);
+app.use('/coverage', tokenChecker);
+app.use('/workspace', tokenChecker);
+app.use('/holiday',tokenChecker);
+app.use('/shifts',tokenChecker);
+
+app.use('/calendar',tokenChecker);
+
 
 app.use('/holiday',holiday);
 app.use('/employees', employees);

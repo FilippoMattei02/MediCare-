@@ -2,7 +2,9 @@ const request = require('supertest');
 const mongoose = require('mongoose');
 const app = require('./app');
 const Workspace = require('./models/shiftWorkspace');
-const Employees = require('./models/employee'); 
+const Employees = require('./models/employee');
+
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 describe('WORKSPACE API', () => {
@@ -61,6 +63,9 @@ describe('WORKSPACE API', () => {
         work: [{ day: new Date('2024-03-01'), start: 0, end: 12 }, { day: new Date('2024-03-02'), start: 0, end: 12 }],
         shiftManager: false
     };
+    var payload1 = {email: 'test.user4@apss.it'};
+    var options = {expiresIn: 86400 };
+    let token1 = jwt.sign(payload1, process.env.SUPER_SECRET, options);
 
     beforeAll(async () => {
         
@@ -113,7 +118,7 @@ describe('WORKSPACE API', () => {
         const month = 1;
 
         const res = await request(app)
-            .get(`/workspace/${role}/${year}/${month}/shifts`);
+            .get(`/workspace/${role}/${year}/${month}/shifts`) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(200);
         expect(res.body).toContainEqual({ username: 'test.user4@apss.it', work: [{ day: '2024-01-01', start: 9, end: 17 }] });
@@ -127,7 +132,7 @@ describe('WORKSPACE API', () => {
         const month = 1;
 
         const res = await request(app)
-            .get(`/workspace/${role}/${year}/${month}/shifts`);
+            .get(`/workspace/${role}/${year}/${month}/shifts`) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({ error: 'Invalid or missing year' });
@@ -138,7 +143,7 @@ describe('WORKSPACE API', () => {
         const month = 'June'; 
 
         const res = await request(app)
-            .get(`/workspace/${role}/${year}/${month}/shifts`);
+            .get(`/workspace/${role}/${year}/${month}/shifts`) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({ error: 'Invalid or missing month' });
@@ -149,7 +154,7 @@ describe('WORKSPACE API', () => {
         const month = 1;
 
         const res = await request(app)
-            .get(`/workspace/${role}/${year}/${month}/shifts`);
+            .get(`/workspace/${role}/${year}/${month}/shifts`) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({ error: 'Not a valid role' });
@@ -160,7 +165,7 @@ describe('WORKSPACE API', () => {
         const month = 13; // Month not in range 1-12
 
         const res = await request(app)
-            .get(`/workspace/${role}/${year}/${month}/shifts`);
+            .get(`/workspace/${role}/${year}/${month}/shifts`) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({ error: 'Invalid or missing month' });
@@ -171,7 +176,7 @@ describe('WORKSPACE API', () => {
         const month = 13; 
 
         const res = await request(app)
-            .get(`/workspace/${role}/${year}/${month}/shifts`);
+            .get(`/workspace/${role}/${year}/${month}/shifts`) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({ error: 'Invalid or missing month' });
@@ -182,7 +187,7 @@ describe('WORKSPACE API', () => {
         const month = 10; 
 
         const res = await request(app)
-            .get(`/workspace/${role}/${year}/${month}/shifts`);
+            .get(`/workspace/${role}/${year}/${month}/shifts`) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(404);
         expect(res.body).toEqual({ error: 'Workspace not found for this month' });
@@ -201,7 +206,7 @@ describe('WORKSPACE API', () => {
         const month = 'June'; // Non-integer month
 
         const res = await request(app)
-            .post(`/workspace/${role}/${year}/${month}`);
+            .post(`/workspace/${role}/${year}/${month}`) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({ error: 'invalid month' });
@@ -213,7 +218,7 @@ describe('WORKSPACE API', () => {
         const month = 13; // Month not in range 1-12
 
         const res = await request(app)
-            .post(`/workspace/${role}/${year}/${month}`);
+            .post(`/workspace/${role}/${year}/${month}`) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({ error: 'invalid month' });
@@ -224,7 +229,7 @@ describe('WORKSPACE API', () => {
         const month=1;
 
         const res = await request(app)
-            .post(`/workspace/${role}/${year}/${month}`);
+            .post(`/workspace/${role}/${year}/${month}`) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({ error: 'invalid year' });
@@ -237,7 +242,7 @@ describe('WORKSPACE API', () => {
         const month=1;
 
         const res = await request(app)
-            .post(`/workspace/${role}/${year}/${month}`);
+            .post(`/workspace/${role}/${year}/${month}`) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({ error: 'invalid year' });
@@ -250,7 +255,7 @@ describe('WORKSPACE API', () => {
         const month=1;
 
         const res = await request(app)
-            .post(`/workspace/${role}/${year}/${month}`);
+            .post(`/workspace/${role}/${year}/${month}`) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({ error: 'not a valid role' });
@@ -263,7 +268,7 @@ describe('WORKSPACE API', () => {
         const month=1;
 
         const res = await request(app)
-            .post(`/workspace/${role}/${year}/${month}`);
+            .post(`/workspace/${role}/${year}/${month}`) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(409);
         expect(res.body).toEqual({ error: 'Workspace already exists for this month' });
@@ -274,7 +279,7 @@ describe('WORKSPACE API', () => {
         const month=9;
 
         const res = await request(app)
-            .post(`/workspace/${role}/${year}/${month}`);
+            .post(`/workspace/${role}/${year}/${month}`) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(200);
         expect(res.body).toEqual({ message: 'Workspace created successfully!' });
@@ -297,7 +302,7 @@ describe('WORKSPACE API', () => {
 
         const res = await request(app)
             .put(`/workspace/${role}/${year}/${month}/shiftType`)
-            .send(data);
+            .send(data) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({ error: 'invalid month' });
@@ -315,7 +320,7 @@ describe('WORKSPACE API', () => {
 
         const res = await request(app)
             .put(`/workspace/${role}/${year}/${month}/shiftType`)
-            .send(data);
+            .send(data) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({ error: 'invalid month' });
@@ -334,7 +339,7 @@ describe('WORKSPACE API', () => {
 
         const res = await request(app)
             .put(`/workspace/${role}/${year}/${month}/shiftType`)
-            .send(data);
+            .send(data) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({ error: 'invalid year' });
@@ -353,7 +358,7 @@ describe('WORKSPACE API', () => {
 
         const res = await request(app)
             .put(`/workspace/${role}/${year}/${month}/shiftType`)
-            .send(data);
+            .send(data) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({ error: 'invalid year' });
@@ -372,7 +377,7 @@ describe('WORKSPACE API', () => {
 
         const res = await request(app)
             .put(`/workspace/${role}/${year}/${month}/shiftType`)
-            .send(data);
+            .send(data) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({ error: 'people for workday not valid or missing' });
@@ -390,7 +395,7 @@ describe('WORKSPACE API', () => {
 
         const res = await request(app)
             .put(`/workspace/${role}/${year}/${month}/shiftType`)
-            .send(data);
+            .send(data) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({ error: 'people for workday not valid or missing' });
@@ -408,7 +413,7 @@ describe('WORKSPACE API', () => {
 
         const res = await request(app)
             .put(`/workspace/${role}/${year}/${month}/shiftType`)
-            .send(data);
+            .send(data) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({ error: 'people for workday not valid or missing' });
@@ -425,7 +430,7 @@ describe('WORKSPACE API', () => {
 
         const res = await request(app)
             .put(`/workspace/${role}/${year}/${month}/shiftType`)
-            .send(data);
+            .send(data) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({ error: 'shift duration not valid or missing' });
@@ -443,7 +448,7 @@ describe('WORKSPACE API', () => {
 
         const res = await request(app)
             .put(`/workspace/${role}/${year}/${month}/shiftType`)
-            .send(data);
+            .send(data) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({ error: 'shift duration not valid or missing' });
@@ -461,7 +466,7 @@ describe('WORKSPACE API', () => {
 
         const res = await request(app)
             .put(`/workspace/${role}/${year}/${month}/shiftType`)
-            .send(data);
+            .send(data) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({ error: 'shift duration not valid or missing' });
@@ -479,7 +484,7 @@ describe('WORKSPACE API', () => {
 
         const res = await request(app)
             .put(`/workspace/${role}/${year}/${month}/shiftType`)
-            .send(data);
+            .send(data) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({ error: 'shift duration not valid or missing' });
@@ -497,7 +502,7 @@ describe('WORKSPACE API', () => {
 
             const res = await request(app)
                 .put(`/workspace/${role}/${year}/${month}/shiftType`)
-                .send(data);
+                .send(data) .set({'Authorization': `${token1}`});
     
             expect(res.statusCode).toBe(400);
             expect(res.body).toEqual({ error: 'not a valid role' });
@@ -515,7 +520,7 @@ describe('WORKSPACE API', () => {
 
         const res = await request(app)
             .put(`/workspace/${role}/${year}/${month}/shiftType`)
-            .send({ peopleForShift, shiftDuration });
+            .send({ peopleForShift, shiftDuration }) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({
@@ -534,7 +539,7 @@ describe('WORKSPACE API', () => {
 
         const res = await request(app)
             .put(`/workspace/${role}/${year}/${month}/shiftType`)
-            .send({ peopleForShift, shiftDuration });
+            .send({ peopleForShift, shiftDuration }) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(200);
         expect(res.body).toEqual({ message: 'Workspace updated successfully!' });
@@ -551,7 +556,7 @@ describe('WORKSPACE API', () => {
 
         const res = await request(app)
             .put(`/workspace/${role}/${year}/${month}/shiftType`)
-            .send({ peopleForShift, shiftDuration });
+            .send({ peopleForShift, shiftDuration }) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(404);
         expect(res.body).toEqual({ error: 'Workspace not found for this month' });
@@ -572,7 +577,7 @@ describe('WORKSPACE API', () => {
         const month = 'June'; // Non-integer month
 
         const res = await request(app)
-            .put(`/workspace/automate/${role}/${year}/${month}/daysOfWork`);
+            .put(`/workspace/automate/${role}/${year}/${month}/daysOfWork`) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(400);
         
@@ -586,7 +591,7 @@ describe('WORKSPACE API', () => {
         const month = 13; // Month not in range 1-12
 
         const res = await request(app)
-            .put(`/workspace/automate/${role}/${year}/${month}/daysOfWork`);
+            .put(`/workspace/automate/${role}/${year}/${month}/daysOfWork`) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({ error: 'invalid month' });
@@ -599,7 +604,7 @@ describe('WORKSPACE API', () => {
         const month = 1;
 
         const res = await request(app)
-            .put(`/workspace/automate/${role}/${year}/${month}/daysOfWork`);
+            .put(`/workspace/automate/${role}/${year}/${month}/daysOfWork`) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({ error: 'invalid year' });
@@ -612,7 +617,7 @@ describe('WORKSPACE API', () => {
         const month = 1;
 
         const res = await request(app)
-            .put(`/workspace/automate/${role}/${year}/${month}/daysOfWork`);
+            .put(`/workspace/automate/${role}/${year}/${month}/daysOfWork`) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({ error: 'invalid year' });
@@ -626,7 +631,7 @@ describe('WORKSPACE API', () => {
         const month = 1;
 
         const res = await request(app)
-            .put(`/workspace/automate/${role}/${year}/${month}/daysOfWork`);
+            .put(`/workspace/automate/${role}/${year}/${month}/daysOfWork`) .set({'Authorization': `${token1}`});
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({ error: 'not a valid role' });
     });
@@ -638,7 +643,7 @@ describe('WORKSPACE API', () => {
         const month = 2;
 
         const res = await request(app)
-            .put(`/workspace/automate/${role}/${year}/${month}/daysOfWork`);
+            .put(`/workspace/automate/${role}/${year}/${month}/daysOfWork`) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(200);
         expect(res.body).toEqual({ message: 'Days of work casually generated and added correctly' });
@@ -653,7 +658,7 @@ describe('WORKSPACE API', () => {
 
 
         const res = await request(app)
-            .put(`/workspace/automate/${role}/${year}/${month}/daysOfWork`);
+            .put(`/workspace/automate/${role}/${year}/${month}/daysOfWork`) .set({'Authorization': `${token1}`});
         expect(res.statusCode).toBe(404);
         
         expect(res.body).toEqual({ error: 'Workspace not found for this month' });
@@ -671,7 +676,7 @@ describe('WORKSPACE API', () => {
         const month = 'June'; // Non-integer month
 
         const res = await request(app)
-            .put(`/workspace/employee/${role}/${year}/${month}/work`);
+            .put(`/workspace/employee/${role}/${year}/${month}/work`) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({ error: 'Invalid or missing month' });
@@ -684,7 +689,7 @@ describe('WORKSPACE API', () => {
         const month = 13; // Month not in range 1-12
 
         const res = await request(app)
-            .put(`/workspace/employee/${role}/${year}/${month}/work`);
+            .put(`/workspace/employee/${role}/${year}/${month}/work`) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({ error: 'Invalid or missing month' });
@@ -697,7 +702,7 @@ describe('WORKSPACE API', () => {
         const month = 1;
 
         const res = await request(app)
-            .put(`/workspace/employee/${role}/${year}/${month}/work`);
+            .put(`/workspace/employee/${role}/${year}/${month}/work`) .set({'Authorization': `${token1}`});
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({ error: 'Invalid or missing year' });
     });
@@ -709,7 +714,7 @@ describe('WORKSPACE API', () => {
         const month = 1;
 
         const res = await request(app)
-            .put(`/workspace/employee/${role}/${year}/${month}/work`);
+            .put(`/workspace/employee/${role}/${year}/${month}/work`) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({ error: 'Invalid or missing year' });
@@ -725,7 +730,7 @@ describe('WORKSPACE API', () => {
     
 
         const res = await request(app)
-            .put(`/workspace/employee/${role}/${year}/${month}/work`);
+            .put(`/workspace/employee/${role}/${year}/${month}/work`) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({ error: 'Not a valid role' });
@@ -740,7 +745,7 @@ describe('WORKSPACE API', () => {
       
 
         const res = await request(app)
-            .put(`/workspace/employee/${role}/${year}/${month}/work`);
+            .put(`/workspace/employee/${role}/${year}/${month}/work`) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(404);
         expect(res.body).toEqual({ error: 'Workspace not found' });
@@ -754,7 +759,7 @@ describe('WORKSPACE API', () => {
         const month = 1;        
 
         const res = await request(app)
-            .put(`/workspace/employee/${role}/${year}/${month}/work`);
+            .put(`/workspace/employee/${role}/${year}/${month}/work`) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(200);
         expect(res.body).toEqual({ message: 'Work shifts added to employee schedules' });
@@ -778,7 +783,7 @@ describe('WORKSPACE API', () => {
         const month = 'June'; // Non-integer month
 
         const res = await request(app)
-            .delete(`/workspace/employee/${role}/${year}/${month}/work`);
+            .delete(`/workspace/employee/${role}/${year}/${month}/work`) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({ error: 'invalid month' });
@@ -791,7 +796,7 @@ describe('WORKSPACE API', () => {
         const month = 13; // Month not in range 1-12
 
         const res = await request(app)
-            .delete(`/workspace/employee/${role}/${year}/${month}/work`);
+            .delete(`/workspace/employee/${role}/${year}/${month}/work`) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({ error: 'invalid month' });
@@ -805,7 +810,7 @@ describe('WORKSPACE API', () => {
         const month = 1;
 
         const res = await request(app)
-            .delete(`/workspace/employee/${role}/${year}/${month}/work`);
+            .delete(`/workspace/employee/${role}/${year}/${month}/work`) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({ error: 'invalid year' });
@@ -818,7 +823,7 @@ describe('WORKSPACE API', () => {
         const month = 1;
 
         const res = await request(app)
-            .delete(`/workspace/employee/${role}/${year}/${month}/work`);
+            .delete(`/workspace/employee/${role}/${year}/${month}/work`) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({ error: 'invalid year' });
@@ -833,7 +838,7 @@ describe('WORKSPACE API', () => {
         const month = 1;
 
         const res = await request(app)
-            .delete(`/workspace/employee/${role}/${year}/${month}/work`);
+            .delete(`/workspace/employee/${role}/${year}/${month}/work`) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({ error: 'not a valid role' });
@@ -846,7 +851,7 @@ describe('WORKSPACE API', () => {
         const month = 1;
 
         const res = await request(app)
-            .delete(`/workspace/employee/${role}/${year}/${month}/work`);
+            .delete(`/workspace/employee/${role}/${year}/${month}/work`) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(404);
         expect(res.body).toEqual({ error: 'Workspace not found' });
@@ -861,7 +866,7 @@ describe('WORKSPACE API', () => {
         
         
         const res = await request(app)
-            .delete(`/workspace/employee/${role}/${year}/${month}/work`);
+            .delete(`/workspace/employee/${role}/${year}/${month}/work`) .set({'Authorization': `${token1}`});
         
         
         expect(res.statusCode).toBe(200);
@@ -881,7 +886,7 @@ describe('WORKSPACE API', () => {
         const month = 'June'; // Non-integer month
 
         const res = await request(app)
-            .delete(`/workspace/${role}/${year}/${month}/daysOfWork`);
+            .delete(`/workspace/${role}/${year}/${month}/daysOfWork`) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({ error: 'invalid month' });
@@ -894,7 +899,7 @@ describe('WORKSPACE API', () => {
         const month = 13; // Month not in range 1-12
 
         const res = await request(app)
-            .delete(`/workspace/${role}/${year}/${month}/daysOfWork`);
+            .delete(`/workspace/${role}/${year}/${month}/daysOfWork`) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({ error: 'invalid month' });
@@ -907,7 +912,7 @@ describe('WORKSPACE API', () => {
         const month = 1;
 
         const res = await request(app)
-            .delete(`/workspace/${role}/${year}/${month}/daysOfWork`);
+            .delete(`/workspace/${role}/${year}/${month}/daysOfWork`) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({ error: 'invalid year' });
@@ -920,7 +925,7 @@ describe('WORKSPACE API', () => {
         const month = 1;
 
         const res = await request(app)
-            .delete(`/workspace/${role}/${year}/${month}/daysOfWork`);
+            .delete(`/workspace/${role}/${year}/${month}/daysOfWork`) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({ error: 'invalid year' });
@@ -933,7 +938,7 @@ describe('WORKSPACE API', () => {
 
 
         const res = await request(app)
-            .delete(`/workspace/${role}/${year}/${month}/daysOfWork`);
+            .delete(`/workspace/${role}/${year}/${month}/daysOfWork`) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toEqual({ error: 'not a valid role' });
@@ -946,7 +951,7 @@ describe('WORKSPACE API', () => {
         const month = 10;
 
         const res = await request(app)
-            .delete(`/workspace/${role}/${year}/${month}/daysOfWork`);
+            .delete(`/workspace/${role}/${year}/${month}/daysOfWork`) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(404);
         expect(res.body).toEqual({ error: 'Workspace not found' });
@@ -959,7 +964,7 @@ describe('WORKSPACE API', () => {
         const month = 1;
         
         const res = await request(app)
-            .delete(`/workspace/${role}/${year}/${month}/daysOfWork`);
+            .delete(`/workspace/${role}/${year}/${month}/daysOfWork`) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(200);
         expect(res.body).toEqual({ message: 'days of work removed' });

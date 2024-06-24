@@ -7,6 +7,7 @@ const cov= require('./coverage');
 const employee = require('./models/employee');
 const coverage = require('./models/coverage');
 
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 describe('coverage API', () => {
@@ -30,6 +31,14 @@ describe('coverage API', () => {
         work: [{ day: new Date('2024-12-26'), start: 0, end: 12 },{ day: new Date('2024-12-25'), start: 0, end: 16 }],
         shiftManager: false
     };
+
+    var payload1 = {email: 'test.user7@apss.it'};
+    var payload2 = {email: 'test.user7@apss.it'};
+    var payload3 = {email: 'test.user7@apss.it'};
+    var options = {expiresIn: 86400 };
+    let token1 = jwt.sign(payload1, process.env.SUPER_SECRET, options);
+    let token2 = jwt.sign(payload2, process.env.SUPER_SECRET, options);
+    let token3 = jwt.sign(payload3, process.env.SUPER_SECRET, options);
 
     let testCoverage = {
         req_username:"test.user7@apss.it",
@@ -96,13 +105,15 @@ describe('coverage API', () => {
 
     //GET coverage/:role
     test('GET /coverage/:role - Get coverage not covered list', async () => {
-        const res = await request(app).get('/coverage/tester');
+        const res = await request(app).get('/coverage/tester')
+        .set({'Authorization': `${token1}`});
         expect(res.statusCode).toBe(200);
         expect(res.body).toContainEqual(testCoverage);
         expect(res.body).not.toContain(testCoverage2);
     });
     test('GET /coverage/:role - Get coverage list role not found', async () => {
-        const res = await request(app).get('/coverage/nottester');
+        const res = await request(app).get('/coverage/nottester')
+        .set({'Authorization': `${token1}`});
         expect(res.statusCode).toBe(404);
         expect(res.body.error).toContain("role not found");
     });
@@ -110,7 +121,8 @@ describe('coverage API', () => {
 
     //GET coverage/:role/:username/:day/:start
     test('GET /coverage/:role/:username/:day/:start - Get a specific coverage', async () => {
-        const res = await request(app).get('/coverage/tester/test.user7@apss.it/2024-12-25/0');
+        const res = await request(app).get('/coverage/tester/test.user7@apss.it/2024-12-25/0')
+        .set({'Authorization': `${token1}`});
         expect(res.statusCode).toBe(200);
         expect(res.body.req_username).toBe(testCoverage.req_username);
         expect(res.body.day).toBe(testCoverage.day);
@@ -120,17 +132,20 @@ describe('coverage API', () => {
     });
 
     test('GET /coverage/:role/:username/:day/:start - wrong request day(404)', async () => {
-        const res = await request(app).get('/coverage/tester/test.user7@apss.it/2024-12-17/0');
+        const res = await request(app).get('/coverage/tester/test.user7@apss.it/2024-12-17/0')
+        .set({'Authorization': `${token1}`});
         expect(res.statusCode).toBe(404);
         expect(res.body.message).toContain("coverage request not found");
     });
     test('GET /coverage/:role/:username/:day/:start - wrong user(404)', async () => {
-        const res = await request(app).get('/coverage/tester/nottest.user7@apss.it/2024-12-12/0');
+        const res = await request(app).get('/coverage/tester/nottest.user7@apss.it/2024-12-12/0')
+        .set({'Authorization': `${token1}`});
         expect(res.statusCode).toBe(404);
         expect(res.body.error).toContain("user or role not found");
     });
     test('GET /coverage/:role/:username/:day/:start - wrong role(404)', async () => {
-        const res = await request(app).get('/coverage/nottester/test.user7@apss.it/2024-12-12/0');
+        const res = await request(app).get('/coverage/nottester/test.user7@apss.it/2024-12-12/0')
+        .set({'Authorization': `${token1}`});
         expect(res.statusCode).toBe(404);
         expect(res.body.error).toContain("user or role not found");
     });
@@ -138,49 +153,57 @@ describe('coverage API', () => {
 
     //GET coverage/:role/:username/requested
     test('GET /coverage/:role/:username/requested- Get all coverage requested by a specific user', async () => {
-        const res = await request(app).get('/coverage/tester/test.user7@apss.it/requested');
+        const res = await request(app).get('/coverage/tester/test.user7@apss.it/requested')
+        .set({'Authorization': `${token1}`});
         expect(res.statusCode).toBe(200);
         expect(res.body).toContainEqual(testCoverage);
         expect(res.body).toContainEqual(testCoverage2);
     });
     test('GET /coverage/:role/:username/requested- Get empty object if the user does not have any request', async () => {
-        const res = await request(app).get('/coverage/tester/test.user2@apss.it/requested');
+        const res = await request(app).get('/coverage/tester/test.user2@apss.it/requested')
+        .set({'Authorization': `${token1}`});
         expect(res.statusCode).toBe(200);
         expect(res.body).toHaveLength(0);
     });
 
     test('GET /coverage/:role/:username/requested- wrong username', async () => {
-        const res = await request(app).get('/coverage/tester/nottest.user7@apss.it/requested');
+        const res = await request(app).get('/coverage/tester/nottest.user7@apss.it/requested')
+        .set({'Authorization': `${token1}`});
         expect(res.statusCode).toBe(404);
         expect(res.body.error).toContain("user or role not found");
     });
 
     test('GET /coverage/:role/:username/requested- wrong role', async () => {
-        const res = await request(app).get('/coverage/nottester/test.user7@apss.it/requested');
+        const res = await request(app).get('/coverage/nottester/test.user7@apss.it/requested')
+        .set({'Authorization': `${token1}`});
         expect(res.statusCode).toBe(404);
         expect(res.body.error).toContain("user or role not found");
     });
 
     //GET coverage/:role/:username/covered
     test('GET /coverage/:role/:username/covered- Get empty object if the user does not have any covered request', async () => {
-        const res = await request(app).get('/coverage/tester/test.user7@apss.it/covered');
+        const res = await request(app).get('/coverage/tester/test.user7@apss.it/covered')
+        .set({'Authorization': `${token1}`});
         expect(res.statusCode).toBe(200);
         expect(res.body).toHaveLength(0);
     });
     test('GET /coverage/:role/:username/covered- Get all coverage covered by a specific user', async () => {
-        const res = await request(app).get('/coverage/tester/test.user2@apss.it/covered');
+        const res = await request(app).get('/coverage/tester/test.user2@apss.it/covered')
+        .set({'Authorization': `${token1}`});
         expect(res.statusCode).toBe(200);
         expect(res.body).toContainEqual(testCoverage2);
     });
 
     test('GET /coverage/:role/:username/covered- wrong username', async () => {
-        const res = await request(app).get('/coverage/tester/nottest.user7@apss.it/covered');
+        const res = await request(app).get('/coverage/tester/nottest.user7@apss.it/covered')
+        .set({'Authorization': `${token1}`});
         expect(res.statusCode).toBe(404);
         expect(res.body.error).toContain("user or role not found");
     });
 
     test('GET /coverage/:role/:username/covered- wrong role', async () => {
-        const res = await request(app).get('/coverage/nottester/test.user7@apss.it/covered');
+        const res = await request(app).get('/coverage/nottester/test.user7@apss.it/covered')
+        .set({'Authorization': `${token1}`});
         expect(res.statusCode).toBe(404);
         expect(res.body.error).toContain("user or role not found");
     });
@@ -194,7 +217,8 @@ describe('coverage API', () => {
                 end:12,
                 message:"test message",
                 day:day1.toISOString()
-            });
+            })
+            .set({'Authorization': `${token1}`});
         
         expect(res.statusCode).toBe(200);
         expect(res.body.message).toContain("Coverage request created successfully!");
@@ -208,7 +232,8 @@ describe('coverage API', () => {
                 end:12,
                 message:"test message",
                 day:day1.toISOString()
-            });
+            })
+            .set({'Authorization': `${token1}`});
         
         expect(res.statusCode).toBe(400);
         expect(res.body.error).toContain("wrong start parameter");
@@ -222,7 +247,8 @@ describe('coverage API', () => {
                 end:12,
                 message:"test message",
                 day:day1.toISOString()
-            });
+            })
+            .set({'Authorization': `${token1}`});
         
         expect(res.statusCode).toBe(400);
         expect(res.body.error).toContain("wrong start parameter");
@@ -236,7 +262,8 @@ describe('coverage API', () => {
                 end:12,
                 message:"test message",
                 day:day1.toISOString()
-            });
+            })
+            .set({'Authorization': `${token1}`});
         
         expect(res.statusCode).toBe(400);
         expect(res.body.error).toContain("wrong start parameter");
@@ -251,8 +278,8 @@ describe('coverage API', () => {
                 start: 0,
                 message:"test message",
                 day:day1.toISOString()
-            });
-        
+            })
+            .set({'Authorization': `${token1}`});
         expect(res.statusCode).toBe(400);
         expect(res.body.error).toContain("wrong end parameter");
     });
@@ -264,7 +291,8 @@ describe('coverage API', () => {
                 start: 0,
                 message:"test message",
                 day:day1.toISOString()
-            });
+            })
+            .set({'Authorization': `${token1}`});
         
         expect(res.statusCode).toBe(400);
         expect(res.body.error).toContain("wrong end parameter");
@@ -277,7 +305,8 @@ describe('coverage API', () => {
                 start: 0,
                 message:"test message",
                 day:day1.toISOString()
-            });
+            })
+            .set({'Authorization': `${token1}`});
         
         expect(res.statusCode).toBe(400);
         expect(res.body.error).toContain("wrong end parameter");
@@ -292,7 +321,8 @@ describe('coverage API', () => {
                 end:12,
                 message:"test message"
                 
-            });
+            })
+            .set({'Authorization': `${token1}`});
         
         expect(res.statusCode).toBe(400);
         expect(res.body.error).toContain("missing date");
@@ -307,7 +337,8 @@ describe('coverage API', () => {
                 end:12,
                 day:day1.toISOString()
                 
-            });
+            })
+            .set({'Authorization': `${token1}`});
         
         expect(res.statusCode).toBe(400);
         expect(res.body.error).toContain("missing message");
@@ -321,7 +352,8 @@ describe('coverage API', () => {
                 end:12,
                 message:"test message",
                 day:day1.toISOString()
-            });
+            })
+            .set({'Authorization': `${token1}`});
         
         expect(res.statusCode).toBe(404);
         expect(res.body.message).toContain("work shift not found");
@@ -334,7 +366,8 @@ describe('coverage API', () => {
                 end:15,
                 message:"test message",
                 day:day1.toISOString()
-            });
+            })
+            .set({'Authorization': `${token1}`});
         
         expect(res.statusCode).toBe(404);
         expect(res.body.message).toContain("work shift not found");
@@ -347,7 +380,8 @@ describe('coverage API', () => {
                 end:12,
                 message:"test message",
                 day:new Date("2025-01-02").toISOString()
-            });
+            })
+            .set({'Authorization': `${token1}`});
         
         expect(res.statusCode).toBe(404);
         expect(res.body.message).toContain("work shift not found");
@@ -361,7 +395,8 @@ describe('coverage API', () => {
                 end:12,
                 message:"test message",
                 day:new Date('2024-12-25').toISOString(),
-            });
+            })
+            .set({'Authorization': `${token1}`});
         expect(res.statusCode).toBe(400);
         expect(res.body.message).toContain("coverage request already asked");
     });
@@ -375,7 +410,8 @@ describe('coverage API', () => {
                 start:0,
                 day:new Date('2024-12-25').toISOString(),
                 req_username:username
-            });      
+            })
+            .set({'Authorization': `${token1}`});      
         expect(res.statusCode).toBe(400);
         expect(res.body.message).toContain("Cannot cover the work shift already working that day at that hour");
     });
@@ -387,7 +423,8 @@ describe('coverage API', () => {
                 start:0,
                 day:new Date('2024-12-25').toISOString(),
                 req_username:username
-            });      
+            })
+            .set({'Authorization': `${token1}`});     
         expect(res.statusCode).toBe(404);
         expect(res.body.error).toContain("res user not found");
     });
@@ -399,7 +436,8 @@ describe('coverage API', () => {
                 start:0,
                 day:new Date('2024-12-25').toISOString(),
                 req_username:"not_test_user"
-            });      
+            })
+            .set({'Authorization': `${token1}`});     
         expect(res.statusCode).toBe(404);
         expect(res.body.error).toContain("req user not found");
     });
@@ -411,7 +449,8 @@ describe('coverage API', () => {
                 
                 day:new Date('2024-12-25').toISOString(),
                 req_username:"not_test_user"
-            });      
+            })
+            .set({'Authorization': `${token1}`});    
         expect(res.statusCode).toBe(400);
         expect(res.body.error).toContain("wrong start parameter");
     });
@@ -422,7 +461,8 @@ describe('coverage API', () => {
                 start:25,
                 day:new Date('2024-12-25').toISOString(),
                 req_username:"not_test_user"
-            });      
+            })
+            .set({'Authorization': `${token1}`});   
         expect(res.statusCode).toBe(400);
         expect(res.body.error).toContain("wrong start parameter");
     });
@@ -433,7 +473,8 @@ describe('coverage API', () => {
                 start:-1,
                 day:new Date('2024-12-25').toISOString(),
                 req_username:"not_test_user"
-            });      
+            })
+            .set({'Authorization': `${token1}`});     
         expect(res.statusCode).toBe(400);
         expect(res.body.error).toContain("wrong start parameter");
     });
@@ -445,7 +486,8 @@ describe('coverage API', () => {
                 start:0,
                 
                 req_username:username
-            });      
+            })
+            .set({'Authorization': `${token1}`});      
         expect(res.statusCode).toBe(400);
         expect(res.body.error).toContain("missing date");
     });
@@ -456,7 +498,8 @@ describe('coverage API', () => {
             .send({
                 start:0,
                 day:new Date('2024-12-25').toISOString()
-            });      
+            })
+            .set({'Authorization': `${token1}`});    
         expect(res.statusCode).toBe(400);
         expect(res.body.error).toContain("missing request username");
     });
@@ -468,7 +511,8 @@ describe('coverage API', () => {
                 start:0,
                 day:new Date('2025-09-28').toISOString(),
                 req_username:username
-            });      
+            })
+            .set({'Authorization': `${token1}`});     
         expect(res.statusCode).toBe(404);
         expect(res.body.message).toContain("coverage request not found or already covered");
     });
@@ -480,7 +524,8 @@ describe('coverage API', () => {
                 start:0,
                 day:new Date('2024-09-01').toISOString(),
                 req_username:username
-            });      
+            })
+            .set({'Authorization': `${token1}`});    
         expect(res.statusCode).toBe(404);
         expect(res.body.message).toContain("coverage request not found or already covered");
     });
@@ -492,7 +537,8 @@ describe('coverage API', () => {
                 start:0,
                 day:new Date('2024-12-25').toISOString(),
                 req_username:username
-            });      
+            })
+            .set({'Authorization': `${token1}`});   
         expect(res.statusCode).toBe(200);
         expect(res.body.response).toContain("coverage request accepted");
         let user= await employee.find({work:{$elemMatch :{start:0,end:12,day:new Date('2024-12-25').toISOString()}}},{username:1});
@@ -505,7 +551,8 @@ describe('coverage API', () => {
     //DELETE coverage/:role/:me/:day/:start
     test('DELETE coverage/:role/:me/:day/:start- DELETE coverage request deleted', async () => {
         const res = await request(app)
-            .delete('/coverage/tester/test.user7@apss.it/2024-12-25/0');      
+            .delete('/coverage/tester/test.user7@apss.it/2024-12-25/0')
+            .set({'Authorization': `${token1}`});     
         expect(res.statusCode).toBe(200);
         expect(res.body.response).toContain("coverage request deleted");
         let cov= await coverage.findOne( {role: "tester",req_username:username,day:new Date('2024-12-25').toISOString(),start:0});
@@ -514,14 +561,16 @@ describe('coverage API', () => {
 
     test('DELETE coverage/:role/:me/:day/:start- DELETE wrong username', async () => {
         const res = await request(app)
-            .delete('/coverage/tester/not-test.user7@apss.it/2024-12-25/0');      
+            .delete('/coverage/tester/not-test.user7@apss.it/2024-12-25/0')
+            .set({'Authorization': `${token1}`});     
         expect(res.statusCode).toBe(404);
         expect(res.body.error).toContain("user not found");
     });
 
     test('DELETE coverage/:role/:me/:day/:start- DELETE non existing coverage ', async () => {
         const res = await request(app)
-            .delete('/coverage/tester/test.user7@apss.it/2025-12-25/0');      
+            .delete('/coverage/tester/test.user7@apss.it/2025-12-25/0')
+            .set({'Authorization': `${token1}`});   
         expect(res.statusCode).toBe(404);
         expect(res.body.message).toContain("coverage request not found");
     });
