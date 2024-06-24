@@ -37,32 +37,57 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Funzione per ottenere i dati dall'API
-    function fetchData(role) {
-        fetch(`http://localhost:3050/coverage/${role}`)
-            .then(response => response.json())
-            .then(data => {
-                // Popola la tabella con i dati ottenuti dall'API e il ruolo inserito
-                populateTable(data, role);
+    function fetchData() {
+        const currentToken = localStorage.getItem('token');
+        fetch('http://localhost:3050/auth/tokens', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ token: currentToken })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network error: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log("Data message", data.message);
+            const username = data.message;
+            fetch(`http://localhost:3050/employees/role/type/${username}`)
+            .then(response => {
+                if (!response.ok) {
+                // Gestisci i casi di errore
+                if (response.status === 404) {
+                    throw new Error('Employee not found');
+                } else {
+                    throw new Error('Internal server error');
+                }
+                }
+                return response.json();
             })
-            .catch(error => console.error('Error fetching data:', error));
+            .then(data => {
+                const role = data.role;
+                console.log(`Role: ${data.role}`);
+                fetch(`http://localhost:3050/coverage/${role}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Popola la tabella con i dati ottenuti dall'API e il ruolo inserito. 
+                    populateTable(data, role);
+                })
+                .catch(error => console.error('Error fetching data:', error));
+            })
+            .catch(error => {
+                // Gestisci eventuali errori
+                console.error('Error:', error.message);
+            });
+        })
+        .catch(error => {
+            console.error('Error during token verification:', error);
+            alert("Invalid credentials or network error.");
+        });
     }
 
-    // Aggiungi un listener di evento per il campo di input del ruolo
-    var roleInput = document.getElementById('role');
-    roleInput.addEventListener('keypress', function(event) {
-        if (event.key === 'Enter') {
-            var role = roleInput.value;
-            fetchData(role);
-        }
-    });
-
-    // Aggiungi un listener di evento per il clic sul pulsante Fetch Data
-    var fetchRoleBtn = document.getElementById('fetchRoleBtn');
-    fetchRoleBtn.addEventListener('click', function() {
-        var role = roleInput.value;
-        fetchData(role);
-    });
-
-    // Esegui una richiesta iniziale con un valore di ruolo predefinito (opzionale)
-    fetchData('defaultRole'); // Sostituisci 'defaultRole' con un ruolo predefinito, se desiderato
+    fetchData();
 });
