@@ -85,7 +85,8 @@ describe('coverage API', () => {
   
     afterAll(async () => {
         
-
+        await Employees.deleteMany({role:"tester"});
+        await Coverage.deleteMany({role:"tester"});
 
         await mongoose.connection.close();
         console.log("Database connection closed");
