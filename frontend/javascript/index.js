@@ -18,7 +18,7 @@ function login() {
     }
 
     // Chiama le API usando POST per il login
-    fetch('https://medicare-p67f.onrender.com/auth', {
+    fetch('http://localhost:3050/auth', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -39,7 +39,11 @@ function login() {
             localStorage.setItem('token', data.token);
             console.log('Token salvato: ', localStorage.getItem('token'));
         }
+<<<<<<< HEAD
         fetch(`https://medicare-p67f.onrender.com/employees/role/${username}`, {
+=======
+        fetch(`http://localhost:3050/employees/role/${username}`, {
+>>>>>>> coverage
         method: 'GET',
         headers: {
             'Content-Type': 'application/json'

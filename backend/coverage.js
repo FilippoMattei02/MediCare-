@@ -42,10 +42,10 @@ const employee = require('./models/employee');
  *         description: Role not found or no coverage requests
  */
 
-router.get('/:role/', async (req, res) => {
+router.get('/:role', async (req, res) => {
     const role = req.params.role;
-    console.log("ROLE",role);
-    if (!role) {
+    
+    if (role==undefined) {
         return res.status(400).json({ error: 'missing role' });
     }    
     let userID = await employee.findOne({ role: role });                  
@@ -54,8 +54,7 @@ router.get('/:role/', async (req, res) => {
     }
 
     let covReq= await coverage.find({ role: role,state:false });
-    // console.log(covReq);
-    // console.log(role);
+    
     if (!covReq) {
         covReq=[];
         return res.status(200).json({message: 'no coverage requests',work:covReq });
@@ -63,9 +62,11 @@ router.get('/:role/', async (req, res) => {
     if(Array.isArray(covReq)){
         const requests = covReq.map(Req => ({
                 req_username: Req.req_username,
-                day: dateToString(Req.day),
+                day: Req.day,
                 start:Req.start,
                 end: Req.end,
+                role:role,
+                state:Req.state,
                 message: Req.message,
             })
         );
@@ -144,26 +145,28 @@ router.get('/:role/:username/:day/:start', async (req, res) => {
     const role = req.params.role;
     const username = req.params.username;
     const date = req.params.day;
-    const start=req.params.start;
+    let start=req.params.start;
+
+    start=parseInt(start); 
     
 
-    if (!role) {
+    if (role==undefined) {
         return res.status(400).json({ error: 'missing role' });
     }    
-    if (!date) {
+    if (date==undefined) {
         return res.status(400).json({ error: 'missing date' });
     }    
-    if (!username) {
+    if (username==undefined) {
         return res.status(400).json({ error: 'missing username' });
     }    
 
     let userID = await employee.findOne({ username:username,role: role });                  
     if (!userID) {
-        return res.status(404).json({error: 'user not found' });
+        return res.status(404).json({error: 'user or role not found' });
     }
     let newDate=new Date(date);
-    if (!(date === dateToString(newDate))) {
-        return res.status(400).json({ error: 'Date field is not of type yyyy-mm-dd' });
+    if (!(dateToString(date) === dateToString(newDate))) {
+        return res.status(400).json({ error: 'Date field not valid' });
     } 
 
     let covReq= await coverage.findOne({ role: role,req_username:username,day:newDate,start:start});
@@ -173,7 +176,7 @@ router.get('/:role/:username/:day/:start', async (req, res) => {
     return res.status(200).json({
         req_username: covReq.req_username,
         res_username:covReq.res_username,
-        day: dateToString(covReq.day),
+        day: covReq.day,
         start:covReq.start,
         end: covReq.end,
         message: covReq.message,
@@ -230,31 +233,29 @@ router.get('/:role/:username/requested', async (req, res) => {
     const role = req.params.role;
     const username = req.params.username;
 
-    if (!role) {
+    if (role==undefined) {
         return res.status(400).json({ error: 'missing role' });
     }       
-    if (!username) {
+    if (!username==undefined) {
         return res.status(400).json({ error: 'missing username' });
     }    
 
     let userID = await employee.findOne({ username:username,role: role });                  
     if (!userID) {
-        return res.status(404).json({error: 'user not found' });
+        return res.status(404).json({error: 'user or role not found' });
     }
 
     let covReq= await coverage.find({ role: role, req_username:username });
-    if (!covReq) {
-        covReq=[];
-        return res.status(200).json({message: 'no coverage requests asked by this user ',req:covReq });
-    }
     if(Array.isArray(covReq)){
         const requests = covReq.map(Req => ({
                 req_username: Req.req_username,
                 res_username:Req.res_username,
-                day: dateToString(Req.day),
+                day: Req.day,
                 start:Req.start,
                 end: Req.end,
                 message: Req.message,
+                state:Req.state,
+                role:Req.role
             })
         );
         
@@ -264,10 +265,12 @@ router.get('/:role/:username/requested', async (req, res) => {
         return res.status(200).json({
             req_username: covReq.req_username,
             res_username: covReq.res_username,
-            day: dateToString(covReq.day),
+            day: covReq.day,
             start:covReq.start,
             end: covReq.end,
             message: covReq.message,
+            state:covReq.state,
+            role:covReq.role
         });
     }
     
@@ -324,31 +327,29 @@ router.get('/:role/:username/covered', async (req, res) => {
     const role = req.params.role;
     const username = req.params.username;
 
-    if (!role) {
+    if (role==undefined) {
         return res.status(400).json({ error: 'missing role' });
     }       
-    if (!username) {
+    if (username==undefined) {
         return res.status(400).json({ error: 'missing username' });
     }    
 
     let userID = await employee.findOne({ username:username,role: role });                  
     if (!userID) {
-        return res.status(404).json({error: 'user not found' });
+        return res.status(404).json({error: 'user or role not found' });
     }
 
     let covReq= await coverage.find({ role: role, res_username:username });
-    if (!covReq) {
-        covReq=[];
-        return res.status(200).json({message: 'no coverage requests covered by this user ',req:covReq });
-    }
-    if(Array.isArray(covReq)){ 
+    if(Array.isArray(covReq)){
         const requests = covReq.map(Req => ({
                 req_username: Req.req_username,
                 res_username:Req.res_username,
-                day: dateToString(Req.day),
+                day: Req.day,
                 start:Req.start,
                 end: Req.end,
                 message: Req.message,
+                state:Req.state,
+                role:Req.role
             })
         );
         
@@ -358,10 +359,12 @@ router.get('/:role/:username/covered', async (req, res) => {
         return res.status(200).json({
             req_username: covReq.req_username,
             res_username: covReq.res_username,
-            day: dateToString(covReq.day),
+            day: covReq.day,
             start:covReq.start,
             end: covReq.end,
             message: covReq.message,
+            state:covReq.state,
+            role:covReq.role
         });
     }
     
@@ -414,31 +417,36 @@ router.post('/:role/:username', async (req, res) => {
     const username = req.params.username;
     
     const date = req.body.day;
-    const start=req.body.start;
-    const end=req.body.end;
+    let start=req.body.start;
+    let end=req.body.end;
     const message=req.body.message;
     
 
-    if (!role) {
+    let newDate=new Date(date);
+    
+
+    if (role==undefined) {
         
         return res.status(400).json({ error: 'missing role' });
     }    
-    if (!date) {
+    if (date==undefined) {
         
         return res.status(400).json({ error: 'missing date' });
     }    
-    if (!username) {
+    if (username==undefined) {
        
         return res.status(400).json({ error: 'missing username' });
     }
-    if (!start) {
-        
-        return res.status(400).json({ error: 'missing start' });
-    }   
-    if (!end) {
-        return res.status(400).json({ error: 'missing end' });
-    }   
-    if (!message) {
+    if (start==undefined || start<0 || start > 24) {
+        return res.status(400).json({ error: 'wrong start parameter' });
+    } 
+    if (end==undefined || end<0 || end > 24) {
+        return res.status(400).json({ error: 'wrong end parameter' });
+    } 
+    end=parseInt(end);
+    start=parseInt(start); 
+
+    if (message==undefined) {
         return res.status(400).json({ error: 'missing message' });
     }   
 
@@ -446,19 +454,19 @@ router.post('/:role/:username', async (req, res) => {
     if (!userID) {
         return res.status(404).json({error: 'user not found' });
     }
-    let newDate=new Date(date);
-    if (!(date === dateToString(newDate))) {
-        return res.status(400).json({ error: 'Date field is not of type yyyy-mm-dd' });
-    } 
+    
+    //console.log(newDate);
+    
     let found=false;
     for (const workItem of userID.work) {
-        if ( dateToString(workItem.day)== date && workItem.start == start && workItem.end == end) {
+
+        if ( dateToString(workItem.day) == dateToString(date) && workItem.start == start && workItem.end == end) {
             found=true;
             
             break;
         }
     }    
-    console.log(found)
+    
     if (!found){
         return res.status(404).json({message: 'work shift not found'});
     }
@@ -526,50 +534,55 @@ router.put('/:role/:resUsername', async (req, res) => {
     
     const req_username = req.body.req_username;
     const date = req.body.day;
-    const start=req.body.start;
-    
+    let start=req.body.start;
+
+
+    let newDate=new Date(date);
     
 
-    if (!role) {
+    if (role==undefined) {
         return res.status(400).json({ error: 'missing role' });
     }    
-    if (!start) {
-        return res.status(400).json({ error: 'missing start' });
+    if (start==undefined || start<0 || start > 24) {
+        return res.status(400).json({ error: 'wrong start parameter' });
     } 
-    if (!date) {
+    if (date==undefined) {
         return res.status(400).json({ error: 'missing date' });
     }    
-    if (!req_username) {
+    if (req_username==undefined) {
         return res.status(400).json({ error: 'missing request username' });
     }    
-    if (!res_username) {
+    if (res_username==undefined) {
         return res.status(400).json({ error: 'missing response username' });
-    }   
+    } 
+
+    let userID2 = await employee.findOne({ username:req_username,role: role });           
+    if (!userID2) {
+        return res.status(404).json({error: 'req user not found' });
+    } 
+    let covReq= await coverage.findOne({ role: role,state:false,req_username:req_username,day:newDate,start:start});
+    if (!covReq) {
+        return res.status(404).json({message: 'coverage request not found or already covered'});
+    }
 
     let userID = await employee.findOne({ username:res_username,role: role });
-                   
     if (!userID) {
-        return res.status(404).json({error: 'user not found' });
+        return res.status(404).json({error: 'res user not found' });
     }
     let found=false;
     for (const workItem of userID.work) {
-        if ( dateToString(workItem.day)== date) {
+        if ( dateToString(workItem.day)== dateToString(date) && workItem.start <= start && workItem.end >= covReq.end) {
             found=true;
             
             break;
         }
     }    
     if (found){
-        return res.status(400).json({message: 'Cannot cover the work shift already working that day'});
+        return res.status(400).json({message: 'Cannot cover the work shift already working that day at that hour'});
     }
-    let newDate=new Date(date);
-    if (!(date === dateToString(newDate))) {
-        return res.status(400).json({ error: 'Date field is not of type yyyy-mm-dd' });
-    } 
-    let covReq= await coverage.findOne({ role: role,state:false,req_username:req_username,day:newDate,start:start});
-    if (!covReq) {
-        return res.status(404).json({message: 'coverage request not found or already covered'});
-    }
+    
+    
+    
     covReq.state=true;
     covReq.res_username=res_username;
     
@@ -594,7 +607,7 @@ router.put('/:role/:resUsername', async (req, res) => {
  * @openapi
  * /:role/:me/:day/:start:
  *   delete:
- *     summary: Delete a specific coverage request if you are the owner or an admin
+ *     summary: Delete a specific coverage request 
  *     tags: [Coverage]
  *     parameters:
  *       - name: role
@@ -636,13 +649,13 @@ router.delete('/:role/:me/:day/:start', async (req, res) => {
     const start=req.params.start;
     
 
-    if (!role) {
+    if (role==undefined) {
         return res.status(400).json({ error: 'missing role' });
     }    
-    if (!date) {
+    if (date==undefined) {
         return res.status(400).json({ error: 'missing date' });
     }    
-    if (!username) {
+    if (username==undefined) {
         return res.status(400).json({ error: 'missing username' });
     }    
 
@@ -651,13 +664,13 @@ router.delete('/:role/:me/:day/:start', async (req, res) => {
         return res.status(404).json({error: 'user not found' });
     }
     let newDate=new Date(date);
-    if (!(date === dateToString(newDate))) {
-        return res.status(400).json({ error: 'Date field is not of type yyyy-mm-dd' });
-    } 
-
+    
     
 
     let covReq=await coverage.findOneAndDelete({ role: role,req_username:username,day:newDate,start:start });
+    if(!covReq){
+        return res.status(404).json({message: 'coverage request not found'});
+    }
     return res.status(200).json({
         response:"coverage request deleted"
     });       
@@ -701,7 +714,7 @@ async function publishWorkShifts(start,end,day,req_username,res_username,role){
 async function postWorkShift (email, day, start, end) {
     try {
         const payload = { day, start, end };
-        const response = await fetch(`http://localhost:3050/employees/${email}/work/add `, {
+        const response = await fetch(`https://medicare-p67f.onrender.com/employees/${email}/work/add `, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
@@ -719,7 +732,7 @@ async function postWorkShift (email, day, start, end) {
     }
 };
 async function deleteWorkShift (email, day, start, end) {
-    const url = `http://localhost:3050/employees/${email}/work`;
+    const url = `https://medicare-p67f.onrender.com/employees/${email}/work`;
     const payload = { day, start, end };
 
     try {

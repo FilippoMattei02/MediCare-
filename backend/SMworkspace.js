@@ -473,7 +473,6 @@ router.put('/employee/:role/:year/:month/work', async (req, res) => {
             return res.status(400).json({ error: 'Not a valid role' });
         }
 
-        const numberOfDays = getNumberOfDays(parsedMonth, parsedYear);
         const workspace = await shiftWorkspace.findOne({ year: parsedYear, month: parsedMonth, role }).exec();
 
         if (!workspace) {
@@ -481,10 +480,7 @@ router.put('/employee/:role/:year/:month/work', async (req, res) => {
         }
 
         try {
-            // Chiamata asincrona a getWorkShift
-            const jsonData = await getWorkShift(role, year, month);
-
-            // Iterazione sui dati ottenuti per aggiungere i turni di lavoro
+            const jsonData = await getWorkShift(role, year, month);         
             for (const user of jsonData) {
                 const { username, work } = user;
                 try {
@@ -492,7 +488,6 @@ router.put('/employee/:role/:year/:month/work', async (req, res) => {
                     console.log(`Successfully added work shifts for ${username}`);
                 } catch (error) {
                     console.error(`Error adding work shifts for ${username}:`, error);
-                    // Potresti voler inviare una risposta parziale in caso di errori specifici
                 }
             }
 
