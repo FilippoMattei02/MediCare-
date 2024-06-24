@@ -21,13 +21,14 @@ describe('Employees API', () => {
         //connection = await mongoose.connect(process.env.TEST_DB_URL, { useNewUrlParser: true, useUnifiedTopology: true });
         console.log('Database connected!');
 
-        await Employee.deleteMany({role:"tester"});
+        
+        
         await Employee.create(testEmployee);
     });
 
     afterAll(async () => {
-        
-        await Employee.deleteMany({role:"tester"});
+        // await Employee.deleteMany({role:"tester"});
+        await Employee.deleteOne({username:"test.user@apss.it"});
         //await mongoose.connection.close();
         console.log("Database connection closed");
     });

@@ -11,9 +11,9 @@ require('dotenv').config();
 
 describe('coverage API', () => {
     let connection;
-  
+    jest.setTimeout(30000);
     let testEmployee = {
-      username: 'test.user@apss.it',
+      username: 'test.user7@apss.it',
       role: 'tester',
       work: [{ day: new Date('2024-12-25'), start: 0, end: 12 }, { day: new Date('2024-01-09'), start: 0, end: 12 }],
       shiftManager: true
@@ -32,7 +32,7 @@ describe('coverage API', () => {
     };
 
     let testCoverage = {
-        req_username:"test.user@apss.it",
+        req_username:"test.user7@apss.it",
         role:"tester",
         state:false,
         message:"test message",
@@ -42,7 +42,7 @@ describe('coverage API', () => {
 
     };
     let testCoverage2 = {
-        req_username:"test.user@apss.it",
+        req_username:"test.user7@apss.it",
         res_username:"test.user2@apss.it",
         role:"tester",
         state:true,
@@ -51,7 +51,7 @@ describe('coverage API', () => {
 		start:0,
 		end:12
     };
-    const username="test.user@apss.it";
+    const username="test.user7@apss.it";
     const username2="test.user2@apss.it";
     const username3="test.user3@apss.it";
     let day1=new Date('2024-01-09');
@@ -60,13 +60,13 @@ describe('coverage API', () => {
     let message="test message";
   
     beforeAll(async () => {
-        jest.setTimeout(30000);
+        
         jest.unmock('mongoose')
-        connection = await mongoose.connect(process.env.INTERNAL_DB_URL);
+        //connection = await mongoose.connect(process.env.INTERNAL_DB_URL);
         console.log('Database connected!');
     
      
-        await Employees.deleteMany({role:"tester"});
+        
         await Coverage.deleteMany({role:"tester"});
         
       
@@ -85,10 +85,12 @@ describe('coverage API', () => {
   
     afterAll(async () => {
         
-        await Employees.deleteMany({role:"tester"});
+        await Employees.deleteOne({username:"test.user2@apss.it"});
+        await Employees.deleteOne({username:"test.user3@apss.it"});
+        await Employees.deleteOne({username:"test.user7@apss.it"});
         await Coverage.deleteMany({role:"tester"});
 
-        await mongoose.connection.close();
+        //await mongoose.connection.close();
         console.log("Database connection closed");
     });
 
@@ -108,7 +110,7 @@ describe('coverage API', () => {
 
     //GET coverage/:role/:username/:day/:start
     test('GET /coverage/:role/:username/:day/:start - Get a specific coverage', async () => {
-        const res = await request(app).get('/coverage/tester/test.user@apss.it/2024-12-25/0');
+        const res = await request(app).get('/coverage/tester/test.user7@apss.it/2024-12-25/0');
         expect(res.statusCode).toBe(200);
         expect(res.body.req_username).toBe(testCoverage.req_username);
         expect(res.body.day).toBe(testCoverage.day);
@@ -118,17 +120,17 @@ describe('coverage API', () => {
     });
 
     test('GET /coverage/:role/:username/:day/:start - wrong request day(404)', async () => {
-        const res = await request(app).get('/coverage/tester/test.user@apss.it/2024-12-17/0');
+        const res = await request(app).get('/coverage/tester/test.user7@apss.it/2024-12-17/0');
         expect(res.statusCode).toBe(404);
         expect(res.body.message).toContain("coverage request not found");
     });
     test('GET /coverage/:role/:username/:day/:start - wrong user(404)', async () => {
-        const res = await request(app).get('/coverage/tester/nottest.user@apss.it/2024-12-12/0');
+        const res = await request(app).get('/coverage/tester/nottest.user7@apss.it/2024-12-12/0');
         expect(res.statusCode).toBe(404);
         expect(res.body.error).toContain("user or role not found");
     });
     test('GET /coverage/:role/:username/:day/:start - wrong role(404)', async () => {
-        const res = await request(app).get('/coverage/nottester/test.user@apss.it/2024-12-12/0');
+        const res = await request(app).get('/coverage/nottester/test.user7@apss.it/2024-12-12/0');
         expect(res.statusCode).toBe(404);
         expect(res.body.error).toContain("user or role not found");
     });
@@ -136,7 +138,7 @@ describe('coverage API', () => {
 
     //GET coverage/:role/:username/requested
     test('GET /coverage/:role/:username/requested- Get all coverage requested by a specific user', async () => {
-        const res = await request(app).get('/coverage/tester/test.user@apss.it/requested');
+        const res = await request(app).get('/coverage/tester/test.user7@apss.it/requested');
         expect(res.statusCode).toBe(200);
         expect(res.body).toContainEqual(testCoverage);
         expect(res.body).toContainEqual(testCoverage2);
@@ -148,20 +150,20 @@ describe('coverage API', () => {
     });
 
     test('GET /coverage/:role/:username/requested- wrong username', async () => {
-        const res = await request(app).get('/coverage/tester/nottest.user@apss.it/requested');
+        const res = await request(app).get('/coverage/tester/nottest.user7@apss.it/requested');
         expect(res.statusCode).toBe(404);
         expect(res.body.error).toContain("user or role not found");
     });
 
     test('GET /coverage/:role/:username/requested- wrong role', async () => {
-        const res = await request(app).get('/coverage/nottester/test.user@apss.it/requested');
+        const res = await request(app).get('/coverage/nottester/test.user7@apss.it/requested');
         expect(res.statusCode).toBe(404);
         expect(res.body.error).toContain("user or role not found");
     });
 
     //GET coverage/:role/:username/covered
     test('GET /coverage/:role/:username/covered- Get empty object if the user does not have any covered request', async () => {
-        const res = await request(app).get('/coverage/tester/test.user@apss.it/covered');
+        const res = await request(app).get('/coverage/tester/test.user7@apss.it/covered');
         expect(res.statusCode).toBe(200);
         expect(res.body).toHaveLength(0);
     });
@@ -172,13 +174,13 @@ describe('coverage API', () => {
     });
 
     test('GET /coverage/:role/:username/covered- wrong username', async () => {
-        const res = await request(app).get('/coverage/tester/nottest.user@apss.it/covered');
+        const res = await request(app).get('/coverage/tester/nottest.user7@apss.it/covered');
         expect(res.statusCode).toBe(404);
         expect(res.body.error).toContain("user or role not found");
     });
 
     test('GET /coverage/:role/:username/covered- wrong role', async () => {
-        const res = await request(app).get('/coverage/nottester/test.user@apss.it/covered');
+        const res = await request(app).get('/coverage/nottester/test.user7@apss.it/covered');
         expect(res.statusCode).toBe(404);
         expect(res.body.error).toContain("user or role not found");
     });
@@ -186,7 +188,7 @@ describe('coverage API', () => {
     //POST coverage/:role/:username
     test('POST /coverage/:role/:username- POST a request of an user of an existing shift', async () => {
         const res = await request(app)
-            .post('/coverage/tester/test.user@apss.it')
+            .post('/coverage/tester/test.user7@apss.it')
             .send({
                 start:0,
                 end:12,
@@ -200,7 +202,7 @@ describe('coverage API', () => {
 
     test('POST /coverage/:role/:username- missing start', async () => {
         const res = await request(app)
-            .post('/coverage/tester/test.user@apss.it')
+            .post('/coverage/tester/test.user7@apss.it')
             .send({
                 
                 end:12,
@@ -214,7 +216,7 @@ describe('coverage API', () => {
 
     test('POST /coverage/:role/:username- negative start', async () => {
         const res = await request(app)
-            .post('/coverage/tester/test.user@apss.it')
+            .post('/coverage/tester/test.user7@apss.it')
             .send({
                 start:-1,
                 end:12,
@@ -228,7 +230,7 @@ describe('coverage API', () => {
 
     test('POST /coverage/:role/:username- start>24', async () => {
         const res = await request(app)
-            .post('/coverage/tester/test.user@apss.it')
+            .post('/coverage/tester/test.user7@apss.it')
             .send({
                 start:25,
                 end:12,
@@ -243,7 +245,7 @@ describe('coverage API', () => {
 
     test('POST /coverage/:role/:username- missing end', async () => {
         const res = await request(app)
-            .post('/coverage/tester/test.user@apss.it')
+            .post('/coverage/tester/test.user7@apss.it')
             .send({
                 
                 start: 0,
@@ -256,7 +258,7 @@ describe('coverage API', () => {
     });
     test('POST /coverage/:role/:username- end<0', async () => {
         const res = await request(app)
-            .post('/coverage/tester/test.user@apss.it')
+            .post('/coverage/tester/test.user7@apss.it')
             .send({
                 end:-1,
                 start: 0,
@@ -269,7 +271,7 @@ describe('coverage API', () => {
     });
     test('POST /coverage/:role/:username- missing end', async () => {
         const res = await request(app)
-            .post('/coverage/tester/test.user@apss.it')
+            .post('/coverage/tester/test.user7@apss.it')
             .send({
                 end:25,
                 start: 0,
@@ -283,7 +285,7 @@ describe('coverage API', () => {
 
     test('POST /coverage/:role/:username- missing day', async () => {
         const res = await request(app)
-            .post('/coverage/tester/test.user@apss.it')
+            .post('/coverage/tester/test.user7@apss.it')
             .send({
                 
                 start: 0,
@@ -298,7 +300,7 @@ describe('coverage API', () => {
 
     test('POST /coverage/:role/:username- missing message', async () => {
         const res = await request(app)
-            .post('/coverage/tester/test.user@apss.it')
+            .post('/coverage/tester/test.user7@apss.it')
             .send({
                 
                 start: 0,
@@ -313,7 +315,7 @@ describe('coverage API', () => {
 
     test('POST /coverage/:role/:username- POST a request of an user of a non existing shift(start)', async () => {
         const res = await request(app)
-            .post('/coverage/tester/test.user@apss.it')
+            .post('/coverage/tester/test.user7@apss.it')
             .send({
                 start:5,
                 end:12,
@@ -326,7 +328,7 @@ describe('coverage API', () => {
     });
     test('POST /coverage/:role/:username- POST a request of an user of a non existing shift(end)', async () => {
         const res = await request(app)
-            .post('/coverage/tester/test.user@apss.it')
+            .post('/coverage/tester/test.user7@apss.it')
             .send({
                 start:0,
                 end:15,
@@ -339,7 +341,7 @@ describe('coverage API', () => {
     });
     test('POST /coverage/:role/:username- POST a request of an user of a non existing shift(day)', async () => {
         const res = await request(app)
-            .post('/coverage/tester/test.user@apss.it')
+            .post('/coverage/tester/test.user7@apss.it')
             .send({
                 start:0,
                 end:12,
@@ -353,7 +355,7 @@ describe('coverage API', () => {
 
     test('POST /coverage/:role/:username- already existent request', async () => {
         const res = await request(app)
-            .post('/coverage/tester/test.user@apss.it')
+            .post('/coverage/tester/test.user7@apss.it')
             .send({
                 start:0,
                 end:12,
@@ -380,7 +382,7 @@ describe('coverage API', () => {
 
     test('PUT /coverage/:role/:resUsername- PUT non existent res user', async () => {
         const res = await request(app)
-            .put('/coverage/tester/not-test.user@apss.it')
+            .put('/coverage/tester/not-test.user7@apss.it')
             .send({
                 start:0,
                 day:new Date('2024-12-25').toISOString(),
@@ -501,25 +503,25 @@ describe('coverage API', () => {
     });
 
     //DELETE coverage/:role/:me/:day/:start
-    test('PUT coverage/:role/:me/:day/:start- DELETE coverage request deleted', async () => {
+    test('DELETE coverage/:role/:me/:day/:start- DELETE coverage request deleted', async () => {
         const res = await request(app)
-            .delete('/coverage/tester/test.user@apss.it/2024-12-25/0');      
+            .delete('/coverage/tester/test.user7@apss.it/2024-12-25/0');      
         expect(res.statusCode).toBe(200);
         expect(res.body.response).toContain("coverage request deleted");
         let cov= await coverage.findOne( {role: "tester",req_username:username,day:new Date('2024-12-25').toISOString(),start:0});
         expect(cov).toBe(null);
     });
 
-    test('PUT coverage/:role/:me/:day/:start- DELETE wrong username', async () => {
+    test('DELETE coverage/:role/:me/:day/:start- DELETE wrong username', async () => {
         const res = await request(app)
-            .delete('/coverage/tester/not-test.user@apss.it/2024-12-25/0');      
+            .delete('/coverage/tester/not-test.user7@apss.it/2024-12-25/0');      
         expect(res.statusCode).toBe(404);
         expect(res.body.error).toContain("user not found");
     });
 
-    test('PUT coverage/:role/:me/:day/:start- DELETE non existing coverage ', async () => {
+    test('DELETE coverage/:role/:me/:day/:start- DELETE non existing coverage ', async () => {
         const res = await request(app)
-            .delete('/coverage/tester/test.user@apss.it/2025-12-25/0');      
+            .delete('/coverage/tester/test.user7@apss.it/2025-12-25/0');      
         expect(res.statusCode).toBe(404);
         expect(res.body.message).toContain("coverage request not found");
     });

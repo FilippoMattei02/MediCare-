@@ -461,85 +461,6 @@ router.put('/employee/:role/:year/:month/work', async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
-
-/**
- * @openapi
- * /employee/{role}/{year}/{month}/work:
- *   delete:
- *     summary: Delete work shifts for employees of a specific role, year, and month
- *     tags: [Employee]
- *     parameters:
- *       - name: role
- *         in: path
- *         required: true
- *         description: Role identifier
- *         schema:
- *           type: string
- *       - name: year
- *         in: path
- *         required: true
- *         description: Year
- *         schema:
- *           type: integer
- *           example: 2024
- *       - name: month
- *         in: path
- *         required: true
- *         description: Month (1-12)
- *         schema:
- *           type: integer
- *           example: 6
- *     responses:
- *       '200':
- *         description: Work shifts removed from employee schedules
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Work shifts removed from employee schedules
- *       '400':
- *         description: Invalid input parameters
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                   examples:
- *                     missingMonth:
- *                       value: missing month
- *                     monthNotInteger:
- *                       value: Month not an integer
- *                     monthNotInRange:
- *                       value: Month not in the range 1-12
- *                     missingYear:
- *                       value: missing year
- *                     yearNotInteger:
- *                       value: year not an integer
- *                     yearNotPositive:
- *                       value: year not a positive integer
- *                     missingRole:
- *                       value: missing role
- *                     roleNotString:
- *                       value: role not a string
- *                     notValidRole:
- *                       value: not a valid role
- *       '404':
- *         description: Workspace not found
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 error:
- *                   type: string
- *                   example: Workspace not found
- */
-
 /**
  * @openapi
  * /employee/{role}/{year}/{month}/work:
@@ -633,8 +554,9 @@ router.delete('/employee/:role/:year/:month/work', async (req, res) => {
     if (role==undefined) {
         return res.status(400).json({ error: 'missing role' });
     }
-
-    let employees=await employee.find({role:role}).exec();
+    
+    let employees=await employee.find({role:role});
+        
     if(!employees || employees.length === 0){
         return res.status(400).json({ error: 'not a valid role' });
     }

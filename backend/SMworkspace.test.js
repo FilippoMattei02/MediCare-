@@ -5,9 +5,9 @@ const Workspace = require('./models/shiftWorkspace');
 const Employees = require('./models/employee'); 
 require('dotenv').config();
 
-describe('Employees API', () => {
+describe('WORKSPACE API', () => {
     let connection;
-    jest.setTimeout(10000);
+    jest.setTimeout(15000);
   
     let testShiftWorkspace ={
         year: 2024,
@@ -16,8 +16,8 @@ describe('Employees API', () => {
         peopleForShift: 2,
         shiftDuration: 8,
         daysOfWork: [
-            {date: '2024-01-01',shift: [{email: 'test.user@apss.it',start: 9,end: 17},{email: 'test.user2@apss.it',start: 9,end: 17}]},
-            {date: '2024-01-02',shift: [{email: 'test.user2@apss.it',start: 8,end: 16}]}
+            {date: '2024-01-01',shift: [{email: 'test.user4@apss.it',start: 9,end: 17},{email: 'test.user5@apss.it',start: 9,end: 17}]},
+            {date: '2024-01-02',shift: [{email: 'test.user5@apss.it',start: 8,end: 16}]}
         ]
     };
 
@@ -37,34 +37,28 @@ describe('Employees API', () => {
         peopleForShift: 1,
         shiftDuration: 12,
         daysOfWork: [
-            {date: '2024-03-01',shift: [{email: 'test.user3@apss.it',start: 0,end: 12}]},
-            {date: '2024-03-02',shift: [{email: 'test.user3@apss.it',start: 0,end: 12}]}
+            {date: '2024-03-01',shift: [{email: 'test.user6@apss.it',start: 0,end: 12}]},
+            {date: '2024-03-02',shift: [{email: 'test.user6@apss.it',start: 0,end: 12}]}
         ]
     };
 
 
     let testEmployee = {
-        username: 'test.user@apss.it',
+        username: 'test.user4@apss.it',
         role: 'tester',
         work: [{ day: new Date('2024-12-25'), start: 0, end: 12 }, { day: new Date('2024-01-09'), start: 0, end: 12 }],
         shiftManager: true
     };
     const testEmployee2 = {
-        username: 'test.user2@apss.it',
+        username: 'test.user5@apss.it',
         role: 'tester',
         work: [{ day: new Date('2024-12-26'), start: 0, end: 12 }],
         shiftManager: false
     };
     let testEmployee3 = {
-        username: 'test.user3@apss.it',
+        username: 'test.user6@apss.it',
         role: 'tester',
         work: [{ day: new Date('2024-03-01'), start: 0, end: 12 }, { day: new Date('2024-03-02'), start: 0, end: 12 }],
-        shiftManager: false
-    };
-    let testEmployee4 = {
-        username: 'test.user4@apss.it',
-        role: 'tester',
-        work: [],
         shiftManager: false
     };
 
@@ -76,14 +70,14 @@ describe('Employees API', () => {
 
         // await mongoose.connection.dropDatabase();
 
-        await Employees.deleteMany({role:"tester"});
-        await Workspace.deleteMany({role:"tester"});
         
+        
+        await Workspace.deleteMany({role:"tester"});
         
         await Employees.create(testEmployee);
         await Employees.create(testEmployee2);
         await Employees.create(testEmployee3);
-        await Employees.create(testEmployee4);
+       
 
         await Workspace.create(testShiftWorkspace);
         await Workspace.create(testShiftWorkspace2);
@@ -103,8 +97,10 @@ describe('Employees API', () => {
 
     afterAll(async () => {
         
-        // await Employees.deleteMany({role:"tester"});
-        // await Workspace.deleteMany({role:"tester"});
+        await Employees.deleteOne({username:"test.user4@apss.it"});
+        await Employees.deleteOne({username:"test.user5@apss.it"});
+        await Employees.deleteOne({username:"test.user6@apss.it"});
+        await Workspace.deleteMany({role:"tester"});
 
         //await mongoose.connection.close();
         console.log("Database connection closed");
@@ -120,9 +116,9 @@ describe('Employees API', () => {
             .get(`/workspace/${role}/${year}/${month}/shifts`);
 
         expect(res.statusCode).toBe(200);
-        expect(res.body).toContainEqual({ username: 'test.user@apss.it', work: [{ day: '2024-01-01', start: 9, end: 17 }] });
+        expect(res.body).toContainEqual({ username: 'test.user4@apss.it', work: [{ day: '2024-01-01', start: 9, end: 17 }] });
         
-        expect(res.body).toContainEqual({ username: 'test.user2@apss.it', work: [{ day: '2024-01-01', start: 9, end: 17 },{ day: '2024-01-02', start: 8, end: 16 }] });
+        expect(res.body).toContainEqual({ username: 'test.user5@apss.it', work: [{ day: '2024-01-01', start: 9, end: 17 },{ day: '2024-01-02', start: 8, end: 16 }] });
     });
 
     test('GET workspace/:role/:year/:month/shifts should return 400 if year is not a positive integer', async () => {
@@ -659,6 +655,7 @@ describe('Employees API', () => {
         const res = await request(app)
             .put(`/workspace/automate/${role}/${year}/${month}/daysOfWork`);
         expect(res.statusCode).toBe(404);
+        
         expect(res.body).toEqual({ error: 'Workspace not found for this month' });
     });
 
@@ -846,7 +843,7 @@ describe('Employees API', () => {
     test('DELETE workspace/employee/:role/:year/:month/work - should return 404 if workspace is not found', async () => {
         const role = 'tester';
         const year = 2050;
-        const month = 12;
+        const month = 1;
 
         const res = await request(app)
             .delete(`/workspace/employee/${role}/${year}/${month}/work`);
@@ -861,15 +858,15 @@ describe('Employees API', () => {
         const year = 2024;
         const month = 3;
         
-        let before=await Employees.findOne({username:"test.user3@apss.it"});
+        
         
         const res = await request(app)
             .delete(`/workspace/employee/${role}/${year}/${month}/work`);
         
-        let after= await Employees.findOne({username:"test.user3@apss.it"});
+        
         expect(res.statusCode).toBe(200);
         expect(res.body).toEqual({ message: 'Work shifts removed from employee schedules' });
-        expect(before!=after);
+        
     });
 
 //-------------------------------------------------------------------------------------------
@@ -976,4 +973,3 @@ describe('Employees API', () => {
     
     
 });
-

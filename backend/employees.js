@@ -406,18 +406,11 @@ router.delete('/:username/work', async (req, res) => {
 
 
 router.post('/:username/work/add', async (req, res) => {
-<<<<<<< HEAD
     let { day, start, end } = req.body;
     start =parseInt(start,10);
     end =parseInt(end,10);
 
 
-=======
-    const { day, start, end } = req.body;
-    console.log("ADD");
-    console.log("username:", req.params.username);
-    console.log("date:", day);console.log("start:", start);console.log("end:", end);
->>>>>>> automate
     if (!day || start == null || end == null) {
         return res.status(400).json({ error: 'Day, start, and end are required' });
     }
