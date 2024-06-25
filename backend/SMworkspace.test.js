@@ -39,8 +39,8 @@ describe('WORKSPACE API', () => {
         peopleForShift: 1,
         shiftDuration: 12,
         daysOfWork: [
-            {date: '2024-03-01',shift: [{email: 'test.user6@apss.it',start: 0,end: 12}]},
-            {date: '2024-03-02',shift: [{email: 'test.user6@apss.it',start: 0,end: 12}]}
+            {date: '2024-03-05',shift: [{email: 'test.user6@apss.it',start: 0,end: 12}]},
+            {date: '2024-03-06',shift: [{email: 'test.user6@apss.it',start: 0,end: 12}]}
         ]
     };
 
@@ -78,6 +78,9 @@ describe('WORKSPACE API', () => {
         
         
         await Workspace.deleteMany({role:"tester"});
+        await Employees.deleteOne({username:"test.user4@apss.it"});
+        await Employees.deleteOne({username:"test.user5@apss.it"});
+        await Employees.deleteOne({username:"test.user6@apss.it"});
         
         await Employees.create(testEmployee);
         await Employees.create(testEmployee2);
@@ -102,9 +105,9 @@ describe('WORKSPACE API', () => {
 
     afterAll(async () => {
         
-        await Employees.deleteOne({username:"test.user4@apss.it"});
-        await Employees.deleteOne({username:"test.user5@apss.it"});
-        await Employees.deleteOne({username:"test.user6@apss.it"});
+        // await Employees.deleteOne({username:"test.user4@apss.it"});
+        // await Employees.deleteOne({username:"test.user5@apss.it"});
+        // await Employees.deleteOne({username:"test.user6@apss.it"});
         //await Workspace.deleteMany({role:"tester"});
 
         //await mongoose.connection.close();
@@ -756,7 +759,7 @@ describe('WORKSPACE API', () => {
     test('PUT workspace/employee/:role/:year/:month/work - should successfully update work shifts for valid inputs', async () => {
         const role = 'tester';
         const year = 2024;
-        const month = 2;        
+        const month = 3;        
 
         const res = await request(app)
             .put(`/workspace/employee/${role}/${year}/${month}/work`) .set({'Authorization': `${token1}`});
@@ -862,7 +865,7 @@ describe('WORKSPACE API', () => {
     test('DELETE workspace/employee/:role/:year/:month/work - should successfully remove work shifts for valid inputs', async () => {
         const role = 'tester';
         const year = 2024;
-        const month = 2;
+        const month = 3;
         
         
         
