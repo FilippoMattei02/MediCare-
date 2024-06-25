@@ -273,7 +273,7 @@ async function automateAndPublishShifts(role, year, month) {
             method: 'PUT'
         });
         console.log(`Automate response status: ${automateResponse.status}`);
-        console.log(automateResponse.error);
+        console.log(automateResponse.body);
         if (!automateResponse.ok) {
             throw new Error('Error in automate request: ' + automateResponse.status);
         }
