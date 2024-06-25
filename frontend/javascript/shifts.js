@@ -281,7 +281,8 @@ async function automateAndPublishShifts(role, year, month) {
         // Automate shifts
         const automateResponse = await fetch(`https://medicare-p67f.onrender.com/workspace/automate/${role}/${year}/${month}/daysOfWork`, {
             method: 'PUT',
-            headers:{'Authorization': currentToken}
+            headers:{'Content-Type': 'application/json',
+                'Authorization': currentToken}
         });
         console.log(`Automate response status: ${automateResponse.status}`);
         console.log(automateResponse.body);
@@ -294,7 +295,8 @@ async function automateAndPublishShifts(role, year, month) {
         // Publish automated shifts
         const publishResponse = await fetch(`https://medicare-p67f.onrender.com/workspace/employee/${role}/${year}/${month}/work`, {
             method: 'PUT',
-            headers:{'Authorization': currentToken}
+            headers:{'Content-Type': 'application/json',
+                'Authorization': currentToken}
         });
         console.log(`Publish response status: ${publishResponse.status}`);
         if (!publishResponse.ok) {
