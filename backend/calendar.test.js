@@ -1,45 +1,61 @@
-// const request = require('supertest');
-// const express = require('express');
-// const router = require('./calendar'); // Assicurati di importare il router corretto
-// const app = require('./app');
-// // Mocka il modello Employee se necessario
-// jest.mock('./models/employee');
+const request = require('supertest');
+const express = require('express');
+const router = require('./calendar');
+const app = express();
+const Employee = require('./models/employee');
 
-// describe('Shifts API', () => {
-//   beforeAll(() => {
-    
-//   });
+//let employee=jest.mock('./models/employee');
 
-//   it('should return work shifts for each employee of a determined role', async () => {
-//     const mockUsername = 'Andrea.Rossi@apss.it';
-//     const mockTasks = [
-//             {
-//               _id: "6672b2ed94dd1a79312336c3",
-//               day: "2024-05-05T22:00:00.000Z",
-//               end: 17,
-//               start: 9
-//             }
-//       ];
-//       console.log(mockUsername);
-//     const response = await request(app)
-//       .get(`/calendar/${mockUsername}`)
-//       .expect(200);
+describe('Shifts API', () => {
 
-//     // Verifica che la risposta contenga i dati di Andrea Rossi
-//     expect(response.body).toEqual(mockTasks);
-//   });
 
-//   it('should return 404 if no tasks are found for the username', async () => {
-//     const nonexistentUsername = 'nonexistentuser';
+    const testEmployee = {
+        username: 'test.test@apss.it',
+        role: 'tester',
+        work: [{ _id: "667995b947909adf950c181c",
+            day: "2024-03-31T22:00:00.000Z",
+            end: 17,
+            start: 9 }],
+        shiftManager: true
+    };
 
-//     const response = await request(app)
-//       .get(`/calendar/${nonexistentUsername}`)
-//       .expect(404);
+  beforeAll(async () => {
+    app.use(express.json());
+    app.use('/calendar', router);
 
-//     expect(response.text).toBe('Nessun task trovato');
-//   });
-   
-//   afterAll(() => {
-//     jest.restoreAllMocks(); // Ripristina tutti i mock dopo ogni test
-//   });
-// });
+    await Employee.create(testEmployee);
+  });
+
+  test('should return work shifts for each employee of a determined role', async () => {
+    const mockUsername = 'test.test@apss.it';
+    const mockTasks = [
+      {
+        _id: "667995b947909adf950c181c",
+        day: "2024-03-31T22:00:00.000Z",
+        end: 17,
+        start: 9
+      }
+    ];
+
+    const response = await request(app)
+      .get(`/calendar/${mockUsername}`)
+      .expect(200);
+
+    expect(response.body).toEqual(mockTasks);
+  });
+
+  test('should return 404 if no tasks are found for the username', async () => {
+    const nonexistentUsername = 'nonexistentuser';
+
+    const response = await request(app)
+      .get(`/calendar/${nonexistentUsername}`)
+      .expect(404);
+
+    expect(response.text).toBe('Nessun task trovato');
+  });
+
+  afterAll(async() => {
+    //jest.restoreAllMocks();
+    await Employee.deleteOne(testEmployee);
+  });
+});
