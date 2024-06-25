@@ -236,7 +236,8 @@ async function deleteEmployeeWork(role, year, month) {
     try {
         const response = await fetch(`https://medicare-p67f.onrender.com/workspace/employee/${role}/${year}/${month}/work`, {
             method: 'DELETE',
-            'Authorization': currentToken
+            headers:{'Authorization': currentToken}
+            
         });
         console.log(`Response status: ${response.status}`);
         if (!response.ok) {
@@ -257,7 +258,7 @@ async function deleteDaysOfWork(role, year, month) {
     try {
         const response = await fetch(`https://medicare-p67f.onrender.com/workspace/${role}/${year}/${month}/daysOfWork`, {
             method: 'DELETE',
-            'Authorization': currentToken
+            headers:{'Authorization': currentToken}
         });
         console.log(`Response status: ${response.status}`);
         if (!response.ok) {
@@ -280,7 +281,7 @@ async function automateAndPublishShifts(role, year, month) {
         // Automate shifts
         const automateResponse = await fetch(`https://medicare-p67f.onrender.com/workspace/automate/${role}/${year}/${month}/daysOfWork`, {
             method: 'PUT',
-            'Authorization': currentToken
+            headers:{'Authorization': currentToken}
         });
         console.log(`Automate response status: ${automateResponse.status}`);
         console.log(automateResponse.body);
@@ -293,7 +294,7 @@ async function automateAndPublishShifts(role, year, month) {
         // Publish automated shifts
         const publishResponse = await fetch(`https://medicare-p67f.onrender.com/workspace/employee/${role}/${year}/${month}/work`, {
             method: 'PUT',
-            'Authorization': currentToken
+            headers:{'Authorization': currentToken}
         });
         console.log(`Publish response status: ${publishResponse.status}`);
         if (!publishResponse.ok) {
