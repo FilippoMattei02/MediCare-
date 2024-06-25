@@ -101,6 +101,7 @@ router.get('/:id', async (req, res) => {
 router.get('/:role/:date', async (req, res) => {
     let date = req.params.date;
     let role = req.params.role;
+    console.log("entrato in holiday");
     
     if (!date) {
         return res.status(400).json({ error: 'missing date' });

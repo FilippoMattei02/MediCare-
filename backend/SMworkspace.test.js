@@ -9,7 +9,7 @@ require('dotenv').config();
 
 describe('WORKSPACE API', () => {
     let connection;
-    jest.setTimeout(15000);
+    jest.setTimeout(10000);
   
     let testShiftWorkspace ={
         year: 2024,
@@ -64,7 +64,7 @@ describe('WORKSPACE API', () => {
         shiftManager: false
     };
     var payload1 = {email: 'test.user4@apss.it'};
-    var options = {expiresIn: 86400 };
+    var options = {expiresIn: 861111400 };
     let token1 = jwt.sign(payload1, process.env.SUPER_SECRET, options);
 
     beforeAll(async () => {
@@ -105,7 +105,7 @@ describe('WORKSPACE API', () => {
         await Employees.deleteOne({username:"test.user4@apss.it"});
         await Employees.deleteOne({username:"test.user5@apss.it"});
         await Employees.deleteOne({username:"test.user6@apss.it"});
-        await Workspace.deleteMany({role:"tester"});
+        //await Workspace.deleteMany({role:"tester"});
 
         //await mongoose.connection.close();
         console.log("Database connection closed");
@@ -643,7 +643,7 @@ describe('WORKSPACE API', () => {
         const month = 2;
 
         const res = await request(app)
-            .put(`/workspace/automate/${role}/${year}/${month}/daysOfWork`) .set({'Authorization': `${token1}`});
+            .put(`/workspace/automate/${role}/${year}/${month}/daysOfWork`).set({ 'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(200);
         expect(res.body).toEqual({ message: 'Days of work casually generated and added correctly' });
@@ -658,7 +658,7 @@ describe('WORKSPACE API', () => {
 
 
         const res = await request(app)
-            .put(`/workspace/automate/${role}/${year}/${month}/daysOfWork`) .set({'Authorization': `${token1}`});
+            .put(`/workspace/automate/${role}/${year}/${month}/daysOfWork`).set({ 'Authorization': `${token1}`});
         expect(res.statusCode).toBe(404);
         
         expect(res.body).toEqual({ error: 'Workspace not found for this month' });
@@ -848,12 +848,13 @@ describe('WORKSPACE API', () => {
     test('DELETE workspace/employee/:role/:year/:month/work - should return 404 if workspace is not found', async () => {
         const role = 'tester';
         const year = 2050;
-        const month = 1;
+        const month = 2;
 
         const res = await request(app)
             .delete(`/workspace/employee/${role}/${year}/${month}/work`) .set({'Authorization': `${token1}`});
 
         expect(res.statusCode).toBe(404);
+        console.log("delete");
         expect(res.body).toEqual({ error: 'Workspace not found' });
     });
 

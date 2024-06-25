@@ -1,9 +1,11 @@
-async function generateWorkSets(peopleList, numberOfDays, peopleForShift, shiftDuration, role, yearMonth,token) {
+
+async function generateWorkSets(peopleList, numberOfDays, peopleForShift, shiftDuration, role, yearMonth,token1) {
     const sets = new Map();
     
     const peopleCount = peopleList.length;
     const peopleForWorkday = peopleForShift * 24 / shiftDuration;
     const shiftForDay = 24 / shiftDuration;
+    
 
     const targetFrequency = Math.ceil(numberOfDays * peopleForWorkday / peopleCount);
     //console.log(targetFrequency);
@@ -24,11 +26,20 @@ async function generateWorkSets(peopleList, numberOfDays, peopleForShift, shiftD
         let date = (i + 1).toString().padStart(2, '0');
         date = yearMonth + date;
         
-        let usersHoliday = await getUsersByRoleAndDate(role, date,token);
+        let usersHoliday = await getUsersByRoleAndDate(role, date,token1);
+
+        if(usersHoliday==undefined){
+            availablePeople = peopleList.filter(person => (occurrencesMap.get(person) < targetFrequency - variable));
+            unavailablePeople = peopleList.filter(person => (occurrencesMap.get(person) >= targetFrequency - variable) );
+
+        }
+        else{
+            availablePeople = peopleList.filter(person => (occurrencesMap.get(person) < targetFrequency - variable) && !(usersHoliday.includes(person)));
+            unavailablePeople = peopleList.filter(person => (occurrencesMap.get(person) >= targetFrequency - variable) && !(usersHoliday.includes(person)));
+        }
         
         //console.log(usersHoliday);
-        availablePeople = peopleList.filter(person => (occurrencesMap.get(person) < targetFrequency - variable) && !(usersHoliday.includes(person)));
-        unavailablePeople = peopleList.filter(person => (occurrencesMap.get(person) >= targetFrequency - variable) && !(usersHoliday.includes(person)));
+        
         
         if ((availablePeople.length == 0) && variable > 0) {
             variable--;
@@ -94,13 +105,16 @@ function shuffle(array) {
     return array;
 }
 
-async function getUsersByRoleAndDate(role, date,token) {
+async function getUsersByRoleAndDate(role, date,token1) {
     const url = `http://medicare-p67f.onrender.com/holiday/${role}/${date}`;
-    
+    console.log("---------------"+token1+"-------------------");
     try {
         
-        const response = await fetch(url,{
-            headers: { 'Authorization':`${token}`}
+        const response = await fetch(`http://medicare-p67f.onrender.com/holiday/${role}/${date}`,{
+            method:"GET",
+            headers: {
+                'Content-Type': 'application/json' , 
+                'Authorization':`${token1}`}
         });
         
         // Check if the response is ok
@@ -114,14 +128,14 @@ async function getUsersByRoleAndDate(role, date,token) {
         const data = await response.json();
         
         // Process the data (e.g., log the data)
-        //console.log(data);
+        console.log(data);
         
         // Return the data for further processing
         return data;
         
     } catch (error) {
         // Handle any errors
-        console.error('Error during API call:', error);
+        console.error('Error during API get HOLIDAYS call:', error);
     }
 }
 

@@ -7,7 +7,7 @@ const generateCasualShifts = require('./generateCasualShifts');
 
 
 
-require('dotenv').config();
+
 
 /**
  * @openapi
@@ -308,7 +308,9 @@ router.put('/automate/:role/:year/:month/daysOfWork', async (req, res) => {
     const year = parseInt(req.params.year, 10);
     const role = req.params.role;
 
-    let token = req.headers['authorization'];
+    let token2 = req.headers['authorization'];
+    
+    //console.log("token2 "+token2);
 
     if(!Number.isInteger(month) || !month || month < 1 || month > 12){
         return res.status(400).json({ error: 'invalid month' });
@@ -330,10 +332,10 @@ router.put('/automate/:role/:year/:month/daysOfWork', async (req, res) => {
 
     const numberOfDays=getNumberOfDays(month,year);
     
-
+    console.log("before employee");
     let users = await employee.find({ role: role }).exec();
     let employeeList = [];
-    
+    console.log("after employee");
     if (Array.isArray(users)) {
         users.forEach((user) => {
             employeeList.push(user.username);
@@ -344,7 +346,10 @@ router.put('/automate/:role/:year/:month/daysOfWork', async (req, res) => {
     else{
         employeeList.push(users.username);
     }
-    let workspace = await shiftWorkspace.findOne({ year: year, month: month,role:role }).exec(); 
+    console.log("automate");
+    console.log(year+" "+month);
+    let workspace = await shiftWorkspace.findOne({ year: year, month: month,role:role }); 
+    console.log(workspace);
     if (!workspace) {
         return res.status(404).json({ error: 'Workspace not found for this month' });
     }
@@ -353,7 +358,9 @@ router.put('/automate/:role/:year/:month/daysOfWork', async (req, res) => {
     let shiftDuration=workspace.shiftDuration;
     let yearMonth=""+year+"-"+month.toString().padStart(2,'0')+"-";
 
-    let workSets= await generateCasualShifts(employeeList,numberOfDays,peopleForShift,shiftDuration,role,yearMonth,token);
+    console.log("before generation");
+    let workSets= await generateCasualShifts(employeeList,numberOfDays,peopleForShift,shiftDuration,role,yearMonth,token2);
+    console.log("after generation");
     let daysOfWork = [];
     workSets.forEach((shifts, date) => {
         const day = {
@@ -370,6 +377,7 @@ router.put('/automate/:role/:year/:month/daysOfWork', async (req, res) => {
     workspace.daysOfWork.push(...daysOfWork);
 
     await workspace.save();
+    console.log("ce l'ho fatta");
     res.status(200).json({message:"Days of work casually generated and added correctly"});
 });
 
@@ -412,7 +420,7 @@ router.put('/employee/:role/:year/:month/work', async (req, res) => {
     const parsedYear = parseInt(year, 10);
     const parsedMonth = parseInt(month, 10);
 
-    let token = req.headers['authorization'];
+    let token2 = req.headers['authorization'];
     
    
     const isValidMonth = (month) => Number.isInteger(month) && month >= 1 && month <= 12;
@@ -443,12 +451,14 @@ router.put('/employee/:role/:year/:month/work', async (req, res) => {
         }
 
         try {
-            const jsonData = await getWorkShift(role, year, month,token);         
+            console.log("before json data");
+            const jsonData = await getWorkShift(role, year, month,token2); 
+            console.log(jsonData);        
             for (const user of jsonData) {
                 const { username, work } = user;
                 try {
-                    await postWorkShift(username, work,token);
-                    //console.log(`Successfully added work shifts for ${username}`);
+                    await postWorkShift(username, work,token2);
+                    console.log(`Successfully added work shifts for ${username}`);
                 } catch (error) {
                     console.error(`Error adding work shifts for ${username}:`, error);
                 }
@@ -461,7 +471,7 @@ router.put('/employee/:role/:year/:month/work', async (req, res) => {
             res.status(500).json({ error: 'Failed to process work shifts' });
         }
 
-    } catch (error) {
+    } catch (error) {get
         console.error('Error:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
@@ -547,7 +557,7 @@ router.delete('/employee/:role/:year/:month/work', async (req, res) => {
     const year = parseInt(req.params.year, 10);
     const month = parseInt(req.params.month, 10);
     const role = req.params.role;
-    let token = req.headers['authorization'];
+    let token2 = req.headers['authorization'];
     
 
     if(!Number.isInteger(month) || !month || month < 1 || month > 12){
@@ -580,7 +590,7 @@ router.delete('/employee/:role/:year/:month/work', async (req, res) => {
         for (const shift of dayOfWork.shift) {
             try {
                 let newDate=new Date(dayOfWork.date);
-                await deleteWorkShift(shift.email, newDate, shift.start, shift.end,token);
+                await deleteWorkShift(shift.email, newDate, shift.start, shift.end,token2);
             } catch (error) {
                 console.error(`Error deleting work shift for ${shift.email}:`, error);
             }
@@ -679,31 +689,31 @@ function getNumberOfDays(month,year){
     
 }
 
-async function getWorkShift  (role, year, month,token) {
+async function getWorkShift  (role, year, month,token2) {
     //console.log(role,year,month);
     try {
         const response = await fetch(`http://medicare-p67f.onrender.com/workspace/${role}/${year}/${month}/shifts `,{
             method: 'GET',
-            headers: { 'Content-Type': 'application/json' ,'Authorization': `${token}`},
+            headers: { 'Content-Type': 'application/json' ,'Authorization': `${token2}`}
         });
 
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
         const data = await response.json();
-        //console.log(data);
+        console.log(data);
         return data;
 
     } catch (error) {
-        console.error('Error during API call:', error);
+        console.error('Error during API GET shift ws call:', error);
         throw error;
     }
 };
 
- async function postWorkShift (email, shiftList,token) {
+ async function postWorkShift (email, shiftList,token2) {
     try {
         const response = await fetch(`http://medicare-p67f.onrender.com/employees/${email}/work/listOfShifts `, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' ,'Authorization': `${token}`},
+            headers: { 'Content-Type': 'application/json' ,'Authorization': `${token2}`},
             body: JSON.stringify(shiftList),
         });
 
@@ -714,11 +724,11 @@ async function getWorkShift  (role, year, month,token) {
         return data;
 
     } catch (error) {
-        console.error('Error during API call:', error);
+        console.error('Error during API POST list of shift call:', error);
         throw error;
     }
 };
-async function deleteWorkShift (email, day, start, end,token) {
+async function deleteWorkShift (email, day, start, end,token2) {
     const url = `http://medicare-p67f.onrender.com/employees/${email}/work`;
     const payload = { day, start, end };
 
@@ -727,7 +737,7 @@ async function deleteWorkShift (email, day, start, end,token) {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `${token}`
+                'Authorization': `${token2}`
             },
             body: JSON.stringify(payload),
         });
@@ -741,7 +751,7 @@ async function deleteWorkShift (email, day, start, end,token) {
         return data;
 
     } catch (error) {
-        console.error('Error during API call:', error);
+        console.error('Error during API DELETE ws call:', error);
     }
 };
 
