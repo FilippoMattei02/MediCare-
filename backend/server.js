@@ -6,6 +6,7 @@ const Employees=require('./models/employee');
 const app = require('./app');
 const port =  3050;
 
+app.use(cors());
 app.listen(port, () => {
     console.log(`Server listening on port: ${port}`);
 });
