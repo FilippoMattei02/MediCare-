@@ -43,7 +43,7 @@ function login() {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': currentToken
+            'Authorization': localStorage.getItem('token')
         }
         })
         .then(response => {
