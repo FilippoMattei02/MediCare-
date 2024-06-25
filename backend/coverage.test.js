@@ -32,10 +32,10 @@ describe('coverage API', () => {
         shiftManager: false
     };
 
-    var payload1 = {email: 'test.user7@apss.it'};
-    var payload2 = {email: 'test.user7@apss.it'};
-    var payload3 = {email: 'test.user7@apss.it'};
-    var options = {expiresIn: 86400 };
+    let payload1 = {email: 'test.user7@apss.it'};
+    let payload2 = {email: 'test.user7@apss.it'};
+    let payload3 = {email: 'test.user7@apss.it'};
+    let options = {expiresIn: 86400 };
     let token1 = jwt.sign(payload1, process.env.SUPER_SECRET, options);
     let token2 = jwt.sign(payload2, process.env.SUPER_SECRET, options);
     let token3 = jwt.sign(payload3, process.env.SUPER_SECRET, options);

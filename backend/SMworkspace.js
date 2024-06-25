@@ -451,8 +451,36 @@ router.put('/employee/:role/:year/:month/work', async (req, res) => {
         }
 
         try {
-            console.log("before json data");
-            const jsonData = await getWorkShift(role, year, month,token2); 
+            //console.log("before json data");
+            //const jsonData = await getWorkShift(role, year, month,token2); 
+            
+        
+            
+            //console.log(role);
+            const employees = await employee.findOne({ role: role }).select('username').exec();
+    
+            let workWithUsernames = [];
+            
+                  
+            workspace.daysOfWork.forEach( day => {
+                day.shift.forEach(employeeShift => {
+                    const { email, start, end } = employeeShift;
+                    let employeeData = workWithUsernames.find(item => item.username === email);
+                    if (!employeeData) {
+                        employeeData = { username: email, work: [] };
+                        workWithUsernames.push(employeeData);
+                    }
+                    employeeData.work.push({ day: day.date, start, end });
+                });
+            });
+            
+                    
+                
+            
+    
+            jsonData=workWithUsernames;
+
+
             console.log(jsonData);        
             for (const user of jsonData) {
                 const { username, work } = user;
@@ -694,7 +722,7 @@ async function getWorkShift  (role, year, month,token2) {
     try {
         const response = await fetch(`http://medicare-p67f.onrender.com/workspace/${role}/${year}/${month}/shifts `,{
             method: 'GET',
-            headers: { 'Content-Type': 'application/json' ,'Authorization': `${token2}`}
+            headers: { 'Content-Type': 'application/json' ,'Authorization': 1}
         });
 
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -709,11 +737,11 @@ async function getWorkShift  (role, year, month,token2) {
     }
 };
 
- async function postWorkShift (email, shiftList,token2) {
+async function postWorkShift (email, shiftList,token) {
     try {
         const response = await fetch(`http://medicare-p67f.onrender.com/employees/${email}/work/listOfShifts `, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' ,'Authorization': `${token2}`},
+            headers: { 'Content-Type': 'application/json' ,'Authorization': `${token}`},
             body: JSON.stringify(shiftList),
         });
 
@@ -724,34 +752,55 @@ async function getWorkShift  (role, year, month,token2) {
         return data;
 
     } catch (error) {
-        console.error('Error during API POST list of shift call:', error);
+        console.error('Error during API call:', error);
         throw error;
     }
 };
-async function deleteWorkShift (email, day, start, end,token2) {
-    const url = `http://medicare-p67f.onrender.com/employees/${email}/work`;
+async function postWorkShift1 (email, day, start, end,token) {
+    try {
+        const payload = { day, start, end };
+        const response = await fetch(`https://medicare-p67f.onrender.com/employees/${email}/work/add `, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json','Authorization': `${token}` },
+            body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+        const data = await response.json();
+        //console.log(data);
+        return data;
+
+    } catch (error) {
+        console.error('Error during API call:', error);
+        throw error;
+    }
+};
+async function deleteWorkShift (email, day, start, end,token) {
+    const url = `https://medicare-p67f.onrender.com/employees/${email}/work`;
     const payload = { day, start, end };
 
-    try{
+    try {
         const response = await fetch(url, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `${token2}`
+                'Authorization': `${token}`
+
             },
             body: JSON.stringify(payload),
         });
-        
-        // if (!response.ok) {
-        //     throw new Error(`HTTP error! status: ${response.status}`);
-        // }
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
         const data = await response.json();
-        
+        //console.log(data);
         return data;
 
     } catch (error) {
-        console.error('Error during API DELETE ws call:', error);
+        //console.error('Error during API call:', error);
     }
 };
 

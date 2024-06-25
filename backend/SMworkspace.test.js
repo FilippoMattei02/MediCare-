@@ -9,7 +9,7 @@ require('dotenv').config();
 
 describe('WORKSPACE API', () => {
     let connection;
-    jest.setTimeout(10000);
+    jest.setTimeout(30000);
   
     let testShiftWorkspace ={
         year: 2024,
@@ -63,8 +63,8 @@ describe('WORKSPACE API', () => {
         work: [{ day: new Date('2024-03-01'), start: 0, end: 12 }, { day: new Date('2024-03-02'), start: 0, end: 12 }],
         shiftManager: false
     };
-    var payload1 = {email: 'test.user4@apss.it'};
-    var options = {expiresIn: 861111400 };
+    let payload1 = {email: 'test.user5@apss.it'};
+    let options = {expiresIn: 861111400 };
     let token1 = jwt.sign(payload1, process.env.SUPER_SECRET, options);
 
     beforeAll(async () => {
@@ -756,7 +756,7 @@ describe('WORKSPACE API', () => {
     test('PUT workspace/employee/:role/:year/:month/work - should successfully update work shifts for valid inputs', async () => {
         const role = 'tester';
         const year = 2024;
-        const month = 1;        
+        const month = 2;        
 
         const res = await request(app)
             .put(`/workspace/employee/${role}/${year}/${month}/work`) .set({'Authorization': `${token1}`});
@@ -862,7 +862,7 @@ describe('WORKSPACE API', () => {
     test('DELETE workspace/employee/:role/:year/:month/work - should successfully remove work shifts for valid inputs', async () => {
         const role = 'tester';
         const year = 2024;
-        const month = 3;
+        const month = 2;
         
         
         

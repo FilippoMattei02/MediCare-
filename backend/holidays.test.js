@@ -23,8 +23,8 @@ describe('Holiday API', () => {
     employee: 'test.user8@apss.it',
     holidays_list: [new Date('2024-12-25')]
   };
-  var payload = {email: 'test.user8@apss.it'};
-  var options = {expiresIn: 86400 };
+  let payload = {email: 'test.user8@apss.it'};
+  let options = {expiresIn: 86400 };
   let token1 = jwt.sign(payload, process.env.SUPER_SECRET, options);
 
   beforeAll(async () => {

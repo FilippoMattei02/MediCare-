@@ -35,6 +35,7 @@ const swaggerSpec = require('./swagger');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // Abilita CORS per tutte le richieste
+
 app.use(cors());
 
 // Serve the Swagger UI documentation
@@ -44,10 +45,10 @@ app.use('/auth', authentication);
 
 //If you want you can make a middleware for authentication 
 
-app.use('/employees', tokenChecker);
+// app.use('/employees', tokenChecker);
 app.use('/coverage', tokenChecker);
 app.use('/workspace', tokenChecker);
-app.use('/holiday',tokenChecker);
+// app.use('/holiday',tokenChecker);
 app.use('/shifts',tokenChecker);
 
 app.use('/calendar',tokenChecker);

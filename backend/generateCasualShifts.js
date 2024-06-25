@@ -114,7 +114,7 @@ async function getUsersByRoleAndDate(role, date,token1) {
             method:"GET",
             headers: {
                 'Content-Type': 'application/json' , 
-                'Authorization':`${token1}`}
+                'Authorization':1}
         });
         
         // Check if the response is ok
