@@ -1,7 +1,6 @@
 const request = require('supertest');
 const express = require('express');
-const router = require('./shifts');
-const app = express();
+const app = require('./app');
 const Employee = require('./models/employee');
 
 
@@ -20,8 +19,6 @@ describe('Shifts API', () => {
     };
 
     beforeAll(async () => {
-        app.use(express.json());
-        app.use('/shifts', router);
 
         await Employee.create(testEmployee); 
     });

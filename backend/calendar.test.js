@@ -1,7 +1,6 @@
 const request = require('supertest');
-const express = require('express');
 const router = require('./calendar');
-const app = express();
+const app = require('./app');
 const Employee = require('./models/employee');
 
 //let employee=jest.mock('./models/employee');
@@ -20,8 +19,6 @@ describe('Shifts API', () => {
     };
 
   beforeAll(async () => {
-    app.use(express.json());
-    app.use('/calendar', router);
 
     await Employee.create(testEmployee);
   });

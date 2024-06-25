@@ -232,7 +232,7 @@ router.post('/:username/work', async (req, res) => {
         // Check if date already exists
         for (let newWork of work) {
             for (let existingWork of employee.work) {
-                if (newWork.day === existingWork.day && newWork.start === existingWork.start && newWork.end === existingWork.end) {
+                if (new Date(newWork.day).toISOString() === new Date(existingWork.day).toISOString() && newWork.start === existingWork.start && newWork.end === existingWork.end) {
                     return res.status(409).json({ error: 'Conflict, duplicate work schedule' });
                 }
             }
@@ -408,7 +408,7 @@ router.post('/:username/work/add', async (req, res) => {
 
         // Check if the shift already exists
         for (let existingWork of employee.work) {
-            if (existingWork.day === day && existingWork.start === start && existingWork.end === end) {
+            if (new Date(day).toISOString() === new Date(existingWork.day).toISOString() && existingWork.start === start && existingWork.end === end) {
                 return res.status(409).json({ error: 'Conflict, Duplicate work schedule' });
             }
         }
