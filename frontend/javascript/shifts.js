@@ -1,7 +1,8 @@
 let Helper;
+const currentToken = localStorage.getItem('token');
 //API per prendere i dati
 async function connector() {
-    const currentToken = localStorage.getItem('token');
+    
     console.log("currentToken: ", currentToken);
 
     try {
@@ -33,7 +34,11 @@ async function connector() {
 async function fetchTasks(username) {
     console.log(`Fetching tasks for username: ${username}`);
     try {
-        const response = await fetch(`https://medicare-p67f.onrender.com/shifts/${username}`);
+        const response = await fetch(`https://medicare-p67f.onrender.com/shifts/${username}`,
+            {
+                headers:{'Authorization': currentToken}
+            }
+        );
         console.log(`Response status: ${response.status}`);
         if (!response.ok) {
             throw new Error('Errore nella richiesta: ' + response.status);
@@ -178,7 +183,8 @@ async function createWorkspace(role, year, month) {
         const response = await fetch(`https://medicare-p67f.onrender.com/workspace/${role}/${year}/${month}`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': currentToken
             }
         });
         console.log(`Response status: ${response.status}`);
@@ -206,7 +212,8 @@ async function updateShiftType(role, year, month, shiftData) {
         const response = await fetch(`https://medicare-p67f.onrender.com/workspace/${role}/${year}/${month}/shiftType`, {
             method: 'PUT',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': currentToken
             },
             body: JSON.stringify(shiftData)
         });
@@ -228,7 +235,8 @@ async function deleteEmployeeWork(role, year, month) {
     console.log(`Deleting old employee shifts for role: ${role}, year: ${year}, month: ${month}`);
     try {
         const response = await fetch(`https://medicare-p67f.onrender.com/workspace/employee/${role}/${year}/${month}/work`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            'Authorization': currentToken
         });
         console.log(`Response status: ${response.status}`);
         if (!response.ok) {
@@ -248,7 +256,8 @@ async function deleteDaysOfWork(role, year, month) {
     console.log(`Deleting days of work in workspace for role: ${role}, year: ${year}, month: ${month}`);
     try {
         const response = await fetch(`https://medicare-p67f.onrender.com/workspace/${role}/${year}/${month}/daysOfWork`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            'Authorization': currentToken
         });
         console.log(`Response status: ${response.status}`);
         if (!response.ok) {
@@ -270,7 +279,8 @@ async function automateAndPublishShifts(role, year, month) {
     try {
         // Automate shifts
         const automateResponse = await fetch(`https://medicare-p67f.onrender.com/workspace/automate/${role}/${year}/${month}/daysOfWork`, {
-            method: 'PUT'
+            method: 'PUT',
+            'Authorization': currentToken
         });
         console.log(`Automate response status: ${automateResponse.status}`);
         console.log(automateResponse.body);
@@ -282,7 +292,8 @@ async function automateAndPublishShifts(role, year, month) {
 
         // Publish automated shifts
         const publishResponse = await fetch(`https://medicare-p67f.onrender.com/workspace/employee/${role}/${year}/${month}/work`, {
-            method: 'PUT'
+            method: 'PUT',
+            'Authorization': currentToken
         });
         console.log(`Publish response status: ${publishResponse.status}`);
         if (!publishResponse.ok) {
@@ -378,12 +389,13 @@ document.getElementById('deleteBtn').addEventListener('click', async () => {
 
 
     try {
-        const formattedDate = formatDateToISO(date, "22:00:00.000Z");
+        const formattedDate = formatDateToISO(date, "00:00:00.000Z");
 
         const response = await fetch(`https://medicare-p67f.onrender.com/employees/${email}/work`, {
             method: 'DELETE',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': currentToken
             },
             body: JSON.stringify({
                 day: formattedDate,
@@ -432,12 +444,13 @@ document.getElementById('addBtn').addEventListener('click', async () => {
 
 
     try {
-        const formattedDate = formatDateToISO(date, "22:00:00.000Z");
+        const formattedDate = formatDateToISO(date, "00:00:00.000Z");
 
         const response = await fetch(`https://medicare-p67f.onrender.com/employees/${email}/work/add`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': currentToken
             },
             body: JSON.stringify({
                 day: formattedDate,

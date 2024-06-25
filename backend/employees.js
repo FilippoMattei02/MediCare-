@@ -396,6 +396,7 @@ router.delete('/:username/work', async (req, res) => {
  */
 router.post('/:username/work/add', async (req, res) => {
     const { day, start, end } = req.body;
+    console.log(day);
     if (!day || start == null || end == null) {
         return res.status(400).json({ error: 'Day, start, and end are required' });
     }

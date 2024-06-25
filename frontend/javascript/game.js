@@ -7,6 +7,7 @@ var end = params.get('end');
 var req_username = params.get('req_username');
 var message = params.get('message');
 var role = params.get('role'); // Leggi il parametro ruolo
+const currentToken = localStorage.getItem('token');
 
 // Aggiorna il contenuto della pagina con le informazioni della richiesta
 document.getElementById("id").textContent = id;
@@ -19,7 +20,7 @@ document.getElementById("role").textContent = role; // Aggiorna il contenuto del
 
 // Aggiungi un gestore di eventi per il pulsante "Accept"
 document.getElementById("acceptBtn").addEventListener("click", function() {
-    const currentToken = localStorage.getItem('token');
+    
     if (!currentToken) {
         console.error('No token found');
         return;
@@ -27,7 +28,7 @@ document.getElementById("acceptBtn").addEventListener("click", function() {
     fetch('https://medicare-p67f.onrender.com/auth/tokens', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         },
         body: JSON.stringify({ token: currentToken })
     })
@@ -44,7 +45,8 @@ document.getElementById("acceptBtn").addEventListener("click", function() {
         fetch(`https://medicare-p67f.onrender.com/coverage/${role}/${resUsername}`, {
             method: 'PUT',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': currentToken
             },
             body: JSON.stringify({
                 req_username: req_username,

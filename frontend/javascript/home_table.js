@@ -1,3 +1,4 @@
+const currentToken = localStorage.getItem('token');
 document.addEventListener('DOMContentLoaded', function() {
     var tbody = document.querySelector("#infoTable tbody");
 
@@ -38,11 +39,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Funzione per ottenere i dati dall'API
     function fetchData() {
-        const currentToken = localStorage.getItem('token');
+        
         fetch('https://medicare-p67f.onrender.com/auth/tokens', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         },
         body: JSON.stringify({ token: currentToken })
         })
@@ -55,7 +56,9 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             console.log("Data message", data.message);
             const username = data.message;
-            fetch(`https://medicare-p67f.onrender.com/employees/role/type/${username}`)
+            fetch(`https://medicare-p67f.onrender.com/employees/role/type/${username}`,{
+                headers:{'Authorization': currentToken}
+            })
             .then(response => {
                 if (!response.ok) {
                 // Gestisci i casi di errore
@@ -70,7 +73,9 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 const role = data.role;
                 console.log(`Role: ${data.role}`);
-                fetch(`https://medicare-p67f.onrender.com/coverage/${role}`)
+                fetch(`https://medicare-p67f.onrender.com/coverage/${role}`,{
+                    headers:{'Authorization': currentToken}
+                })
                 .then(response => response.json())
                 .then(data => {
                     // Popola la tabella con i dati ottenuti dall'API e il ruolo inserito. 

@@ -10,7 +10,7 @@ require('dotenv').config();
 describe('Shifts API', () => {
     const testEmployee = {
         username: 'test.test2@apss.it',
-        role: 'tester',
+        role: 'tester2',
         work: [{ 
             _id: "667995b947909adf950c181b",
             day: "2024-03-31T22:00:00.000Z",
@@ -48,8 +48,8 @@ describe('Shifts API', () => {
             .get(`/shifts/${mockUsername}`)
             .expect(200)
             .set({'Authorization': `${token1}`});
-
-        expect(response.body).toContainEqual(mockTasks);
+        
+        expect(response.body).toEqual(mockTasks);
     });
 
     it('should return 404 if no tasks are found for the username', async () => {

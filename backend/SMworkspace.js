@@ -579,7 +579,7 @@ router.delete('/employee/:role/:year/:month/work', async (req, res) => {
     for (const dayOfWork of workspace.daysOfWork) {
         for (const shift of dayOfWork.shift) {
             try {
-                let newDate=new Date(dayOfWork.date).toISOString();
+                let newDate=new Date(dayOfWork.date);
                 await deleteWorkShift(shift.email, newDate, shift.start, shift.end,token);
             } catch (error) {
                 console.error(`Error deleting work shift for ${shift.email}:`, error);
@@ -732,9 +732,9 @@ async function deleteWorkShift (email, day, start, end,token) {
             body: JSON.stringify(payload),
         });
         
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        // if (!response.ok) {
+        //     throw new Error(`HTTP error! status: ${response.status}`);
+        // }
 
         const data = await response.json();
         

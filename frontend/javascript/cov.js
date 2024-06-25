@@ -1,10 +1,11 @@
+const currentToken = localStorage.getItem('token');
 document.getElementById('coverageForm').addEventListener('submit', function(event) {
     event.preventDefault();
     sendRequest();
 });
 
 function sendRequest() {
-    const currentToken = localStorage.getItem('token');
+   
     const employeeId = document.getElementById('employeeId').value;
     const date = document.getElementById('date').value;
     const role = document.getElementById('role').value;
@@ -20,7 +21,9 @@ function sendRequest() {
     fetch('https://medicare-p67f.onrender.com/auth/tokens', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            
+
         },
         body: JSON.stringify({ token: currentToken })
     })
@@ -37,7 +40,8 @@ function sendRequest() {
         fetch(`https://medicare-p67f.onrender.com/coverage/${role}/${username}`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': currentToken
             },
             body: JSON.stringify({
                 day: date,

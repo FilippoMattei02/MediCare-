@@ -2,6 +2,7 @@
 
 // Define an array to store events
 let events = [];
+const currentToken = localStorage.getItem('token');
 
 // letiables to store event input fields and reminder list
 let eventDateInput =
@@ -20,7 +21,7 @@ let eventIdCounter = 1;
 
 function setCalendar() {
 
-    const currentToken = localStorage.getItem('token')
+    
     console.log("currentToken: ", currentToken);
 
     // Verifica se il token è presente
@@ -53,7 +54,9 @@ function setCalendar() {
                     }
                 }*/
 				let id = data.message;
-				fetch(`https://medicare-p67f.onrender.com/holiday/${id}`)
+				fetch(`https://medicare-p67f.onrender.com/holiday/${id}`,{
+						headers:{'Authorization': currentToken}
+				})
 				.then(response => {
 					if (!response.ok) {
 						throw new Error('Errore durante la richiesta dei dati dell\'impiegato: ' + response.status);
@@ -121,7 +124,8 @@ function addEventButton() {
 		fetch('https://medicare-p67f.onrender.com/auth/tokens', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+					'Authorization': currentToken
                 },
                 body: JSON.stringify({ token: currentToken })
             })
@@ -138,7 +142,8 @@ function addEventButton() {
 				fetch(`https://medicare-p67f.onrender.com/holiday/${id}`, {
 					method: 'POST',
 					headers: {
-						'Content-Type': 'application/json'
+						'Content-Type': 'application/json',
+						'Authorization': currentToken
 					},
 					body: JSON.stringify({ date: date })
 				})

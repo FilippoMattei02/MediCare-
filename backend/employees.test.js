@@ -5,14 +5,30 @@ const jwt = require('jsonwebtoken');
 const Employee = require('./models/employee');
 require('dotenv').config();
 
+
+function formatDateToISO(dateString, timeString = "00:00:00.000Z") {
+    const date = new Date(dateString);
+    
+    if (isNaN(date)) {
+        throw new Error("Invalid Date");
+    }
+    
+    const [hours, minutes, seconds] = timeString.split(/[:.]/);
+    
+    date.setUTCHours(hours, minutes, seconds, 0);
+    
+    return date.toISOString();
+}
+
 describe('Employees API', () => {
     let connection;
     jest.setTimeout(30000);
 
+    
     const testEmployee = {
         username: 'test.user@apss.it',
         role: 'tester',
-        work: [{ day: new Date('2024-12-26T00:00:00.000Z'), start: 9, end: 17 }],
+        work: [{ day: new Date('2024-12-26'), start: 9, end: 17 }],
         shiftManager: true
     };
     var payload = {email: 'test.user@apss.it'}
@@ -68,15 +84,13 @@ describe('Employees API', () => {
     });
     
     test('DELETE /employees/:username/work - Delete a specific work shift for an employee', async () => {
-        await request(app)
-            .post('/employees/test.user@apss.it/work/add')
-            .send({ day: '2024-12-25', start: 8, end: 16 })
+        
+        let res=await request(app)
+            .delete('/employees/test.user@apss.it/work')
+            .send({ day: new Date('2024-12-26'), start: 9, end: 17 })
             .set({'Authorization': `${token1}`});
     
-        const res = await request(app)
-            .delete('/employees/test.user@apss.it/work')
-            .send({ day: '2024-12-25', start: 8, end: 16 })
-            .set({'Authorization': `${token1}`});
+        
         expect(res.statusCode).toBe(200);
         expect(res.body).toHaveProperty('message', 'Shift deleted successfully');
     });

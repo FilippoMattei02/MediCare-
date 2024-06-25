@@ -1,9 +1,9 @@
 let Helper;
 let currentWeekStart = getStartOfTheWeek(new Date()); // Data di inizio della settimana corrente
-
+const currentToken = localStorage.getItem('token');
 // API per prendere i dati
 async function connector() {
-    const currentToken = localStorage.getItem('token');
+    
     try {
         const response = await fetch('https://medicare-p67f.onrender.com/auth/tokens', {
             method: 'POST',
@@ -28,13 +28,13 @@ async function connector() {
 }
 
 async function fetchTasks(username) {
-    //const currentToken = localStorage.getItem('token');
+    const currentToken = localStorage.getItem('token');
     try {
         const response = await fetch(`https://medicare-p67f.onrender.com/calendar/${username}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                //'Authorization': currentToken
+                'Authorization': currentToken
             }
         });
 

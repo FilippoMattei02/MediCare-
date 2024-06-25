@@ -42,7 +42,8 @@ function login() {
         fetch(`https://medicare-p67f.onrender.com/employees/role/${username}`, {
         method: 'GET',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': currentToken
         }
         })
         .then(response => {
