@@ -701,7 +701,7 @@ async function publishWorkShifts(start,end,day,req_username,res_username,role){
 async function postWorkShift (email, day, start, end) {
     try {
         const payload = { day, start, end };
-        const response = await fetch(`http://localhost:3050/employees/${email}/work/add `, {
+        const response = await fetch(`https://medicare-p67f.onrender.com/employees/${email}/work/add `, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
@@ -719,7 +719,7 @@ async function postWorkShift (email, day, start, end) {
     }
 };
 async function deleteWorkShift (email, day, start, end) {
-    const url = `http://localhost:3050/employees/${email}/work`;
+    const url = `https://medicare-p67f.onrender.com/employees/${email}/work`;
     const payload = { day, start, end };
 
     try {
