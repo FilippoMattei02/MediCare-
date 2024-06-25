@@ -1,4 +1,4 @@
-async function generateWorkSets(peopleList, numberOfDays, peopleForShift, shiftDuration, role, yearMonth) {
+async function generateWorkSets(peopleList, numberOfDays, peopleForShift, shiftDuration, role, yearMonth,token) {
     const sets = new Map();
     
     const peopleCount = peopleList.length;
@@ -24,7 +24,7 @@ async function generateWorkSets(peopleList, numberOfDays, peopleForShift, shiftD
         let date = (i + 1).toString().padStart(2, '0');
         date = yearMonth + date;
         
-        let usersHoliday = await getUsersByRoleAndDate(role, date);
+        let usersHoliday = await getUsersByRoleAndDate(role, date,token);
         
         //console.log(usersHoliday);
         availablePeople = peopleList.filter(person => (occurrencesMap.get(person) < targetFrequency - variable) && !(usersHoliday.includes(person)));
@@ -94,12 +94,14 @@ function shuffle(array) {
     return array;
 }
 
-async function getUsersByRoleAndDate(role, date) {
-    const url = `http://localhost:3050/holiday/${role}/${date}`;
+async function getUsersByRoleAndDate(role, date,token) {
+    const url = `http://medicare-p67f.onrender.com/holiday/${role}/${date}`;
     
     try {
         
-        const response = await fetch(url);
+        const response = await fetch(url,{
+            headers: { 'Authorization':`${token}`}
+        });
         
         // Check if the response is ok
         if (!response.ok) {

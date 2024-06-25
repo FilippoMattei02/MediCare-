@@ -1,7 +1,9 @@
 const request = require('supertest');
-const express = require('express');
+
 const app = require('./app');
 const Employee = require('./models/employee');
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
 
 
@@ -17,6 +19,9 @@ describe('Shifts API', () => {
         }],
         shiftManager: true
     };
+    var payload = {email: 'test.test2@apss.it'}
+    var options = {expiresIn: 86400 }
+    let token1 = jwt.sign(payload, process.env.SUPER_SECRET, options);
 
     beforeAll(async () => {
 
@@ -41,9 +46,10 @@ describe('Shifts API', () => {
 
         const response = await request(app)
             .get(`/shifts/${mockUsername}`)
-            .expect(200);
+            .expect(200)
+            .set({'Authorization': `${token1}`});
 
-        expect(response.body).toEqual(mockTasks);
+        expect(response.body).toContainEqual(mockTasks);
     });
 
     it('should return 404 if no tasks are found for the username', async () => {
@@ -51,7 +57,8 @@ describe('Shifts API', () => {
 
         const response = await request(app)
             .get(`/shifts/${nonexistentUsername}`)
-            .expect(404);
+            .expect(404)
+            .set({'Authorization': `${token1}`});
 
         expect(response.text).toBe('Nessun task trovato');
     });

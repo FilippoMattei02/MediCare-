@@ -2,6 +2,8 @@ const request = require('supertest');
 const router = require('./calendar');
 const app = require('./app');
 const Employee = require('./models/employee');
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
 //let employee=jest.mock('./models/employee');
 
@@ -17,6 +19,9 @@ describe('Shifts API', () => {
             start: 9 }],
         shiftManager: true
     };
+    var payload = {email: 'test.test@apss.it'}
+    var options = {expiresIn: 86400 }
+    let token1 = jwt.sign(payload, process.env.SUPER_SECRET, options);
 
   beforeAll(async () => {
 
@@ -36,7 +41,8 @@ describe('Shifts API', () => {
 
     const response = await request(app)
       .get(`/calendar/${mockUsername}`)
-      .expect(200);
+      .expect(200)
+      .set({'Authorization': `${token1}`});
 
     expect(response.body).toEqual(mockTasks);
   });
@@ -46,7 +52,8 @@ describe('Shifts API', () => {
 
     const response = await request(app)
       .get(`/calendar/${nonexistentUsername}`)
-      .expect(404);
+      .expect(404)
+      .set({'Authorization': `${token1}`});
 
     expect(response.text).toBe('Nessun task trovato');
   });

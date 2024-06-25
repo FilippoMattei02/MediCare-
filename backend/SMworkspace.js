@@ -308,6 +308,8 @@ router.put('/automate/:role/:year/:month/daysOfWork', async (req, res) => {
     const year = parseInt(req.params.year, 10);
     const role = req.params.role;
 
+    let token = req.headers['authorization'];
+
     if(!Number.isInteger(month) || !month || month < 1 || month > 12){
         return res.status(400).json({ error: 'invalid month' });
     } 
@@ -351,7 +353,7 @@ router.put('/automate/:role/:year/:month/daysOfWork', async (req, res) => {
     let shiftDuration=workspace.shiftDuration;
     let yearMonth=""+year+"-"+month.toString().padStart(2,'0')+"-";
 
-    let workSets= await generateCasualShifts(employeeList,numberOfDays,peopleForShift,shiftDuration,role,yearMonth);
+    let workSets= await generateCasualShifts(employeeList,numberOfDays,peopleForShift,shiftDuration,role,yearMonth,token);
     let daysOfWork = [];
     workSets.forEach((shifts, date) => {
         const day = {
